@@ -21,7 +21,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 
 **Built for real-world exports**
 - semicolon, tab and pipe separated files, with deterministic delimiter detection that refuses to guess
-- decimal commas (`10,5`), thousands separators (`1.234,56`) and day-first dates (`05/10/2026`) from Spanish, Portuguese and other comma-decimal locales
+- decimal commas (`10,5`), thousands separators (`1.234,56`), day-first dates (`05/10/2026`) and `VERDADERO`/`FALSO` or `Sí`/`No` flags from Spanish, Portuguese and other comma-decimal locales
 - spreadsheet exports in cp1252, Latin-1 or UTF-16 with `--encoding`, and very long text fields
 - single-pass streaming: on a 1,000,000-row file, peak memory went from 873 MB to 234 MB with identical output
 - quality gates for pipelines: `--max-missing` and `--max-duplicates` stop a bad extract with a dedicated exit code
