@@ -26,6 +26,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - quality gates for pipelines: `--max-missing` and `--max-duplicates` stop a bad extract with a dedicated exit code
 - reads from pipes (`-`) and gzip-compressed files transparently, and can be used as a Python library
 - available as a GitHub Action: the report goes to the job summary and a failed check fails the job
+- explains why a column is not numeric or a date by naming the stray values, and can require column types
 
 **Engineering signals**
 - Python 3.11+
