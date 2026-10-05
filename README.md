@@ -2,8 +2,6 @@
 
 I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
-My background is in supply chain, logistics and international trade: I have worked in logistics operations and supply chain management at Amazon, Capgemini and LogFire/Oracle, and I teach Operations Management (Administración de Operaciones) at Universidad Nacional de Córdoba. My research, as a doctoral candidate in International Relations (UNR) and Social Sciences (UNJu), looks at systemic volatility, technology-based SMEs and cross-border trade in Latin America. That is why my tools start from messy operational data (shipments, inventories, customs records, spreadsheet exports) that has to be checked before anyone can trust an analysis built on it.
-
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
