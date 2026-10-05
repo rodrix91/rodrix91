@@ -25,6 +25,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - semicolon, tab and pipe separated files, with deterministic delimiter detection that refuses to guess
 - decimal commas (`10,5`) from Spanish, Portuguese and other comma-decimal locales
 - single-pass streaming: on a 1,000,000-row file, peak memory went from 873 MB to 234 MB with identical output
+- quality gates for pipelines: `--max-missing` and `--max-duplicates` stop a bad extract with a dedicated exit code
 
 **Engineering signals**
 - Python 3.11+
