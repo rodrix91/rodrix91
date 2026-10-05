@@ -1,39 +1,68 @@
 # Rodrigo Pantoja Navajas
 
-**Supply chain, logistics and international trade professional who builds small, well-tested Python tools for data quality and operations analytics.**
+I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
-I have worked in logistics operations and supply chain management at Amazon, Capgemini and LogFire/Oracle, and I teach Operations Management (Administración de Operaciones) at Universidad Nacional de Córdoba. My research, as a doctoral candidate in International Relations (UNR) and Social Sciences (UNJu), looks at systemic volatility, technology-based SMEs and cross-border trade in Latin America.
-
-On GitHub I focus on the place where those worlds meet: the messy operational data (shipments, inventories, customs records, spreadsheet exports) that has to be checked before anyone can trust an analysis built on it.
+My background is in supply chain, logistics and international trade: I have worked in logistics operations and supply chain management at Amazon, Capgemini and LogFire/Oracle, and I teach Operations Management (Administración de Operaciones) at Universidad Nacional de Córdoba. My research, as a doctoral candidate in International Relations (UNR) and Social Sciences (UNJu), looks at systemic volatility, technology-based SMEs and cross-border trade in Latin America. That is why my tools start from messy operational data (shipments, inventories, customs records, spreadsheet exports) that has to be checked before anyone can trust an analysis built on it.
 
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
 
-A dependency-free Python CLI that profiles a CSV file before it goes into a notebook or a pipeline: inferred column types, missing values, distinct counts, numeric ranges, top values and duplicate rows, as Markdown or JSON.
+A lightweight Python CLI that profiles CSV files before they enter a notebook or data pipeline.
 
-- Python 3.11+, standard library only at runtime
-- pytest suite, Ruff, strict mypy, CI on Python 3.11 to 3.13
-- MIT licensed, status: alpha
+**What it reports**
+- inferred column types
+- missing values and percentages
+- distinct values
+- numeric min/max
+- top values
+- duplicate rows
+- Markdown or JSON output
+- date and datetime ranges (ISO 8601, time zones compared as instants)
+- configurable missing-value tokens such as `NA`, `null` or `s/d`
 
-## What I work on
+**Built for real-world exports**
+- semicolon, tab and pipe separated files, with deterministic delimiter detection that refuses to guess
+- decimal commas (`10,5`) from Spanish, Portuguese and other comma-decimal locales
+- single-pass streaming: on a 1,000,000-row file, peak memory went from 873 MB to 234 MB with identical output
 
-- **Data quality for operations:** checks and reports that catch problems in operational datasets early
-- **Reproducible analysis:** small tools with tests, pinned dependencies and documentation others can follow
-- **Supply chain and trade analytics:** logistics KPIs, cross-border flows, SME exposure to international volatility
-- **Teaching and documentation:** turning operations concepts into clear, runnable examples
+**Engineering signals**
+- Python 3.11+
+- standard-library-only runtime
+- automated tests
+- Ruff linting and formatting checks
+- strict mypy type checking
+- GitHub Actions CI across Python 3.11, 3.12 and 3.13
+- Dependabot
+- MIT license
+- reproducible development dependencies with hashes
+- 100% line and branch test coverage, enforced in CI
+- design decisions recorded as ADRs, and a maintained CHANGELOG
 
-## Tools
+> Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
-Python · pytest · Ruff · mypy · R · Git · GitHub Actions · CSV and spreadsheet data workflows
+## Current focus
 
-## Languages
+- Building small, useful developer and data tools
+- Data-quality workflows and automation
+- Reproducible Python projects
+- Testing, documentation, and maintainable CLI design
+- Open-source contributions where I can add concrete value
+- Data quality for logistics, supply chain and trade datasets
+
+## Languages & tools
+
+Python · pytest · Ruff · mypy · Git · GitHub Actions · Markdown · CSV/data workflows · R
+
+## Spoken languages
 
 Spanish (native) · English · Portuguese · Italian
 
 ## Collaboration
 
-I am glad to contribute to open-source projects in Python data tooling, data validation, logistics and supply chain analytics, and documentation, especially where Spanish-language or Latin American use cases are underserved.
+I am interested in practical open-source projects involving Python, data tooling, automation, documentation, developer experience, and quality engineering.
+
+I am especially glad to help where logistics or supply chain analytics, or Spanish-language and Latin American use cases, are underserved.
 
 ## Contact
 
