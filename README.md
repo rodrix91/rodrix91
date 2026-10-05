@@ -1,23 +1,51 @@
-# Hola, soy Rodrigo
+# Rodrigo Pantoja Navajas
 
-Hi, I'm Rodrigo. This profile is in Spanish and English.
+I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
-## Qué hago
-Construyo herramientas de línea de comandos en Python y trabajo en calidad de datos. / I build Python command-line tools and work on data quality.
+## Featured project
 
-## Problemas que resuelvo
-- Revisar rápido un archivo CSV antes de usarlo: tipos, valores vacíos, valores distintos y filas duplicadas.
-- Dejar el trabajo reproducible: pruebas, análisis estático y una auditoría independiente antes de publicar.
+### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
 
-## Proyectos
-### [csv-quality-report](https://github.com/rodrix91/csv-quality-report) (prototipo alpha)
-Herramienta de línea de comandos en Python, solo biblioteca estándar, que perfila un CSV: tipos inferidos, valores vacíos, valores distintos, más frecuentes y filas duplicadas. Salida en Markdown o JSON. Licencia MIT.
+A lightweight Python CLI that profiles CSV files before they enter a notebook or data pipeline.
 
-Estado: prototipo alpha. Una auditoría independiente lo aprobó para publicación (commit `314fafce`). Una revisión posterior aprobó el commit `53197bfb`, que solo cambia `README.md` y `HANDOFF.md` respecto de ese, y también el commit `1471ff4c`, que solo agrega `.github/dependabot.yml`. En la primera revisión, con Python 3.11, 3.12 y 3.13, pasaron 54 pruebas, ruff y mypy no dieron errores, el paquete se construyó e instaló en un entorno limpio, detect-secrets no encontró secretos y pip-audit, aplicado al archivo de dependencias fijadas (lock), no reportó vulnerabilidades.
-Aún no tiene CI, medición de cobertura ni pruebas en Windows o macOS.
+**What it reports**
+- inferred column types
+- missing values and percentages
+- distinct values
+- numeric min/max
+- top values
+- duplicate rows
+- Markdown or JSON output
 
-## Stack que se ve en el código
-Python (biblioteca estándar), pytest, ruff, mypy.
+**Engineering signals**
+- Python 3.11+
+- standard-library-only runtime
+- automated tests
+- Ruff linting and formatting checks
+- strict mypy type checking
+- GitHub Actions CI across Python 3.11, 3.12 and 3.13
+- Dependabot
+- MIT license
+- reproducible development dependencies with hashes
 
-## Contacto
-- LinkedIn: https://www.linkedin.com/in/rodrigo-p-625862153
+> Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
+
+## Current focus
+
+- Building small, useful developer and data tools
+- Data-quality workflows and automation
+- Reproducible Python projects
+- Testing, documentation, and maintainable CLI design
+- Open-source contributions where I can add concrete value
+
+## Languages & tools
+
+Python · pytest · Ruff · mypy · Git · GitHub Actions · Markdown · CSV/data workflows
+
+## Collaboration
+
+I am interested in practical open-source projects involving Python, data tooling, automation, documentation, developer experience, and quality engineering.
+
+## Contact
+
+[LinkedIn](https://www.linkedin.com/in/rodrigo-p-625862153)
