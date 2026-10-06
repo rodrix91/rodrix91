@@ -24,7 +24,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - decimal commas (`10,5`), thousands separators (`1.234,56`), day-first dates (`05/10/2026`), `VERDADERO`/`FALSO` or `Sí`/`No` flags and amounts with currency symbols or units (`Gs. 50.000`, `12,5 kg`) from Spanish, Portuguese and other comma-decimal locales
 - spreadsheet exports in cp1252, Latin-1 or UTF-16 with `--encoding`, and very long text fields
 - single-pass streaming: on a 1,000,000-row file, peak memory went from 873 MB to 234 MB with identical output
-- quality gates for pipelines: `--max-missing` and `--max-duplicates` stop a bad extract with a dedicated exit code
+- quality gates for pipelines: `--max-missing`, `--max-duplicates`, required types and value ranges (`--range Peso=0:`) stop a bad extract with a dedicated exit code
 - reads from pipes (`-`) and gzip-compressed files transparently, and can be used as a Python library
 - flags mixed currencies or units in a column (pesos and dollars, kg and lb) instead of silently averaging them
 - available as a GitHub Action: the report goes to the job summary and a failed check fails the job
