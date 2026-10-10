@@ -2,6 +2,11 @@
 
 I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
+Two small standard-library CLIs for CSV work:
+
+- **csv-quality-report**: full profiling (types, locales, ranges, quality gates).
+- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups).
+
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
