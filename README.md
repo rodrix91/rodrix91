@@ -69,6 +69,14 @@ I am interested in practical open-source projects involving Python, data tooling
 
 I am especially glad to help where logistics or supply chain analytics, or Spanish-language and Latin American use cases, are underserved.
 
+## Archived coursework
+
+These repositories preserve early coursework and are not current product work:
+
+- [datasciencecoursera](https://github.com/rodrix91/datasciencecoursera) (2020 Coursera R archive)
+- [ProgrammingAssignment2](https://github.com/rodrix91/ProgrammingAssignment2) (R Programming assignment fork)
+- [datasharing](https://github.com/rodrix91/datasharing) (data-sharing guide fork)
+
 ## Contact
 
 [LinkedIn](https://www.linkedin.com/in/rodrigo-p-625862153)
