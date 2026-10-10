@@ -4,8 +4,8 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 Two small standard-library CLIs for CSV work:
 
-- **csv-quality-report**: full profiling (types, locales, ranges, quality gates).
-- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups).
+- **csv-quality-report**: full profiling (types, locales, ranges, quality gates). Status: prototype / alpha (v0.12.0).
+- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups). Status: 0.1.0.
 
 ## Featured project
 
