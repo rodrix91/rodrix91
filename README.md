@@ -50,6 +50,8 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 
 A small standard-library Python CLI that reports fill rate, repeated business keys, and top groups for one operational CSV. It complements csv-quality-report when the question is operational completeness rather than full profiling.
 
+See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/docs/related.md) in the flagship repository for how the two tools fit together.
+
 Status: 0.1.0. Local unit tests passed before publish. Not a production pipeline.
 
 ## Current focus
