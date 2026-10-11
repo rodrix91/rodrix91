@@ -83,6 +83,8 @@ I am interested in practical open-source projects involving Python, data tooling
 
 I am especially glad to help where logistics or supply chain analytics, or Spanish-language and Latin American use cases, are underserved.
 
+Contributing guidelines: [csv-quality-report](https://github.com/rodrix91/csv-quality-report/blob/main/CONTRIBUTING.md) and [ops-field-brief](https://github.com/rodrix91/ops-field-brief/blob/main/CONTRIBUTING.md).
+
 ## Archived coursework
 
 These repositories preserve early coursework and are not current product work:
