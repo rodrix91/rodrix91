@@ -5,7 +5,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 Two small standard-library CLIs for CSV work:
 
 - **csv-quality-report**: full profiling (types, locales, ranges, quality gates). Status: prototype / alpha (v0.12.0).
-- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups). Status: 0.1.0.
+- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups). Status: 0.1.0. `--delimiter` accepts comma, semicolon, tab, or pipe.
 
 ## Featured project
 
@@ -53,11 +53,11 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
 
-A small standard-library Python CLI that reports fill rate, repeated business keys, and top groups for one operational CSV. It complements csv-quality-report when the question is operational completeness rather than full profiling.
+A small standard-library Python CLI that reports fill rate, repeated business keys, and top groups for one operational CSV. `--delimiter` accepts comma (default), semicolon, tab, or pipe, so Spanish and Latin American spreadsheet exports work without changing the default. It complements csv-quality-report when the question is operational completeness rather than full profiling.
 
 See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/docs/related.md) in the flagship repository for how the two tools fit together.
 
-Status: 0.1.0. Local unit tests passed before publish. Not a production pipeline.
+Status: 0.1.0. Five local unit tests passed, including the semicolon path. Not a production pipeline.
 
 ## Current focus
 
