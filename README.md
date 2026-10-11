@@ -48,6 +48,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - 100% line and branch test coverage, enforced in CI
 - end-to-end tests on realistic export files, compared with hand-checked reports
 - design decisions recorded as ADRs, and a maintained CHANGELOG
+- security policy in [SECURITY.md](https://github.com/rodrix91/csv-quality-report/blob/main/SECURITY.md)
 
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
@@ -57,7 +58,7 @@ A small standard-library Python CLI that reports fill rate, repeated business ke
 
 See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/docs/related.md) in the flagship repository for how the two tools fit together.
 
-Status: 0.1.0. Six local unit tests passed, including the semicolon path and a cp1252 file. Not a production pipeline.
+Status: 0.1.0. Six local unit tests passed, including the semicolon path and a cp1252 file. CI runs the same suite on Python 3.10 through 3.13. Not a production pipeline.
 
 ## Current focus
 
