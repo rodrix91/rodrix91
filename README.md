@@ -58,7 +58,7 @@ A small standard-library Python CLI that reports fill rate, repeated business ke
 
 See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/docs/related.md) in the flagship repository for how the two tools fit together.
 
-Status: 0.1.0. Thirteen local unit tests passed, including semicolon, tab, pipe, cp1252, `--json`, and `--max-missing`. CI runs the same suite on Python 3.10 through 3.13. Not a production pipeline.
+Status: 0.1.0. Fifteen local unit tests passed, including semicolon, tab, pipe, cp1252, `--json`, and `--max-missing`. CI runs the same suite on Python 3.10 through 3.13. Not a production pipeline.
 
 ## Current focus
 
