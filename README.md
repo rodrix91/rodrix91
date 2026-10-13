@@ -60,6 +60,12 @@ See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/d
 
 Status: 0.1.0. Thirty-nine local unit tests passed, including semicolon, tab, pipe, an unknown delimiter, a duplicate header, `--help`, cp1252, a UTF-8 BOM, `N/D`, `s.d.`, stdin, `--top`, `--top 0`, a negative `--top`, a quoted field with a comma, an escaped quote, a multiline quoted field, a trailing comma, a whitespace-only field, a tab-only field, three identical keys, two repeated keys, `--json`, and `--max-missing`. CI runs the same suite on Python 3.10 through 3.13. Not a production pipeline.
 
+### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
+
+A Python toolkit and CLI that turns a per-SKU demand history into an inventory policy: ABC classification by annual value, XYZ classification by demand variability, Syntetos-Boylan demand patterns (smooth, erratic, intermittent, lumpy), forecasting with naive, moving average, SES, Croston and SBA chosen per SKU by backtested MASE, safety stock and reorder points from demand and lead-time variability, EOQ, and a historical replay of the resulting (s, Q) policy that reports fill rate, stockouts, average stock and backorders. Markdown or JSON output, a reproducible synthetic dataset, a hand-checked worked example, and the formulas and their limits documented in the README.
+
+Status: 0.1.0. 114 tests with 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. The normal-demand assumption is weak for lumpy SKUs, which the README states openly; a bootstrap safety-stock option is in review.
+
 ## Current focus
 
 - Building small, useful developer and data tools
