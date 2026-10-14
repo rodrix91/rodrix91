@@ -2,10 +2,11 @@
 
 I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
-Two small standard-library CLIs for CSV work:
+Three small standard-library Python tools for CSV and operations work:
 
-- **csv-quality-report**: full profiling (types, locales, ranges, quality gates). Status: prototype / alpha (v0.12.0).
-- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups). Status: 0.1.0. `--delimiter` accepts comma, semicolon, tab, or pipe. `--encoding` defaults to utf-8 and accepts cp1252 or latin-1. A UTF-8 BOM is stripped. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`.
+- **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks). Status: prototype / alpha (v0.12.0).
+- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups). Status: 0.1.0. `--delimiter` accepts comma, semicolon, tab, or pipe. `--encoding` defaults to utf-8 and accepts cp1252 or latin-1. A UTF-8 BOM is stripped, including on stdin. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`.
+- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts, normal or bootstrap safety stock, EOQ, and `(s, Q)` policy replay). Status: alpha (0.1.0).
 
 ## Featured project
 
@@ -29,7 +30,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - decimal commas (`10,5`), thousands separators (`1.234,56`), day-first dates (`05/10/2026`), `VERDADERO`/`FALSO` or `Sí`/`No` flags and amounts with currency symbols or units (`Gs. 50.000`, `12,5 kg`) from Spanish, Portuguese and other comma-decimal locales
 - spreadsheet exports in cp1252, Latin-1 or UTF-16 with `--encoding`, and very long text fields
 - single-pass streaming: on a 1,000,000-row file, peak memory went from 873 MB to 234 MB with identical output
-- quality gates for pipelines: `--max-missing`, `--max-duplicates`, required types and value ranges (`--range Peso=0:`) stop a bad extract with a dedicated exit code
+- quality gates for pipelines: `--max-missing`, `--max-duplicates`, required types, value ranges (`--range Peso=0:`), and baseline drift gates (`--max-row-drop`, `--max-missing-increase`) stop a bad extract with a dedicated exit code
 - reads from pipes (`-`) and gzip-compressed files transparently, and can be used as a Python library
 - flags mixed currencies or units in a column (pesos and dollars, kg and lb) instead of silently averaging them
 - available as a GitHub Action: the report goes to the job summary and a failed check fails the job
@@ -54,17 +55,17 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
 
-A small standard-library Python CLI that reports fill rate, repeated business keys, and top groups for one operational CSV. `--delimiter` accepts comma (default), semicolon, tab, or pipe, so Spanish and Latin American spreadsheet exports work without changing the default. `--encoding` defaults to utf-8 and accepts `cp1252` or `latin-1` for Windows Excel. A UTF-8 BOM is stripped. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`. It complements csv-quality-report when the question is operational completeness rather than full profiling.
+A small standard-library Python CLI that reports fill rate, repeated business keys, and top groups for one operational CSV. `--delimiter` accepts comma (default), semicolon, tab, or pipe, so Spanish and Latin American spreadsheet exports work without changing the default. `--encoding` defaults to utf-8 and accepts `cp1252` or `latin-1` for Windows Excel. A UTF-8 BOM is stripped, including on stdin. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`. It complements csv-quality-report when the question is operational completeness rather than full profiling.
 
-See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/docs/related.md) in the flagship repository for how the two tools fit together.
+See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/docs/related.md) in the flagship repository for how the tools fit together.
 
-Status: 0.1.0. Thirty-nine local unit tests passed, including semicolon, tab, pipe, an unknown delimiter, a duplicate header, `--help`, cp1252, a UTF-8 BOM, `N/D`, `s.d.`, stdin, `--top`, `--top 0`, a negative `--top`, a quoted field with a comma, an escaped quote, a multiline quoted field, a trailing comma, a whitespace-only field, a tab-only field, three identical keys, two repeated keys, `--json`, and `--max-missing`. CI runs the same suite on Python 3.10 through 3.13. Not a production pipeline.
+Status: 0.1.0. Forty local unit tests passed, including semicolon, tab, pipe, an unknown delimiter, a duplicate header, `--help`, cp1252, a UTF-8 BOM, a UTF-8 BOM on stdin, `N/D`, `s.d.`, stdin, `--top`, `--top 0`, a negative `--top`, a quoted field with a comma, an escaped quote, a multiline quoted field, a trailing comma, a whitespace-only field, a tab-only field, three identical keys, two repeated keys, `--json`, and `--max-missing`. CI runs the same suite on Python 3.10 through 3.13. Not a production pipeline.
 
 ### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
 
-A Python toolkit and CLI that turns a per-SKU demand history into an inventory policy: ABC classification by annual value, XYZ classification by demand variability, Syntetos-Boylan demand patterns (smooth, erratic, intermittent, lumpy), forecasting with naive, moving average, SES, Croston and SBA chosen per SKU by backtested MASE, safety stock and reorder points from demand and lead-time variability, EOQ, and a historical replay of the resulting (s, Q) policy that reports fill rate, stockouts, average stock and backorders. Markdown or JSON output, a reproducible synthetic dataset, a hand-checked worked example, and the formulas and their limits documented in the README.
+A Python toolkit and CLI that turns a per-SKU demand history into an inventory policy: ABC classification by annual value, XYZ classification by demand variability, Syntetos-Boylan demand patterns (smooth, erratic, intermittent, lumpy), forecasting with naive, moving average, SES, Croston and SBA chosen per SKU by backtested MASE, safety stock and reorder points from demand and lead-time variability (normal formula or `--safety-stock bootstrap` seeded per SKU), EOQ, and a historical replay of the resulting (s, Q) policy that reports fill rate, stockouts, average stock and backorders. Markdown or JSON output, a reproducible synthetic dataset, a hand-checked worked example, and the formulas and their limits documented in the README.
 
-Status: 0.1.0. 114 tests with 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. The normal-demand assumption is weak for lumpy SKUs, which the README states openly; a bootstrap safety-stock option is in review.
+Status: 0.1.0. 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. When the normal-demand assumption is weak for lumpy SKUs, `--safety-stock bootstrap` resamples protection-interval demand from each SKU's history (ADR 0004).
 
 ## Current focus
 
@@ -89,7 +90,7 @@ I am interested in practical open-source projects involving Python, data tooling
 
 I am especially glad to help where logistics or supply chain analytics, or Spanish-language and Latin American use cases, are underserved.
 
-Contributing guidelines: [csv-quality-report](https://github.com/rodrix91/csv-quality-report/blob/main/CONTRIBUTING.md) and [ops-field-brief](https://github.com/rodrix91/ops-field-brief/blob/main/CONTRIBUTING.md).
+Contributing guidelines: [csv-quality-report](https://github.com/rodrix91/csv-quality-report/blob/main/CONTRIBUTING.md), [ops-field-brief](https://github.com/rodrix91/ops-field-brief/blob/main/CONTRIBUTING.md), and [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab/blob/main/CONTRIBUTING.md).
 
 ## Archived coursework
 
