@@ -4,9 +4,9 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 Three small standard-library Python tools for CSV and operations work:
 
-- **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks). Status: prototype / alpha (v0.12.0).
+- **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks). Status: prototype / alpha (v0.13.0).
 - **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups). Status: 0.1.0. `--delimiter` accepts comma, semicolon, tab, or pipe. `--encoding` defaults to utf-8 and accepts cp1252 or latin-1. A UTF-8 BOM is stripped, including on stdin. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`.
-- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` policy replay in and out of sample). Status: alpha (0.3.0).
+- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` or periodic-review `(R, S)` policy replay in and out of sample, with levels that can follow a seasonal forecast). Status: alpha (0.4.0).
 
 ## Featured project
 
@@ -51,6 +51,8 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - design decisions recorded as ADRs, and a maintained CHANGELOG
 - security policy in [SECURITY.md](https://github.com/rodrix91/csv-quality-report/blob/main/SECURITY.md)
 
+Latest release: [v0.13.0](https://github.com/rodrix91/csv-quality-report/releases/tag/v0.13.0), with 819 tests and 100% coverage. It fixes `--json-output`, which could overwrite the input file or the baseline report it was comparing against; that is now a usage error raised before anything is read.
+
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
@@ -63,9 +65,9 @@ Status: 0.1.0. Forty local unit tests passed, including semicolon, tab, pipe, an
 
 ### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
 
-A Python toolkit and CLI that turns a per-SKU demand history into an inventory policy: ABC classification by annual value, XYZ classification by demand variability, Syntetos-Boylan demand patterns (smooth, erratic, intermittent, lumpy), forecasting with naive, moving average, SES, Croston and SBA (plus damped Holt and Holt-Winters with `--trend-seasonal`) chosen per SKU by backtested MASE, safety stock and reorder points from demand and lead-time variability (normal formula or `--safety-stock bootstrap` seeded per SKU), EOQ, and a historical replay of the resulting (s, Q) policy that reports fill rate, stockouts, average stock and backorders, with an out-of-sample replay (`--test-periods N`) that fits on the earlier periods and scores the last N. Markdown or JSON output, a reproducible synthetic dataset, a hand-checked worked example, and the formulas and their limits documented in the README.
+A Python toolkit and CLI that turns a per-SKU demand history into an inventory policy: ABC classification by annual value, XYZ classification by demand variability, Syntetos-Boylan demand patterns (smooth, erratic, intermittent, lumpy), forecasting with naive, moving average, SES, Croston and SBA (plus damped Holt and Holt-Winters with `--trend-seasonal`) chosen per SKU by backtested MASE, safety stock and reorder points from demand and lead-time variability (normal formula or `--safety-stock bootstrap` seeded per SKU), EOQ, and a historical replay of the resulting (s, Q) policy, or of a periodic-review, order-up-to (R, S) policy with `--policy RS`, that reports fill rate, stockouts, average stock and backorders, with an out-of-sample replay (`--test-periods N`) that fits on the earlier periods and scores the last N. Markdown or JSON output, a reproducible synthetic dataset, a hand-checked worked example, and the formulas and their limits documented in the README.
 
-Status: 0.3.0 (alpha). 152 tests, 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. When the normal-demand assumption is weak for lumpy SKUs, `--safety-stock bootstrap` resamples protection-interval demand from each SKU's history (ADR 0004). Trend and seasonal models are opt-in: on the 24-month synthetic example they do not change the out-of-sample results, because Holt-Winters needs two full seasons of training data (ADR 0006).
+Status: 0.4.0 (alpha). 177 tests, 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. When the normal-demand assumption is weak for lumpy SKUs, `--safety-stock bootstrap` resamples protection-interval demand from each SKU's history (ADR 0004). Trend and seasonal models are opt-in: on the 24-month synthetic example they do not change the out-of-sample results, because Holt-Winters needs two full seasons of training data (ADR 0006). With `--dynamic-levels` the order-up-to level follows the seasonal forecast month by month instead of one level for the year: on a 48-month synthetic series, out of sample, (R, S) with dynamic levels reached 100% fill rate with 105.5 units of average stock, against 99.6% and 289.0 for the static (s, Q); the bootstrap safety stock did worse with (R, S), and on the 24-month example the dynamic levels change nothing (ADR 0007).
 
 ## Current focus
 
