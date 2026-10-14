@@ -6,7 +6,7 @@ Three small standard-library Python tools for CSV and operations work:
 
 - **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks). Status: prototype / alpha (v0.12.0).
 - **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups). Status: 0.1.0. `--delimiter` accepts comma, semicolon, tab, or pipe. `--encoding` defaults to utf-8 and accepts cp1252 or latin-1. A UTF-8 BOM is stripped, including on stdin. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`.
-- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts, normal or bootstrap safety stock, EOQ, and `(s, Q)` policy replay). Status: alpha (0.1.0).
+- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` policy replay in and out of sample). Status: alpha (0.3.0).
 
 ## Featured project
 
@@ -63,9 +63,9 @@ Status: 0.1.0. Forty local unit tests passed, including semicolon, tab, pipe, an
 
 ### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
 
-A Python toolkit and CLI that turns a per-SKU demand history into an inventory policy: ABC classification by annual value, XYZ classification by demand variability, Syntetos-Boylan demand patterns (smooth, erratic, intermittent, lumpy), forecasting with naive, moving average, SES, Croston and SBA chosen per SKU by backtested MASE, safety stock and reorder points from demand and lead-time variability (normal formula or `--safety-stock bootstrap` seeded per SKU), EOQ, and a historical replay of the resulting (s, Q) policy that reports fill rate, stockouts, average stock and backorders. Markdown or JSON output, a reproducible synthetic dataset, a hand-checked worked example, and the formulas and their limits documented in the README.
+A Python toolkit and CLI that turns a per-SKU demand history into an inventory policy: ABC classification by annual value, XYZ classification by demand variability, Syntetos-Boylan demand patterns (smooth, erratic, intermittent, lumpy), forecasting with naive, moving average, SES, Croston and SBA (plus damped Holt and Holt-Winters with `--trend-seasonal`) chosen per SKU by backtested MASE, safety stock and reorder points from demand and lead-time variability (normal formula or `--safety-stock bootstrap` seeded per SKU), EOQ, and a historical replay of the resulting (s, Q) policy that reports fill rate, stockouts, average stock and backorders, with an out-of-sample replay (`--test-periods N`) that fits on the earlier periods and scores the last N. Markdown or JSON output, a reproducible synthetic dataset, a hand-checked worked example, and the formulas and their limits documented in the README.
 
-Status: 0.1.0. 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. When the normal-demand assumption is weak for lumpy SKUs, `--safety-stock bootstrap` resamples protection-interval demand from each SKU's history (ADR 0004).
+Status: 0.3.0 (alpha). 152 tests, 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. When the normal-demand assumption is weak for lumpy SKUs, `--safety-stock bootstrap` resamples protection-interval demand from each SKU's history (ADR 0004). Trend and seasonal models are opt-in: on the 24-month synthetic example they do not change the out-of-sample results, because Holt-Winters needs two full seasons of training data (ADR 0006).
 
 ## Current focus
 
