@@ -5,7 +5,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 Three small standard-library Python tools for CSV and operations work:
 
 - **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks). Status: prototype / alpha (v0.13.0).
-- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups). Status: 0.1.0. `--delimiter` accepts comma, semicolon, tab, or pipe. `--encoding` defaults to utf-8 and accepts cp1252 or latin-1. A UTF-8 BOM is stripped, including on stdin. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`.
+- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups, max-duplicates quality gate). Status: 0.1.0. `--delimiter` accepts comma, semicolon, tab, or pipe. `--encoding` defaults to utf-8 and accepts cp1252 or latin-1. A UTF-8 BOM is stripped, including on stdin. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`. `--max-duplicates` fails if repeated business keys exceed the threshold.
 - **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` or periodic-review `(R, S)` policy replay in and out of sample, with levels that can follow a seasonal forecast). Status: alpha (0.4.0).
 
 ## Featured project
@@ -61,7 +61,7 @@ A small standard-library Python CLI that reports fill rate, repeated business ke
 
 See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/docs/related.md) in the flagship repository for how the tools fit together.
 
-Status: 0.1.0. Forty local unit tests passed, including semicolon, tab, pipe, an unknown delimiter, a duplicate header, `--help`, cp1252, a UTF-8 BOM, a UTF-8 BOM on stdin, `N/D`, `s.d.`, stdin, `--top`, `--top 0`, a negative `--top`, a quoted field with a comma, an escaped quote, a multiline quoted field, a trailing comma, a whitespace-only field, a tab-only field, three identical keys, two repeated keys, `--json`, and `--max-missing`. CI runs the same suite on Python 3.10 through 3.13. Not a production pipeline.
+Status: 0.1.0. Forty-four local unit tests passed, including semicolon, tab, pipe, an unknown delimiter, a duplicate header, `--help`, cp1252, a UTF-8 BOM, a UTF-8 BOM on stdin, `N/D`, `s.d.`, stdin, `--top`, `--top 0`, a negative `--top`, `--max-duplicates` allowing and failing repeated keys, a negative `--max-duplicates`, a quoted field with a comma, an escaped quote, a multiline quoted field, a trailing comma, a whitespace-only field, a tab-only field, three identical keys, two repeated keys, `--json`, and `--max-missing`. CI runs the same suite on Python 3.10 through 3.13. Not a production pipeline.
 
 ### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
 
