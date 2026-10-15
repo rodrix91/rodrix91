@@ -4,9 +4,9 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 Three small standard-library Python tools for CSV and operations work:
 
-- **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks). Status: prototype / alpha (v0.13.0).
+- **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks). Status: prototype / alpha (v0.14.0).
 - **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups, max-duplicates quality gate). Status: 0.1.0. `--delimiter` accepts comma, semicolon, tab, or pipe. `--encoding` defaults to utf-8 and accepts cp1252 or latin-1. A UTF-8 BOM is stripped, including on stdin. `N/D`, `s.d.`, and `N.D.` count as missing. A path of `-` reads from stdin. `--top` can lower the group limit. A negative `--top` exits `2`. `--max-duplicates` fails if repeated business keys exceed the threshold.
-- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` or periodic-review `(R, S)` policy replay in and out of sample, with levels that can follow a seasonal forecast). Status: alpha (0.4.0).
+- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` or periodic-review `(R, S)` policy replay in and out of sample, with levels that can follow a seasonal forecast, and an opt-in bootstrap of forecast residuals). Status: alpha (0.5.0).
 
 ## Featured project
 
@@ -30,7 +30,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - decimal commas (`10,5`), thousands separators (`1.234,56`), day-first dates (`05/10/2026`), `VERDADERO`/`FALSO` or `Sí`/`No` flags and amounts with currency symbols or units (`Gs. 50.000`, `12,5 kg`) from Spanish, Portuguese and other comma-decimal locales
 - spreadsheet exports in cp1252, Latin-1 or UTF-16 with `--encoding`, and very long text fields
 - single-pass streaming: on a 1,000,000-row file, peak memory went from 873 MB to 234 MB with identical output
-- quality gates for pipelines: `--max-missing`, `--max-duplicates`, required types, value ranges (`--range Peso=0:`), and baseline drift gates (`--max-row-drop`, `--max-missing-increase`) stop a bad extract with a dedicated exit code
+- quality gates for pipelines: `--max-missing`, `--max-duplicates`, required types, value ranges (`--range Peso=0:`), and baseline drift gates (`--max-row-drop`, `--max-missing-increase`, and `--max-missing-increase-column` for a limit per column) stop a bad extract with a dedicated exit code
 - reads from pipes (`-`) and gzip-compressed files transparently, and can be used as a Python library
 - flags mixed currencies or units in a column (pesos and dollars, kg and lb) instead of silently averaging them
 - available as a GitHub Action: the report goes to the job summary and a failed check fails the job
@@ -51,7 +51,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - design decisions recorded as ADRs, and a maintained CHANGELOG
 - security policy in [SECURITY.md](https://github.com/rodrix91/csv-quality-report/blob/main/SECURITY.md)
 
-Latest release: [v0.13.0](https://github.com/rodrix91/csv-quality-report/releases/tag/v0.13.0), with 819 tests and 100% coverage. It fixes `--json-output`, which could overwrite the input file or the baseline report it was comparing against; that is now a usage error raised before anything is read.
+Latest release: [v0.14.0](https://github.com/rodrix91/csv-quality-report/releases/tag/v0.14.0), with 863 tests and 100% coverage. `--json-output` is now written atomically (a temporary file moved into place), so a full disk or a killed job no longer leaves a half-written report or destroys the previous one, often reused as the next baseline; and `--max-missing-increase-column NAME=PCT` sets the missing-value drift limit for one column.
 
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
@@ -67,7 +67,7 @@ Status: 0.1.0. Forty-four local unit tests passed, including semicolon, tab, pip
 
 A Python toolkit and CLI that turns a per-SKU demand history into an inventory policy: ABC classification by annual value, XYZ classification by demand variability, Syntetos-Boylan demand patterns (smooth, erratic, intermittent, lumpy), forecasting with naive, moving average, SES, Croston and SBA (plus damped Holt and Holt-Winters with `--trend-seasonal`) chosen per SKU by backtested MASE, safety stock and reorder points from demand and lead-time variability (normal formula or `--safety-stock bootstrap` seeded per SKU), EOQ, and a historical replay of the resulting (s, Q) policy, or of a periodic-review, order-up-to (R, S) policy with `--policy RS`, that reports fill rate, stockouts, average stock and backorders, with an out-of-sample replay (`--test-periods N`) that fits on the earlier periods and scores the last N. Markdown or JSON output, a reproducible synthetic dataset, a hand-checked worked example, and the formulas and their limits documented in the README.
 
-Status: 0.4.0 (alpha). 177 tests, 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. When the normal-demand assumption is weak for lumpy SKUs, `--safety-stock bootstrap` resamples protection-interval demand from each SKU's history (ADR 0004). Trend and seasonal models are opt-in: on the 24-month synthetic example they do not change the out-of-sample results, because Holt-Winters needs two full seasons of training data (ADR 0006). With `--dynamic-levels` the order-up-to level follows the seasonal forecast month by month instead of one level for the year: on a 48-month synthetic series, out of sample, (R, S) with dynamic levels reached 100% fill rate with 105.5 units of average stock, against 99.6% and 289.0 for the static (s, Q); the bootstrap safety stock did worse with (R, S), and on the 24-month example the dynamic levels change nothing (ADR 0007).
+Status: 0.5.0 (alpha). 201 tests, 100% line and branch coverage, Ruff, strict mypy, and CI on Python 3.11 through 3.13. When the normal-demand assumption is weak for lumpy SKUs, `--safety-stock bootstrap` resamples protection-interval demand from each SKU's history (ADR 0004). Trend and seasonal models are opt-in: on the 24-month synthetic example they do not change the out-of-sample results, because Holt-Winters needs two full seasons of training data (ADR 0006). With `--dynamic-levels` the order-up-to level follows the seasonal forecast month by month instead of one level for the year: on a 48-month synthetic series, out of sample, (R, S) with dynamic levels reached 100% fill rate with 105.5 units of average stock, against 99.6% and 289.0 for the static (s, Q); the bootstrap safety stock did worse with (R, S), and on the 24-month example the dynamic levels change nothing (ADR 0007). `--bootstrap-source residuals` bootstraps the rolling-origin forecast errors over the protection interval instead of demand, with an optional safety stock per period: on the 48-month series it raised the bootstrap's out-of-sample fill rate under (R, S) from 89.3% to 95.4% (96.3% per period), still below the normal formula's 100%, and on the 24-month example it did worse, so it stays opt-in (ADR 0008).
 
 ## Current focus
 
