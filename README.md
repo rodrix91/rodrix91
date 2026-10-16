@@ -51,7 +51,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - design decisions recorded as ADRs, and a maintained CHANGELOG
 - security policy in [SECURITY.md](https://github.com/rodrix91/csv-quality-report/blob/main/SECURITY.md)
 
-Latest release: [v0.15.0](https://github.com/rodrix91/csv-quality-report/releases/tag/v0.15.0), with 889 tests and 100% coverage. CI now runs the test suite on Linux, Windows and macOS; on Windows the report on stdout and stderr is now always UTF-8 with `\n` line endings, also when redirected; and `--unique NAME` fails when a key column (an invoice number, a tracking code) repeats a value.
+Latest release: [v0.15.0](https://github.com/rodrix91/csv-quality-report/releases/tag/v0.15.0), with 890 tests and 100% coverage. CI now runs the test suite on Linux, Windows and macOS; on Windows the report on stdout and stderr is now always UTF-8 with `\n` line endings, also when redirected; and `--unique NAME` fails when a key column (an invoice number, a tracking code) repeats a value.
 
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
