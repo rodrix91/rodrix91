@@ -12,6 +12,8 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions.
 
+Across all three active projects, GitHub Actions dependencies are pinned by commit SHA, release artifacts include SHA-256 checksums, and current release workflows generate GitHub/Sigstore provenance attestations for wheels and source distributions.
+
 ## Detailed project snapshot
 
 Three small standard-library Python tools for CSV and operations work:
