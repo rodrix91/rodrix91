@@ -6,7 +6,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling and pipeline quality gates | 100% line/branch coverage, strict typing, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling and pipeline quality gates | 100% line/branch coverage, strict typing, PEP 561, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Fast operational completeness and concentration checks | Standard-library CLI, branch-coverage gate, Ruff, mypy, cross-platform CI |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, forecasting and replay for supply-chain decisions | 403 tests, 100% line/branch coverage, strict typing, cross-platform CI |
 
@@ -54,6 +54,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - automated tests
 - Ruff linting and formatting checks
 - strict mypy type checking
+- PEP 561 `py.typed` marker for downstream type checkers
 - GitHub Actions CI across Python 3.11, 3.12 and 3.13
 - Dependabot
 - MIT license
