@@ -5,7 +5,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 Three small standard-library Python tools for CSV and operations work:
 
 - **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks, freshness and allowed-value gates). Status: prototype / alpha; `main` is 0.22.0 with additional Unreleased work, while v0.21.0 remains the latest published release.
-- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups, max-duplicates quality gate). Status: 0.3.0. It supports automatic detection of comma, semicolon, tab, or pipe, `--version`, stdin and common spreadsheet encodings; CI runs 48 tests on Python 3.10 through 3.13 and smoke-tests the built wheel in a clean environment.
+- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups, max-duplicates quality gate). Status: 0.3.0. It supports automatic detection of comma, semicolon, tab, or pipe, `--version`, stdin and common spreadsheet encodings; CI runs 49 tests on Python 3.10 through 3.13 on Ubuntu, plus Python 3.10 and 3.13 on Windows and macOS, and smoke-tests the built wheel in a clean environment.
 - **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` or periodic-review `(R, S)` policy replay in and out of sample, with levels that can follow a seasonal forecast, an opt-in bootstrap of forecast residuals, an opt-in rolling-origin replay that refits the policy every test period or every K periods with `--refit-every`, an opt-in periodic-review `(R, s, S)` policy, order, holding and stockout costs that price each out-of-sample replay, per SKU if needed, and an opt-in search of levels for cost, with an optional fill-rate floor and demand paths that refit the forecast on bootstrapped histories). Status: alpha (0.10.0).
 
 ## Featured project
@@ -61,7 +61,7 @@ A small standard-library Python CLI that reports fill rate, repeated business ke
 
 See [docs/related.md](https://github.com/rodrix91/csv-quality-report/blob/main/docs/related.md) in the flagship repository for how the tools fit together.
 
-Status: 0.3.0. CI runs **48 tests** on Python 3.10 through 3.13, plus a packaging job that builds the wheel, installs it in a clean environment, verifies installed version metadata, and runs the installed CLI. `--delimiter auto` detects comma, semicolon, tab, or pipe, and a tag-driven release workflow validates version tags and release artifacts before publication. Not a production pipeline.
+Status: 0.3.0. CI runs **49 tests** on Python 3.10 through 3.13 on Ubuntu, plus Python 3.10 and 3.13 on Windows and macOS; a packaging job builds the wheel, installs it in a clean environment, verifies installed version metadata, and runs the installed CLI. `--delimiter auto` detects comma, semicolon, tab, or pipe, and a tag-driven release workflow validates version tags and release artifacts before publication. Not a production pipeline.
 
 ### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
 
