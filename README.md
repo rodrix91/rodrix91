@@ -93,7 +93,7 @@ Package version: 0.3.0 with additional Unreleased work; a public GitHub release 
 
 ### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
 
-The [non-finite settings validation fix (#57)](https://github.com/rodrix91/inventory-policy-lab/pull/57) rejects `NaN` and infinite lead times, EOQ inputs, annualization factors and ABC-XYZ thresholds that could otherwise distort forecasts or reorder policies. Previously saved report files remain intact when configuration fails. The expanded suite contains 473 tests with 100% line and branch coverage.
+The [non-finite settings validation fix (#57)](https://github.com/rodrix91/inventory-policy-lab/pull/57) rejects `NaN` and infinite lead times, EOQ inputs, annualization factors and ABC-XYZ thresholds that could otherwise distort forecasts or reorder policies. Previously saved report files remain intact when configuration fails. The [verified PR workflow](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40140974760) passed **473 tests**, 100% line and branch coverage, Ruff, strict mypy and all nine CI jobs across Linux, macOS and Windows.
 
 The [CSV-to-Markdown SKU safety fix (#56)](https://github.com/rodrix91/inventory-policy-lab/pull/56) displays ERP identifiers literally in policy, backtest, out-of-sample replay, cost and notes sections, preventing CSV data from creating misleading table cells or links. The original JSON identifiers and inventory computations remain intact. The [PR workflow](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40137345720) passed 447 tests, strict mypy/Ruff and all 9 CI jobs with 100% line/branch coverage.
 
