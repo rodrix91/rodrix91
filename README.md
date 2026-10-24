@@ -2,12 +2,6 @@
 
 I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
-Three small standard-library Python tools for CSV and operations work:
-
-- **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks, freshness and allowed-value gates). Status: prototype / alpha; `main` is 0.22.0 with additional Unreleased work, while v0.21.0 remains the latest published release.
-- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups, duplicate and row-count gates, plus an opt-in top-group concentration gate). Status: 0.3.0 with additional Unreleased work. It supports automatic detection of comma, semicolon, tab, or pipe, `--version`, stdin and common spreadsheet encodings; CI runs 63 tests on Python 3.10 through 3.13 on Ubuntu, plus Python 3.10 and 3.13 on Windows and macOS, smoke-tests the built wheel in a clean environment, enforces at least 90% branch coverage, and runs Ruff plus mypy.
-- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` or periodic-review `(R, S)` policy replay in and out of sample, with levels that can follow a seasonal forecast, an opt-in bootstrap of forecast residuals, an opt-in rolling-origin replay that refits the policy every test period or every K periods with `--refit-every`, an opt-in periodic-review `(R, s, S)` policy, order, holding and stockout costs that price each out-of-sample replay, per SKU if needed, and an opt-in search of levels for cost, with an optional fill-rate floor and demand paths that refit the forecast on bootstrapped histories). Status: alpha (0.10.0).
-
 ## Portfolio at a glance
 
 | Project | Purpose | Engineering signal |
@@ -17,6 +11,14 @@ Three small standard-library Python tools for CSV and operations work:
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, forecasting and replay for supply-chain decisions | 403 tests, 100% line/branch coverage, strict typing, cross-platform CI |
 
 The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions.
+
+## Detailed project snapshot
+
+Three small standard-library Python tools for CSV and operations work:
+
+- **csv-quality-report**: full profiling (types, locales, ranges, quality gates, baseline drift checks, freshness and allowed-value gates). Status: prototype / alpha; `main` is 0.22.0 with additional Unreleased work, while v0.21.0 remains the latest published release.
+- **ops-field-brief**: operational completeness (fill rate, repeated keys, top groups, duplicate and row-count gates, plus an opt-in top-group concentration gate). Status: 0.3.0 with additional Unreleased work. It supports automatic detection of comma, semicolon, tab, or pipe, `--version`, stdin and common spreadsheet encodings; CI runs 63 tests on Python 3.10 through 3.13 on Ubuntu, plus Python 3.10 and 3.13 on Windows and macOS, smoke-tests the built wheel in a clean environment, enforces at least 90% branch coverage, and runs Ruff plus mypy.
+- **inventory-policy-lab**: per-SKU inventory policy from demand history (ABC-XYZ, Syntetos-Boylan patterns, MASE-selected forecasts with opt-in damped Holt and Holt-Winters, normal or bootstrap safety stock, EOQ, and `(s, Q)` or periodic-review `(R, S)` policy replay in and out of sample, with levels that can follow a seasonal forecast, an opt-in bootstrap of forecast residuals, an opt-in rolling-origin replay that refits the policy every test period or every K periods with `--refit-every`, an opt-in periodic-review `(R, s, S)` policy, order, holding and stockout costs that price each out-of-sample replay, per SKU if needed, and an opt-in search of levels for cost, with an optional fill-rate floor and demand paths that refit the forecast on bootstrapped histories). Status: alpha (0.10.0).
 
 ## Featured project
 
