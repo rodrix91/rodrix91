@@ -117,7 +117,7 @@ Contributing guidelines: [csv-quality-report](https://github.com/rodrix91/csv-qu
 These repositories preserve early coursework and are not current product work:
 
 - [datasciencecoursera](https://github.com/rodrix91/datasciencecoursera) (2020 Coursera R archive)
-- [ProgrammingAssignment2](https://github.com/rodrix91/ProgrammingAssignment2) (R Programming assignment fork)
+- [ProgrammingAssignment2](https://github.com/rodrix91/ProgrammingAssignment2) (preserved R Programming assignment, now with an implemented matrix-inverse cache and [passing Linux, Windows and macOS regression checks](https://github.com/rodrix91/ProgrammingAssignment2/actions/runs/40122011625))
 - [datasharing](https://github.com/rodrix91/datasharing) (data-sharing guide fork)
 
 ## Contact
