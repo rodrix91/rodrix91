@@ -7,10 +7,10 @@ I build practical Python tools focused on **data quality, automation, reproducib
 | Project | Purpose | Engineering signal |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling and pipeline quality gates | 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Fast operational completeness and concentration checks | 69 tests, strict CSV validation, branch-coverage gate, Ruff, mypy |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Fast operational completeness and concentration checks | 69 tests, strict CSV validation, Ruff/mypy, CITATION.cff |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, forecasting and replay for supply-chain decisions | 403 tests, 100% line/branch coverage, strict typing, CITATION.cff, cross-platform CI |
 
-The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions.
+The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions. All three publish `CITATION.cff` metadata for reproducible citation.
 
 Across all three active projects, GitHub Actions dependencies are pinned by commit SHA, release artifacts include SHA-256 checksums, and current release workflows generate GitHub/Sigstore provenance attestations for wheels and source distributions.
 
