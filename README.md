@@ -6,7 +6,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling and pipeline quality gates | 1,348 tests, 100% line/branch coverage, strict typing, PEP 561, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling and pipeline quality gates | 1,348 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Fast operational completeness and concentration checks | 119 tests, 100% coverage, reusable GitHub Action, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, forecasting and replay for supply-chain decisions | 491 tests, 100% coverage, reusable GitHub Action, CITATION.cff |
 
