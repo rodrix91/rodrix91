@@ -7,7 +7,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 | Project | Purpose | Engineering signal |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling and pipeline quality gates | 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Fast operational completeness and concentration checks | 106 tests, 100% coverage, reusable GitHub Action, PEP 561 |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Fast operational completeness and concentration checks | 110 tests, 100% coverage, reusable GitHub Action, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, forecasting and replay for supply-chain decisions | 484 tests, 100% coverage, reusable GitHub Action, CITATION.cff |
 
 The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions. All three publish `CITATION.cff` metadata for reproducible citation.
@@ -78,6 +78,8 @@ Latest published release: [v0.21.0](https://github.com/rodrix91/csv-quality-repo
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
+
+The [strict CSV quoting safety fix (#58)](https://github.com/rodrix91/ops-field-brief/pull/58) closes a previously permissive parsing gap: with `--strict-csv`, malformed quotes are rejected before operational completeness and duplicate-key decisions. The default permissive mode and valid multiline quoted fields remain compatible. [Post-merge CI on `main`](https://github.com/rodrix91/ops-field-brief/actions/runs/40146919356) passed **110 tests**, 100% line and branch coverage, and all 11 jobs across Linux, macOS and Windows. This is a verified addition to the earlier improvements below.
 
 The [missing-group concentration fix (#56)](https://github.com/rodrix91/ops-field-brief/pull/56) consolidates missing CSV group labels (such as `NA`, `N/A`, `null` and empty cells) before computing buyer/supplier concentration. This prevents quality gates from passing because missing labels appear under different spellings. The [validated PR workflow](https://github.com/rodrix91/ops-field-brief/actions/runs/40144109364) passed all 11 jobs with 104 tests and 100% line/branch coverage; previous results are kept as historical evidence. The [composite-key input validation fix (#57)](https://github.com/rodrix91/ops-field-brief/pull/57) additionally rejects keys such as `order,,line` with configuration exit `2`, preventing silent changes to duplicate-key checks; [all 11 jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40144647643) with 106 tests and 100% coverage.
 
