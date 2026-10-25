@@ -6,7 +6,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling and pipeline quality gates | 1,355 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling and pipeline quality gates | 1,360 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Fast operational completeness and concentration checks | 132 tests, 100% coverage, reusable GitHub Action, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, forecasting and replay for supply-chain decisions | 494 tests, 100% coverage, reusable GitHub Action, CITATION.cff |
 
@@ -25,6 +25,8 @@ Three small standard-library Python tools for CSV and operations work:
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
+
+The [composite unique-key safety fix (#196)](https://github.com/rodrix91/csv-quality-report/pull/196) rejects omitted fields in a `--unique-key` configuration such as `Factura,,Línea`, preventing a pipeline from silently checking a different set of key columns. Existing correctly specified keys, trimmed names and duplicate-name deduplication remain compatible. Its [verified cross-platform CI run](https://github.com/rodrix91/csv-quality-report/actions/runs/40156661004) passed **1,360 tests**, 100% line and branch coverage, Ruff, strict mypy and all nine jobs across Linux, Windows and macOS. Older test figures below remain historical evidence.
 
 The [selected-column validation fix (#195)](https://github.com/rodrix91/csv-quality-report/pull/195) rejects empty segments in `--columns`, such as `id,,peso`, rather than silently removing a selected field and underprofiling the input. Valid trimmed selectors and deduplicated names remain supported. Its [verified GitHub Actions run](https://github.com/rodrix91/csv-quality-report/actions/runs/40156290277) passed **1,355 tests**, 100% line+branch coverage, strict mypy, Ruff and all nine cross-platform jobs. Earlier test counts remain accurate historical records.
 
@@ -77,7 +79,7 @@ A lightweight Python CLI that profiles CSV files before they enter a notebook or
 - security policy in [SECURITY.md](https://github.com/rodrix91/csv-quality-report/blob/main/SECURITY.md)
 - software citation metadata in [CITATION.cff](https://github.com/rodrix91/csv-quality-report/blob/main/CITATION.cff), retained in the source distribution and linked from package metadata
 
-Latest published release: [v0.21.0](https://github.com/rodrix91/csv-quality-report/releases/tag/v0.21.0). Current `main` reports version 0.22.0 and its CI runs **1,355 tests** with 100% line and branch coverage across Linux, macOS and Windows; the missing v0.22.0 release tag is tracked separately so newer Unreleased work is not mislabeled. Since v0.17.0 it adds `--min-rows`, `--max-age` with `--utc-offset` for the freshness of a date column on a fixed clock, `--allow-added-column` and `--allow-removed-column`, and Action inputs (`report-path`, `baseline`, `baseline-args`, `if-baseline-missing`) for daily comparisons against the previous report. Added in v0.17.0: `--allow-type-change [NAME=]FROM:TO` lets the schema gate (`--fail-on-schema-change`) tolerate an expected type widening, such as `int:float` for quantities that gain decimals, in every column or only in one. Since v0.16.0, `--unique-key NAMES` fails when two rows repeat a composite key (an invoice number plus a line number, where each column repeats on its own), and a read-only `--json-output` file is refused on every platform instead of being replaced.
+Latest published release: [v0.21.0](https://github.com/rodrix91/csv-quality-report/releases/tag/v0.21.0). Current `main` reports version 0.22.0 and its CI runs **1,360 tests** with 100% line and branch coverage across Linux, macOS and Windows; the missing v0.22.0 release tag is tracked separately so newer Unreleased work is not mislabeled. Since v0.17.0 it adds `--min-rows`, `--max-age` with `--utc-offset` for the freshness of a date column on a fixed clock, `--allow-added-column` and `--allow-removed-column`, and Action inputs (`report-path`, `baseline`, `baseline-args`, `if-baseline-missing`) for daily comparisons against the previous report. Added in v0.17.0: `--allow-type-change [NAME=]FROM:TO` lets the schema gate (`--fail-on-schema-change`) tolerate an expected type widening, such as `int:float` for quantities that gain decimals, in every column or only in one. Since v0.16.0, `--unique-key NAMES` fails when two rows repeat a composite key (an invoice number plus a line number, where each column repeats on its own), and a read-only `--json-output` file is refused on every platform instead of being replaced.
 
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
