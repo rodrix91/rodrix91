@@ -6,7 +6,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,573 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,599 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 218 tests, 100% coverage, reusable GitHub Action, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 779 tests, 100% coverage, reusable GitHub Action, CITATION.cff |
 
@@ -25,6 +25,8 @@ Three small standard-library Python tools for CSV and operations work:
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
+
+The [GitHub Action invisible-path-control safeguard (#210)](https://github.com/rodrix91/csv-quality-report/pull/210) rejects terminal-control characters in input CSV, baseline and report paths before file access or workflow output, while preserving legitimate Unicode names and workspace-boundary checks. The [exact-head Actions run](https://github.com/rodrix91/csv-quality-report/actions/runs/40351064951) passed **1,599 tests**, **100% line and branch coverage**, Ruff, strict mypy, package tests, and **9/9** Linux/Windows/macOS and reusable Action jobs before the PR was squash-merged. Earlier 1,573-test and prior results below remain historical milestones.
 
 The [CSV Markdown invisible-control safeguarding fix (#209)](https://github.com/rodrix91/csv-quality-report/pull/209) protects report labels, inline-code metadata and quality-check messages against ANSI ESC, NUL, backspace and other C0/DEL/C1 control characters, without modifying source CSV/JSON values or historically supported literal tabs. The [final exact-head GitHub Actions run](https://github.com/rodrix91/csv-quality-report/actions/runs/40268680785) verified **1,573 passing tests**, **100% line and branch coverage**, Ruff, strict mypy and **9/9** successful Linux/Windows/macOS, source-package and reusable Action jobs before source PR #209 was squash-merged. Previous 1,507-test and earlier milestones below remain historical evidence.
 
