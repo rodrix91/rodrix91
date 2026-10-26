@@ -80,7 +80,7 @@ the corresponding source changes were squash-merged:
 |---|---:|---:|---|
 | csv-quality-report | 1,666 | 100% line and branch | [9/9 jobs — fresh JSON report integrity](https://github.com/rodrix91/csv-quality-report/actions/runs/40369892084) |
 | ops-field-brief | 228 | 100% line and branch | [11/11 jobs — distinct complete-key quality gate](https://github.com/rodrix91/ops-field-brief/actions/runs/40371991896) |
-| inventory-policy-lab | 826 | 100% line and branch | [9/9 jobs — fresh report verification](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40364703292) |
+| inventory-policy-lab | 839 | 100% line and branch | [9/9 jobs — demand CSV row-integrity safeguards](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40376103637) |
 
 The cross-platform suites exercise Linux, Windows and macOS, with static
 analysis, packaging and reusable GitHub Actions where applicable. Consult
