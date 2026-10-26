@@ -7,7 +7,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 | Project | Purpose | Engineering signal |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,666 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 230 tests, 100% coverage, reusable GitHub Action, PEP 561 |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 236 tests, 100% coverage, reusable GitHub Action, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 839 tests, 100% coverage, reusable GitHub Action, CITATION.cff |
 
 The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions. All three publish `CITATION.cff` metadata for reproducible citation.
@@ -108,6 +108,8 @@ Latest published release: [v0.21.0](https://github.com/rodrix91/csv-quality-repo
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
+
+The [maximum distinct complete business-key gate (#94)](https://github.com/rodrix91/ops-field-brief/pull/94) adds opt-in `--max-distinct-keys` alongside the previous minimum to detect an unexpectedly large number of unique, fully identified shipment/order IDs without treating duplicated rows as new entities. Users can enforce a bounded range on composite business keys, handle missing components, and select Unicode casefold comparison without changing default reports. The [exact-head CI run](https://github.com/rodrix91/ops-field-brief/actions/runs/40418680260) verified **236 tests**, **100% line and branch coverage**, Ruff, mypy and **11/11** Linux/Windows/macOS, packaging and Action jobs before squash merge. Earlier 230-test and older milestones remain available below.
 
 The [GitHub Action verified-report safeguard (#93)](https://github.com/rodrix91/ops-field-brief/pull/93) prevents workflow false positives: successful analysis must produce a nonempty Markdown report or a valid JSON object (including with accepted `--json` abbreviations). Missing or malformed reports fail closed (`exit-code=3`, `passed=false`) without writing a misleading summary, while genuine quality failures and CLI errors retain their meaning. The [exact-head GitHub Actions run](https://github.com/rodrix91/ops-field-brief/actions/runs/40416457825) passed **230 tests**, **100% line and branch coverage**, Ruff, mypy and **11/11** cross-platform, packaging and Action jobs before squash merge. Earlier 228-test and older milestones remain below.
 
