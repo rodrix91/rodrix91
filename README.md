@@ -6,7 +6,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,599 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,657 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 219 tests, 100% coverage, reusable GitHub Action, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 820 tests, 100% coverage, reusable GitHub Action, CITATION.cff |
 
@@ -27,6 +27,8 @@ Three small standard-library Python tools for CSV and operations work:
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
+
+The [multiline Action quality-gate input safeguard (#211)](https://github.com/rodrix91/csv-quality-report/pull/211) prevents Bash from silently dropping quality checks placed after a newline in caller-provided `args` or `baseline-args`. It rejects terminal controls before parsing without changing valid single-line Unicode or tab-separated arguments, and adds full-range regressions and end-to-end Action coverage. The [final exact-head GitHub Actions run](https://github.com/rodrix91/csv-quality-report/actions/runs/40359144540) passed **1,657 tests**, **100% line and branch coverage**, Ruff, strict mypy, sdist, the reusable Action and **9/9 cross-platform jobs**, including a successfully retried macOS Python 3.11 job. The subsequent [main run](https://github.com/rodrix91/csv-quality-report/actions/runs/40364421867) also passed **9/9** checks. Previous 1,599-test milestones and older history remain intact below.
 
 The [GitHub Action invisible-path-control safeguard (#210)](https://github.com/rodrix91/csv-quality-report/pull/210) rejects terminal-control characters in input CSV, baseline and report paths before file access or workflow output, while preserving legitimate Unicode names and workspace-boundary checks. The [exact-head Actions run](https://github.com/rodrix91/csv-quality-report/actions/runs/40351064951) passed **1,599 tests**, **100% line and branch coverage**, Ruff, strict mypy, package tests, and **9/9** Linux/Windows/macOS and reusable Action jobs before the PR was squash-merged. Earlier 1,573-test and prior results below remain historical milestones.
 
