@@ -7,7 +7,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 | Project | Purpose | Engineering signal |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,599 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 218 tests, 100% coverage, reusable GitHub Action, PEP 561 |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 219 tests, 100% coverage, reusable GitHub Action, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 820 tests, 100% coverage, reusable GitHub Action, CITATION.cff |
 
 The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions. All three publish `CITATION.cff` metadata for reproducible citation.
@@ -102,6 +102,8 @@ Latest published release: [v0.21.0](https://github.com/rodrix91/csv-quality-repo
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
+
+The [reusable Action C1 and path-tab safety fix (#90)](https://github.com/rodrix91/ops-field-brief/pull/90) rejects the entire Unicode C1 terminal-control range in caller-supplied CSV paths and options, and rejects tabs in file paths while preserving tab-separated CLI arguments and normal Unicode filenames. The [exact-head CI run](https://github.com/rodrix91/ops-field-brief/actions/runs/40356764680) verified **219 tests**, **100% line and branch coverage**, Ruff, mypy and **11/11 successful** Linux/Windows/macOS, packaging and reusable Action jobs before squash merge. Earlier 218-test and other milestones remain intact below.
 
 The [operations playbook update (#89)](https://github.com/rodrix91/ops-field-brief/pull/89) adds a reproducible example combining minimum complete-key counts, duplicate detection, and strict Unicode header checks, making the production-oriented quality gates easier to adopt and audit. Its [exact-head CI](https://github.com/rodrix91/ops-field-brief/actions/runs/40353786277) and subsequent [main CI](https://github.com/rodrix91/ops-field-brief/actions/runs/40355128138) each passed **11/11** jobs without changing any existing code or release behavior. Previous milestones remain available below.
 
