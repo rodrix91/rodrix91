@@ -35,7 +35,7 @@ independent quality checks.
 In `csv-quality-report` (Python 3.11+):
 
 ```bash
-python -m csv_quality_report examples/tiny.csv --format json
+PYTHONPATH=src python -m csv_quality_report examples/tiny.csv --format json
 ```
 
 The synthetic `tiny.csv` contains three data rows. Inspect the JSON report
