@@ -78,7 +78,7 @@ the corresponding source changes were squash-merged:
 
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
-| csv-quality-report | 1,657 | 100% line and branch | [9/9 jobs — multiline Action gate safeguards](https://github.com/rodrix91/csv-quality-report/actions/runs/40359144540) |
+| csv-quality-report | 1,666 | 100% line and branch | [9/9 jobs — fresh JSON report integrity](https://github.com/rodrix91/csv-quality-report/actions/runs/40369892084) |
 | ops-field-brief | 222 | 100% line and branch | [11/11 jobs — JSON Action summary safety](https://github.com/rodrix91/ops-field-brief/actions/runs/40367279941) |
 | inventory-policy-lab | 826 | 100% line and branch | [9/9 jobs — fresh report verification](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40364703292) |
 
