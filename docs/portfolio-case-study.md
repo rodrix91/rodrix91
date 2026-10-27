@@ -73,18 +73,23 @@ Simulation is not proof of financial impact at a real company.
 
 ## 3. Engineering quality and auditability
 
-These milestones were verified in exact-head GitHub Actions runs before
-the corresponding source changes were squash-merged:
+The table records completed passing GitHub Actions runs for **specific
+commits**, not an estimate of all future commits or a claim of commercial
+deployment. The cited runs were verified on the corresponding project's
+`main` branch after the listed improvements were merged.
 
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
-| csv-quality-report | 1,744 | 100% line and branch | [9/9 jobs — fail-closed UTF-16 decoding](https://github.com/rodrix91/csv-quality-report/actions/runs/40514885949) |
-| ops-field-brief | 266 | 100% line and branch | [11/11 jobs — Excel `sep=` CSV compatibility](https://github.com/rodrix91/ops-field-brief/actions/runs/40519793654) |
-| inventory-policy-lab | 925 | 100% line and branch | [Regional CSV separators — final CI](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40523140357) |
+| csv-quality-report | 1,771 | 100% line and branch | [9/9 jobs: Unicode-safe Markdown and lossless JSON](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) |
+| ops-field-brief | 270 | 100% line and branch | [11/11 jobs: safe Unicode formatting](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308) |
+| inventory-policy-lab | 925 | 100% line and branch | [9/9 jobs: regional CSV separators on the validated main commit](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40524863460) |
 
-The cross-platform suites exercise Linux, Windows and macOS, with static
-analysis, packaging and reusable GitHub Actions where applicable. Consult
-each project's current CI and changelog for new commits and alpha limitations.
+All three matrices cover Linux, Windows and macOS, and include static
+analysis, package verification and reusable GitHub Actions where
+applicable. The pending [inventory Excel `sep=` PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96)
+is not included in the inventory snapshot above until it passes all checks
+and is merged. For earlier tests and milestones, refer to each repository's
+README and changelog; the underlying source history is preserved.
 
 ## 4. Responsible use
 
