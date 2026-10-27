@@ -78,7 +78,7 @@ the corresponding source changes were squash-merged:
 
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
-| csv-quality-report | 1,666 | 100% line and branch | [9/9 jobs — fresh JSON report integrity](https://github.com/rodrix91/csv-quality-report/actions/runs/40369892084) |
+| csv-quality-report | 1,695 | 100% line and branch | [9/9 jobs — valid fresh JSON quality-report contract](https://github.com/rodrix91/csv-quality-report/actions/runs/40424108611) |
 | ops-field-brief | 236 | 100% line and branch | [11/11 jobs — bounded distinct-key cardinality](https://github.com/rodrix91/ops-field-brief/actions/runs/40418680260) |
 | inventory-policy-lab | 846 | 100% line and branch | [9/9 jobs — Unicode month demand integrity](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40421091414) |
 
