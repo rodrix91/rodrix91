@@ -58,6 +58,8 @@ Resultado esperado: un informe de análisis de demanda, pronósticos y simulaci�
 
 El [PR #96, integrado](https://github.com/rodrix91/inventory-policy-lab/pull/96), también permite leer archivos CSV que comienzan con `sep=;` cuando se indica expresamente `--delimiter semicolon`; no adivina separadores. El [CI validado](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40551924889) aprobó las nueve verificaciones tras su integración. El [PR #97 ya integrado](https://github.com/rodrix91/inventory-policy-lab/pull/97) incorpora un archivo sintético listo para ejecutar, con dos productos y 12 meses: `examples/regional-excel.csv`. Puedes probarlo desde la raíz del repositorio mediante `PYTHONPATH=src python -m inventory_policy_lab examples/regional-excel.csv --delimiter semicolon --format json`. El [PR #98, integrado](https://github.com/rodrix91/inventory-policy-lab/pull/98) corrige además la identificación de la **línea física real** cuando un CSV contiene campos entre comillas con varios saltos de línea. Su [CI verificado](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40564204525) aprobó **950 pruebas**, cobertura del **100 % de líneas y ramas** y **9/9** verificaciones en distintas plataformas; los hitos anteriores se conservan.
 
+La [mejora #99](https://github.com/rodrix91/inventory-policy-lab/pull/99) valida los años de los períodos mensuales e impide que datos como `0000-01` pasen al modelo como fechas reales, sin alterar un informe previamente guardado. Su [CI exacto del PR](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40603064172) completó **958 pruebas**, **100 % de cobertura de líneas y ramas** y **9/9 comprobaciones**. El hito anterior de 950 pruebas sigue documentado.
+
 ## Si utilizas Windows PowerShell
 
 En PowerShell no se emplea el prefijo `PYTHONPATH=src` de Bash. En la raíz **de cada repositorio**, configura temporalmente esta variable:
@@ -83,7 +85,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 |---|---:|---:|---|
 | csv-quality-report | 1.782 | 100 % | [9/9 verificaciones aprobadas en el PR #223](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) |
 | ops-field-brief | 286 | 100 % | [11/11 verificaciones aprobadas en el PR #108](https://github.com/rodrix91/ops-field-brief/actions/runs/40599101356) |
-| inventory-policy-lab | 950 | 100 % | [9/9 verificaciones aprobadas en el PR #98](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40564204525) |
+| inventory-policy-lab | 958 | 100 % | [9/9 verificaciones aprobadas en el PR #99](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40603064172) |
 
 Los repositorios contienen su documentación, código fuente, historial, ejemplos y pruebas. La cobertura del 100 % **no garantiza por sí sola** que el software carezca de defectos.
 
