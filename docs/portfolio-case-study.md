@@ -79,7 +79,7 @@ the corresponding source changes were squash-merged:
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
 | csv-quality-report | 1,699 | 100% line and branch | [9/9 jobs — latest validated main integration](https://github.com/rodrix91/csv-quality-report/actions/runs/40424411300) |
-| ops-field-brief | 237 | 100% line and branch | [11/11 jobs — JSON Action report integrity](https://github.com/rodrix91/ops-field-brief/actions/runs/40426961781) |
+| ops-field-brief | 238 | 100% line and branch | [11/11 jobs — JSON missing-rate integrity](https://github.com/rodrix91/ops-field-brief/actions/runs/40429467759) |
 | inventory-policy-lab | 850 | 100% line and branch | [9/9 jobs — development lock and typing integrity](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40425358900) |
 
 The cross-platform suites exercise Linux, Windows and macOS, with static
