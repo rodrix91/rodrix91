@@ -20,7 +20,7 @@ Each command runs **separately, from the named repository's root**, on bundled *
 PYTHONPATH=src python -m csv_quality_report examples/tiny.csv --format json
 ```
 
-Read the row count, inferred column types and missing-value indicators. Then inspect [the CSV test suite](https://github.com/rodrix91/csv-quality-report/tree/main/tests) and [CI workflow](https://github.com/rodrix91/csv-quality-report/actions/workflows/ci.yml). The [merged legacy CSV fix (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) also preserves automatic delimiter detection for long, carriage-return-only exports; its [validated exact-head CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40558185020) passed 1,776 tests, 100% line/branch coverage and 9/9 jobs.
+Read the row count, inferred column types and missing-value indicators. Then inspect [the CSV test suite](https://github.com/rodrix91/csv-quality-report/tree/main/tests) and [CI workflow](https://github.com/rodrix91/csv-quality-report/actions/workflows/ci.yml). The [merged legacy CSV fix (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) also preserves automatic delimiter detection for long, carriage-return-only exports; its [validated merged-main CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) passed 1,776 tests, 100% line/branch coverage and 9/9 jobs.
 
 **2. Show a deliberately failed operational quality gate (Python 3.10+):**
 
