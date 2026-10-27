@@ -75,20 +75,20 @@ Simulation is not proof of financial impact at a real company.
 
 The table records completed passing GitHub Actions runs for **specific
 commits**, not an estimate of all future commits or a claim of commercial
-deployment. The cited runs were verified on the corresponding project's
-`main` branch after the listed improvements were merged.
+deployment. The CSV quality and operations runs were verified on `main` after merge;
+the inventory evidence comes from all nine passing jobs on the exact PR head
+before its verified squash merge.
 
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
 | csv-quality-report | 1,771 | 100% line and branch | [9/9 jobs: Unicode-safe Markdown and lossless JSON](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) |
 | ops-field-brief | 270 | 100% line and branch | [11/11 jobs: safe Unicode formatting](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308) |
-| inventory-policy-lab | 925 | 100% line and branch | [9/9 jobs: regional CSV separators on the validated main commit](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40524863460) |
+| inventory-policy-lab | 940 | 100% line and branch | [9/9 jobs: exact-head Excel `sep=` PR validation](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40550550444) |
 
 All three matrices cover Linux, Windows and macOS, and include static
 analysis, package verification and reusable GitHub Actions where
-applicable. The pending [inventory Excel `sep=` PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96)
-is not included in the inventory snapshot above until it passes all checks
-and is merged. For earlier tests and milestones, refer to each repository's
+applicable. The [inventory Excel `sep=` PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96)
+passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). Its 940-test snapshot includes the new parser behavior. For earlier tests and milestones, refer to each repository's
 README and changelog; the underlying source history is preserved.
 
 ## 4. Responsible use
