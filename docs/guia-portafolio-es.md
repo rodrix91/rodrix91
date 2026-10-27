@@ -50,7 +50,7 @@ PYTHONPATH=src python -m inventory_policy_lab examples/demand_synthetic.csv
 
 Resultado esperado: un informe de análisis de demanda, pronósticos y simulación de políticas; código de salida **0**. Son **resultados de un modelo**, no órdenes de compra aprobadas ni ahorros empresariales demostrados.
 
-El [PR #96, integrado](https://github.com/rodrix91/inventory-policy-lab/pull/96), también permite leer archivos CSV que comienzan con `sep=;` cuando se indica expresamente `--delimiter semicolon`; no adivina separadores. El [CI validado](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40551924889) aprobó las nueve verificaciones tras su integración. Un ejemplo adicional de ese formato se prepara en el [PR #97](https://github.com/rodrix91/inventory-policy-lab/pull/97); consulta su estado antes de usarlo desde `main`.
+El [PR #96, integrado](https://github.com/rodrix91/inventory-policy-lab/pull/96), también permite leer archivos CSV que comienzan con `sep=;` cuando se indica expresamente `--delimiter semicolon`; no adivina separadores. El [CI validado](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40551924889) aprobó las nueve verificaciones tras su integración. El [PR #97 ya integrado](https://github.com/rodrix91/inventory-policy-lab/pull/97) incorpora un archivo sintético listo para ejecutar, con dos productos y 12 meses: `examples/regional-excel.csv`. Puedes probarlo desde la raíz del repositorio mediante `PYTHONPATH=src python -m inventory_policy_lab examples/regional-excel.csv --delimiter semicolon --format json`.
 
 ## Si utilizas Windows PowerShell
 
@@ -77,7 +77,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 |---|---:|---:|---|
 | csv-quality-report | 1.771 | 100 % | [9/9 verificaciones aprobadas](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) |
 | ops-field-brief | 270 | 100 % | [11/11 verificaciones aprobadas](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308) |
-| inventory-policy-lab | 940 | 100 % | [9/9 verificaciones aprobadas](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40551924889) |
+| inventory-policy-lab | 943 | 100 % | [9/9 verificaciones aprobadas en el PR #97](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) |
 
 Los repositorios contienen su documentación, código fuente, historial, ejemplos y pruebas. La cobertura del 100 % **no garantiza por sí sola** que el software carezca de defectos.
 
