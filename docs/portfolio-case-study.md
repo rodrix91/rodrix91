@@ -80,7 +80,7 @@ the corresponding source changes were squash-merged:
 |---|---:|---:|---|
 | csv-quality-report | 1,741 | 100% line and branch | [9/9 jobs — JSON report column and duplicate integrity](https://github.com/rodrix91/csv-quality-report/actions/runs/40446427550) |
 | ops-field-brief | 251 | 100% line and branch | [11/11 jobs — direct gzip CSV support](https://github.com/rodrix91/ops-field-brief/actions/runs/40447175148) |
-| inventory-policy-lab | 898 | 100% line and branch | [9/9 jobs — gzip demand-history input](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40448796464) |
+| inventory-policy-lab | 906 | 100% line and branch | [9/9 jobs — explicit Excel/ERP input encodings](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40451743319) |
 
 The cross-platform suites exercise Linux, Windows and macOS, with static
 analysis, packaging and reusable GitHub Actions where applicable. Consult
