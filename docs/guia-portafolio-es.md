@@ -28,6 +28,8 @@ PYTHONPATH=src python -m csv_quality_report examples/tiny.csv --format json
 
 Resultado esperado: un informe JSON sobre un CSV pequeño. Revisa sus indicadores de filas, columnas, valores faltantes y tipos inferidos. El código de salida esperado es **0**. Consulta las [pruebas automatizadas](https://github.com/rodrix91/csv-quality-report/tree/main/tests). La mejora [#222](https://github.com/rodrix91/csv-quality-report/pull/222) también permite detectar correctamente separadores en exportaciones CSV antiguas con saltos de línea `CR`, aun cuando una fila larga cruza el límite de lectura; está cubierta por pruebas reales del programa.
 
+La [corrección #223, integrada](https://github.com/rodrix91/csv-quality-report/pull/223) impide que una primera línea `sep=` con comillas desequilibradas se descarte por error como metadato. Su [ejecución CI del PR](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) aprobó **1.782 pruebas**, **100 % de cobertura de líneas y ramas** y **9/9 verificaciones**. El hito anterior de 1.776 pruebas queda documentado.
+
 ### 2. Comprobar una alerta de integridad operativa
 
 Repositorio: [ops-field-brief](https://github.com/rodrix91/ops-field-brief), Python 3.10 o superior.
@@ -79,7 +81,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 
 | Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia |
 |---|---:|---:|---|
-| csv-quality-report | 1.776 | 100 % | [9/9 verificaciones aprobadas en main para CSV con saltos CR](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) |
+| csv-quality-report | 1.782 | 100 % | [9/9 verificaciones aprobadas en el PR #223](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) |
 | ops-field-brief | 286 | 100 % | [11/11 verificaciones aprobadas en el PR #108](https://github.com/rodrix91/ops-field-brief/actions/runs/40599101356) |
 | inventory-policy-lab | 950 | 100 % | [9/9 verificaciones aprobadas en el PR #98](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40564204525) |
 
