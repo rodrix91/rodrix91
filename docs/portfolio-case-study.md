@@ -76,19 +76,19 @@ Simulation is not proof of financial impact at a real company.
 The table records completed passing GitHub Actions runs for **specific
 commits**, not an estimate of all future commits or a claim of commercial
 deployment. The CSV quality and operations runs were verified on `main` after merge;
-the inventory evidence comes from all nine passing jobs on the exact PR head
+the latest inventory evidence comes from all nine passing jobs on the exact PR #98 head
 before its verified squash merge.
 
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
 | csv-quality-report | 1,776 | 100% line and branch | [9/9 jobs: CR-only legacy CSV fix merged to main](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) |
 | ops-field-brief | 273 | 100% line and branch | [11/11 jobs: reproducible Excel operations sample merged to main](https://github.com/rodrix91/ops-field-brief/actions/runs/40556567860) |
-| inventory-policy-lab | 943 | 100% line and branch | [9/9 jobs: exact-head executable Excel demo PR](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) |
+| inventory-policy-lab | 950 | 100% line and branch | [9/9 jobs: exact-head multiline CSV source-line safeguard](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40564204525) |
 
 All three matrices cover Linux, Windows and macOS, and include static
 analysis, package verification and reusable GitHub Actions where
 applicable. The [inventory Excel `sep=` PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96)
-passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). The subsequent [merged synthetic Excel demonstration (#97)](https://github.com/rodrix91/inventory-policy-lab/pull/97) includes a runnable fixture at `examples/regional-excel.csv` and API/CLI regression checks. The table's 943-test snapshot includes both improvements. For earlier tests and milestones, refer to each repository's
+passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). The subsequent [merged synthetic Excel demonstration (#97)](https://github.com/rodrix91/inventory-policy-lab/pull/97) includes a runnable fixture at `examples/regional-excel.csv` and API/CLI regression checks. The table's latest 950-test snapshot also includes the [merged physical CSV line diagnostic fix (#98)](https://github.com/rodrix91/inventory-policy-lab/pull/98), which reports actual file lines after multiline quoted cells without changing policy outputs. The earlier 943-test Excel snapshot remains documented in the project README. For earlier tests and milestones, refer to each repository's
 README and changelog; the underlying source history is preserved.
 
 ## 4. Responsible use
