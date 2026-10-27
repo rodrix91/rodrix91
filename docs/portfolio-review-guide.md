@@ -40,6 +40,47 @@ PYTHONPATH=src python -m inventory_policy_lab examples/demand_synthetic.csv
 
 Examine forecast selection, service assumptions and inventory-policy replay results. The [regional Excel/ERP CSV milestone (#95)](https://github.com/rodrix91/inventory-policy-lab/pull/95) adds explicit comma, semicolon, tab and pipe input without changing the comma default; see its [CI evidence](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40523140357). These are illustrative model outputs, not purchase recommendations or verified commercial savings. See the [hand-checked example](https://github.com/rodrix91/inventory-policy-lab#worked-example-checked-by-hand).
 
+## Five-minute review on Windows PowerShell
+
+Each block assumes a **different repository**, cloned and opened at its root.
+Use PowerShell's environment-variable syntax instead of the Unix/macOS
+`PYTHONPATH=src command` form above. Install the appropriate Python version
+first (3.11+ for CSV and inventory; 3.10+ for operations). The sample files
+below were checked against the corresponding repositories.
+
+**In the `csv-quality-report` repository:**
+
+```powershell
+$env:PYTHONPATH = (Join-Path (Get-Location) 'src')
+python -m csv_quality_report examples/tiny.csv --format json
+$LASTEXITCODE  # expected: 0
+Remove-Item Env:PYTHONPATH
+```
+
+**In the `ops-field-brief` repository:**
+
+```powershell
+$env:PYTHONPATH = (Join-Path (Get-Location) 'src')
+python -m ops_field_brief examples/orders-incomplete-keys.csv --required order_id --max-missing 1 --key order_id,line_id --max-incomplete-keys 1 --json
+$LASTEXITCODE  # expected: 1; an intentionally failed quality gate
+Remove-Item Env:PYTHONPATH
+```
+
+**In the `inventory-policy-lab` repository:**
+
+```powershell
+$env:PYTHONPATH = (Join-Path (Get-Location) 'src')
+python -m inventory_policy_lab examples/demand_synthetic.csv
+$LASTEXITCODE  # expected: 0
+Remove-Item Env:PYTHONPATH
+```
+
+The `$LASTEXITCODE` line must immediately follow the Python invocation;
+otherwise it could reflect a different command. These are synthetic examples,
+not a production environment or a connected three-stage pipeline. Windows is
+included in each project's automated CI matrix, but these exact PowerShell
+copy/paste snippets have not been separately executed interactively.
+
 ## What a reviewer can verify
 
 - **Reliability:** regression suites, CI status and source-distribution tests are visible in the three repositories.
@@ -47,7 +88,7 @@ Examine forecast selection, service assumptions and inventory-policy replay resu
 - **Controls:** optional fail-closed quality gates are tested, including intentionally malformed or incomplete input.
 - **Communication:** each README explains limitations and documents how to reproduce examples.
 
-For a detailed design explanation, see the [portfolio case study](portfolio-case-study.md). The latest checked operational-report milestone passed [266 tests and 11/11 CI jobs](https://github.com/rodrix91/ops-field-brief/actions/runs/40519793654), including safe parsing of Excel `sep=` CSV headers in auto mode. The earlier Unicode-safe Markdown behavior remains validated. For current checks and test counts, use the linked repositories' latest CI runs rather than treating an older count as a live measurement.
+For a detailed design explanation, see the [portfolio case study](portfolio-case-study.md). The latest checked operational-report milestone passed [270 tests and 11/11 CI jobs](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308), including safe rendering of invisible Unicode formatting controls without changing source CSV or JSON values. Earlier Excel `sep=` CSV-header handling also remains validated. For current checks and test counts, use the linked repositories' latest CI runs rather than treating an older count as a live measurement.
 
 ## Limits and responsible interpretation
 
