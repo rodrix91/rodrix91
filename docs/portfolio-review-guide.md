@@ -47,7 +47,7 @@ Examine forecast selection, service assumptions and inventory-policy replay resu
 - **Controls:** optional fail-closed quality gates are tested, including intentionally malformed or incomplete input.
 - **Communication:** each README explains limitations and documents how to reproduce examples.
 
-For a detailed design explanation, see the [portfolio case study](portfolio-case-study.md). The latest checked operational-report milestone passed [258 tests and 11/11 CI jobs](https://github.com/rodrix91/ops-field-brief/actions/runs/40516655303), including safe rendering of Unicode line separators without changing JSON values. For current checks and test counts, use the linked repositories' latest CI runs rather than treating an older count as a live measurement.
+For a detailed design explanation, see the [portfolio case study](portfolio-case-study.md). The latest checked operational-report milestone passed [266 tests and 11/11 CI jobs](https://github.com/rodrix91/ops-field-brief/actions/runs/40519793654), including safe parsing of Excel `sep=` CSV headers in auto mode. The earlier Unicode-safe Markdown behavior remains validated. For current checks and test counts, use the linked repositories' latest CI runs rather than treating an older count as a live measurement.
 
 ## Limits and responsible interpretation
 
