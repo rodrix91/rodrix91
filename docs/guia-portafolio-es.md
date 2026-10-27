@@ -26,7 +26,7 @@ Repositorio: [csv-quality-report](https://github.com/rodrix91/csv-quality-report
 PYTHONPATH=src python -m csv_quality_report examples/tiny.csv --format json
 ```
 
-Resultado esperado: un informe JSON sobre un CSV pequeño. Revisa sus indicadores de filas, columnas, valores faltantes y tipos inferidos. El código de salida esperado es **0**. Consulta las [pruebas automatizadas](https://github.com/rodrix91/csv-quality-report/tree/main/tests).
+Resultado esperado: un informe JSON sobre un CSV pequeño. Revisa sus indicadores de filas, columnas, valores faltantes y tipos inferidos. El código de salida esperado es **0**. Consulta las [pruebas automatizadas](https://github.com/rodrix91/csv-quality-report/tree/main/tests). La mejora [#222](https://github.com/rodrix91/csv-quality-report/pull/222) también permite detectar correctamente separadores en exportaciones CSV antiguas con saltos de línea `CR`, aun cuando una fila larga cruza el límite de lectura; está cubierta por pruebas reales del programa.
 
 ### 2. Comprobar una alerta de integridad operativa
 
@@ -75,7 +75,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 
 | Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia |
 |---|---:|---:|---|
-| csv-quality-report | 1.771 | 100 % | [9/9 verificaciones aprobadas](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) |
+| csv-quality-report | 1.776 | 100 % | [9/9 verificaciones aprobadas en main para CSV con saltos CR](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) |
 | ops-field-brief | 273 | 100 % | [11/11 verificaciones aprobadas en main](https://github.com/rodrix91/ops-field-brief/actions/runs/40556567860) |
 | inventory-policy-lab | 943 | 100 % | [9/9 verificaciones aprobadas en el PR #97](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) |
 
