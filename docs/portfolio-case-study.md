@@ -78,9 +78,9 @@ the corresponding source changes were squash-merged:
 
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
-| csv-quality-report | 1,695 | 100% line and branch | [9/9 jobs — valid fresh JSON quality-report contract](https://github.com/rodrix91/csv-quality-report/actions/runs/40424108611) |
-| ops-field-brief | 236 | 100% line and branch | [11/11 jobs — bounded distinct-key cardinality](https://github.com/rodrix91/ops-field-brief/actions/runs/40418680260) |
-| inventory-policy-lab | 846 | 100% line and branch | [9/9 jobs — Unicode month demand integrity](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40421091414) |
+| csv-quality-report | 1,699 | 100% line and branch | [9/9 jobs — latest validated main integration](https://github.com/rodrix91/csv-quality-report/actions/runs/40424411300) |
+| ops-field-brief | 237 | 100% line and branch | [11/11 jobs — JSON Action report integrity](https://github.com/rodrix91/ops-field-brief/actions/runs/40426961781) |
+| inventory-policy-lab | 850 | 100% line and branch | [9/9 jobs — development lock and typing integrity](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40425358900) |
 
 The cross-platform suites exercise Linux, Windows and macOS, with static
 analysis, packaging and reusable GitHub Actions where applicable. Consult
