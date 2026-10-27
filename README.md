@@ -9,7 +9,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 | Project | Purpose | Engineering signal |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,771 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 270 tests, 100% coverage, Excel sep= and gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 273 tests, 100% coverage, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 943 tests, 100% coverage, a runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
 ## Latest verified engineering results (27 October 2026)
@@ -21,7 +21,7 @@ remain documented below.
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,771 tests and 100% line/branch coverage; 9/9 CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) | [PR #221](https://github.com/rodrix91/csv-quality-report/pull/221): visible Unicode controls in Markdown while preserving source values in JSON |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [270 tests and 100% line/branch coverage; 11/11 CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308) | [PR #105](https://github.com/rodrix91/ops-field-brief/pull/105): safe display of hidden Unicode format characters |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [273 tests and 100% line/branch coverage; 11/11 passing exact-head PR CI jobs](https://github.com/rodrix91/ops-field-brief/actions/runs/40556286920) | [Merged PR #106](https://github.com/rodrix91/ops-field-brief/pull/106): reproducible Excel `sep=;` operations export and genuine CLI quality-gate test |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [943 tests, 100% line/branch coverage and 9/9 passing exact-head PR CI jobs](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) | [Merged PR #97](https://github.com/rodrix91/inventory-policy-lab/pull/97): reproducible synthetic Excel `sep=` example with validated API and CLI paths; builds on [PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96) |
 
 All three projects are **alpha-stage reference implementations**, not claims of
@@ -132,6 +132,8 @@ Latest published release: [v0.21.0](https://github.com/rodrix91/csv-quality-repo
 > Status: prototype / alpha. The project is intentionally small and focused while I continue improving reliability, usability, documentation, and release readiness.
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
+
+The [executable Excel operations example (#106)](https://github.com/rodrix91/ops-field-brief/pull/106) adds a synthetic four-order `sep=;` file at `examples/orders-excel-sep.csv`, replacing an unusable placeholder command in the README. The parser, CLI JSON quality-gate results and deliberate explicit-separator behavior have dedicated regression tests. Its [exact-head PR CI](https://github.com/rodrix91/ops-field-brief/actions/runs/40556286920) passed **273 tests**, **100% line and branch coverage**, Ruff, mypy and **11/11** Linux/Windows/macOS, Action and packaging jobs before [squash merge](https://github.com/rodrix91/ops-field-brief/pull/106). Earlier Unicode and separator milestones remain below.
 
 The [Excel separator directive compatibility update (#104)](https://github.com/rodrix91/ops-field-brief/pull/104) recognizes exact first-line `sep=;`, `sep=,`, `sep=|` and tab hints with `--delimiter auto`, so real Excel exports are parsed using their actual CSV header. Plain, gzip and stdin data are covered; explicit delimiter behavior and strict checks remain unchanged. Its [exact-head CI](https://github.com/rodrix91/ops-field-brief/actions/runs/40519793654) verified **266 tests**, **100% line and branch coverage**, Ruff, mypy, packaging and **11/11** cross-platform and Action jobs. Earlier milestones remain intact below.
 
