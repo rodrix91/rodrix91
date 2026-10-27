@@ -8,9 +8,25 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,744 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 266 tests, 100% coverage, Excel sep= and gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,771 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 270 tests, 100% coverage, Excel sep= and gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 925 tests, 100% coverage, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
+
+## Latest verified engineering results (27 October 2026)
+
+These are **CI-verified snapshots**, not estimates of stars, downloads, adoption, or
+production deployments. The historical milestones and reproducible case studies
+remain documented below.
+
+| Repository | Verified evidence | Recent improvement |
+|---|---|---|
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,771 tests and 100% line/branch coverage; 9/9 CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) | [PR #221](https://github.com/rodrix91/csv-quality-report/pull/221): visible Unicode controls in Markdown while preserving source values in JSON |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [270 tests and 100% line/branch coverage; 11/11 CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308) | [PR #105](https://github.com/rodrix91/ops-field-brief/pull/105): safe display of hidden Unicode format characters |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [925 tests and 100% line/branch coverage; 9/9 CI jobs passed on the validated main snapshot](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40524863460) | [PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96): Excel `sep=` import support under review; not included in the validated main snapshot |
+
+All three projects are **alpha-stage reference implementations**, not claims of
+enterprise deployments or real customer outcomes. Reproducible synthetic examples
+and documented caveats are available in the reviewer guide and case study.
 
 The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions. All three publish `CITATION.cff` metadata for reproducible citation.
 
