@@ -83,7 +83,7 @@ CI checks are also linked in the project documentation.
 |---|---:|---:|---|
 | csv-quality-report | 1,782 | 100% line and branch | [9/9 jobs: balanced Excel sep directive safeguard](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) |
 | ops-field-brief | 286 | 100% line and branch | [11/11 jobs: exact-head CR-only CSV auto parser and Excel hint fix](https://github.com/rodrix91/ops-field-brief/actions/runs/40599101356) |
-| inventory-policy-lab | 950 | 100% line and branch | [9/9 jobs: exact-head multiline CSV source-line safeguard](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40564204525) |
+| inventory-policy-lab | 958 | 100% line and branch | [9/9 jobs: exact-head real calendar-year validation](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40603064172) |
 
 The [merged CSV metadata integrity safeguard (#223)](https://github.com/rodrix91/csv-quality-report/pull/223) preserves malformed half-quoted `sep=` headers as input, rather than stripping the first line. The [earlier CR-only delimiter improvement (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) remains separately documented.
 
@@ -92,7 +92,7 @@ The [latest merged CR-only CSV compatibility PR #108](https://github.com/rodrix9
 All three matrices cover Linux, Windows and macOS, and include static
 analysis, package verification and reusable GitHub Actions where
 applicable. The [inventory Excel `sep=` PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96)
-passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). The subsequent [merged synthetic Excel demonstration (#97)](https://github.com/rodrix91/inventory-policy-lab/pull/97) includes a runnable fixture at `examples/regional-excel.csv` and API/CLI regression checks. The table's latest 950-test snapshot also includes the [merged physical CSV line diagnostic fix (#98)](https://github.com/rodrix91/inventory-policy-lab/pull/98), which reports actual file lines after multiline quoted cells without changing policy outputs. The earlier 943-test Excel snapshot remains documented in the project README. For earlier tests and milestones, refer to each repository's
+passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). The subsequent [merged synthetic Excel demonstration (#97)](https://github.com/rodrix91/inventory-policy-lab/pull/97) includes a runnable fixture at `examples/regional-excel.csv` and API/CLI regression checks. The latest 958-test snapshot covers the [validated year-zero monthly-period fix (#99)](https://github.com/rodrix91/inventory-policy-lab/pull/99), which rejects impossible month years and preserves already-written reports on failure. The earlier 950-test [physical CSV line diagnostic fix (#98)](https://github.com/rodrix91/inventory-policy-lab/pull/98) remains documented for audit history and correctly reports file lines after multiline quoted cells. The earlier 943-test Excel snapshot remains documented in the project README. For earlier tests and milestones, refer to each repository's
 README and changelog; the underlying source history is preserved.
 
 ## 4. Responsible use
