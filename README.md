@@ -20,7 +20,7 @@ remain documented below.
 
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,776 tests and 100% line/branch coverage; 9/9 exact-head PR CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40558185020) | [Merged PR #222](https://github.com/rodrix91/csv-quality-report/pull/222): reliable delimiter auto-detection for long, CR-only legacy CSV files |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,776 tests and 100% line/branch coverage; 9/9 main CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) | [Merged PR #222](https://github.com/rodrix91/csv-quality-report/pull/222): reliable delimiter auto-detection for long, CR-only legacy CSV files |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [273 tests and 100% line/branch coverage; 11/11 main CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40556567860) | [Merged PR #106](https://github.com/rodrix91/ops-field-brief/pull/106): reproducible Excel `sep=;` operations export and genuine CLI quality-gate test |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [943 tests, 100% line/branch coverage and 9/9 passing exact-head PR CI jobs](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) | [Merged PR #97](https://github.com/rodrix91/inventory-policy-lab/pull/97): reproducible synthetic Excel `sep=` example with validated API and CLI paths; builds on [PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96) |
 
