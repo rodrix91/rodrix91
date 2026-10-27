@@ -8,7 +8,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,776 tests, 100% line/branch coverage, legacy CR-only CSV support, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,782 tests, 100% line/branch coverage, validated Excel `sep=` quotes, legacy CR-only CSV support, strict typing, PEP 561, CITATION.cff, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 286 tests, 100% coverage, legacy CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 950 tests, 100% coverage, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
@@ -20,7 +20,7 @@ remain documented below.
 
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,776 tests and 100% line/branch coverage; 9/9 main CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) | [Merged PR #222](https://github.com/rodrix91/csv-quality-report/pull/222): reliable delimiter auto-detection for long, CR-only legacy CSV files |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,782 tests and 100% line/branch coverage; 9/9 exact-head CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) | [Merged PR #223](https://github.com/rodrix91/csv-quality-report/pull/223): reject unbalanced quoted Excel `sep=` declarations; builds on [PR #222 CR-only CSV detection](https://github.com/rodrix91/csv-quality-report/pull/222) |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [286 tests and 100% line/branch coverage; 11/11 exact-head CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40599101356) | [Merged PR #108](https://github.com/rodrix91/ops-field-brief/pull/108): correct legacy CR-only CSV and Excel preamble parsing; builds on [PR #107 physical source lines](https://github.com/rodrix91/ops-field-brief/pull/107) |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [950 tests, 100% line/branch coverage and 9/9 passing exact-head PR CI jobs](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40564204525) | [Merged PR #98](https://github.com/rodrix91/inventory-policy-lab/pull/98): accurate source-line errors after multiline CSV cells; builds on the [PR #97 Excel demo](https://github.com/rodrix91/inventory-policy-lab/pull/97) |
 
@@ -45,6 +45,8 @@ Three small standard-library Python tools for CSV and operations work:
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
+
+The [Excel separator metadata integrity fix (#223)](https://github.com/rodrix91/csv-quality-report/pull/223) requires balanced quote marks around a quoted `sep=` directive. Half-quoted first lines are retained as input rather than silently dropped, while valid quoted/unquoted, case-insensitive hints and CR/LF/CRLF remain supported. The [exact-head CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) passed **1,782 tests**, **100% line and branch coverage**, Ruff, formatting, strict mypy and **9/9** Linux/Windows/macOS, package and Action jobs before the squash merge. The earlier 1,776-test CR-only safeguard remains below.
 
 The [legacy CSV line-ending safeguard (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) fixes `--delimiter auto` when long, carriage-return-only (`CR`) records cross the 64-KiB detection window. It drops incomplete sample records at either a CR or LF boundary while preserving LF/CRLF behavior and existing report formats. The [exact-head PR CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40558185020) passed **1,776 tests**, **100% line and branch coverage**, Ruff, strict mypy, source distributions and **9/9** Linux/Windows/macOS and Action jobs before [squash merge](https://github.com/rodrix91/csv-quality-report/pull/222). Earlier 1,771-test Unicode milestones remain below as historical evidence.
 
