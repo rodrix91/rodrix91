@@ -83,12 +83,12 @@ before its verified squash merge.
 |---|---:|---:|---|
 | csv-quality-report | 1,771 | 100% line and branch | [9/9 jobs: Unicode-safe Markdown and lossless JSON](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) |
 | ops-field-brief | 270 | 100% line and branch | [11/11 jobs: safe Unicode formatting](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308) |
-| inventory-policy-lab | 940 | 100% line and branch | [9/9 jobs: exact-head Excel `sep=` PR validation](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40550550444) |
+| inventory-policy-lab | 943 | 100% line and branch | [9/9 jobs: exact-head executable Excel demo PR](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) |
 
 All three matrices cover Linux, Windows and macOS, and include static
 analysis, package verification and reusable GitHub Actions where
 applicable. The [inventory Excel `sep=` PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96)
-passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). Its 940-test snapshot includes the new parser behavior. For earlier tests and milestones, refer to each repository's
+passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). The subsequent [merged synthetic Excel demonstration (#97)](https://github.com/rodrix91/inventory-policy-lab/pull/97) includes a runnable fixture at `examples/regional-excel.csv` and API/CLI regression checks. The table's 943-test snapshot includes both improvements. For earlier tests and milestones, refer to each repository's
 README and changelog; the underlying source history is preserved.
 
 ## 4. Responsible use
