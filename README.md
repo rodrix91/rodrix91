@@ -8,7 +8,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,741 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,744 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 251 tests, 100% coverage, gzip CSV, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 906 tests, 100% coverage, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
@@ -29,6 +29,8 @@ Three small standard-library Python tools for CSV and operations work:
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
+
+The [UTF-16 streaming decoding safeguard (#220)](https://github.com/rodrix91/csv-quality-report/pull/220) normalizes Python codec errors that do not provide a byte offset into the existing CLI encoding error (exit 4), avoiding unhandled exceptions when spreadsheet CSV exports lack a required BOM. It covers both ordinary and gzip streams, retains accurate decoder-provided offsets, and preserves pre-existing JSON outputs on failure. The [exact-head CI run](https://github.com/rodrix91/csv-quality-report/actions/runs/40514885949) passed **1,744 tests**, **100% line and branch coverage**, Ruff, strict mypy, source packaging and **9/9** Linux/Windows/macOS and Action checks. Earlier engineering milestones remain below.
 
 The [GitHub Action JSON accounting safeguard (#219)](https://github.com/rodrix91/csv-quality-report/pull/219) now rejects reports with inconsistent header counts, invalid or duplicated selected-column identities, and impossible duplicate-row totals before publishing a supposedly successful artifact. It retains valid full and `--columns` profiles without changing their JSON schema. The [exact-head CI run](https://github.com/rodrix91/csv-quality-report/actions/runs/40446427550) passed **1,741 tests**, **100% line and branch coverage**, Ruff, strict mypy, and **9/9** Linux/Windows/macOS, package and Action jobs. Earlier engineering milestones remain intact below.
 
