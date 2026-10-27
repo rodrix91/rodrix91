@@ -2,7 +2,7 @@
 
 I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
-**New to this portfolio?** [Start with the five-minute reviewer guide](docs/portfolio-review-guide.md) for reproducible examples, business questions and limitations.
+**New to this portfolio?** [Start with the five-minute reviewer guide](docs/portfolio-review-guide.md) for reproducible examples, business questions and limitations. **¿Prefieres español?** [Consulta la guía de evaluación en español](docs/guia-portafolio-es.md), con comandos, resultados previstos y límites documentados.
 
 ## Portfolio at a glance
 
