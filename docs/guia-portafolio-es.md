@@ -42,6 +42,8 @@ Resultado esperado: **código de salida 1**. Esta salida indica que el ejemplo s
 
 El [PR #107, ya integrado](https://github.com/rodrix91/ops-field-brief/pull/107) mejora la validación `--strict-csv`: cuando una fila está mal estructurada, indica tanto su número de registro como la **línea física real** del archivo, incluso si hay campos entre comillas de varias líneas, archivos gzip o encabezados `sep=` de Excel. Su [validación exacta del PR](https://github.com/rodrix91/ops-field-brief/actions/runs/40596506521) aprobó **278 pruebas**, **100 % de cobertura de líneas y ramas** y **11/11 verificaciones**. Se conservan los hitos anteriores.
 
+La [mejora #108, integrada](https://github.com/rodrix91/ops-field-brief/pull/108) permite además procesar archivos CSV antiguos con separadores de línea `CR` (retorno de carro), incluidos datos de una sola columna, la entrada estándar y encabezados `sep=` de Excel; conserva el comportamiento de los archivos `LF` y `CRLF`. La [matriz CI del último commit del PR](https://github.com/rodrix91/ops-field-brief/actions/runs/40599101356) aprobó **286 pruebas, cobertura del 100 % de líneas y ramas y 11/11 verificaciones**.
+
 ### 3. Analizar una política de inventario
 
 Repositorio: [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab), Python 3.11 o superior.
@@ -78,7 +80,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 | Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia |
 |---|---:|---:|---|
 | csv-quality-report | 1.776 | 100 % | [9/9 verificaciones aprobadas en main para CSV con saltos CR](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) |
-| ops-field-brief | 278 | 100 % | [11/11 verificaciones aprobadas en el PR #107](https://github.com/rodrix91/ops-field-brief/actions/runs/40596506521) |
+| ops-field-brief | 286 | 100 % | [11/11 verificaciones aprobadas en el PR #108](https://github.com/rodrix91/ops-field-brief/actions/runs/40599101356) |
 | inventory-policy-lab | 950 | 100 % | [9/9 verificaciones aprobadas en el PR #98](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40564204525) |
 
 Los repositorios contienen su documentación, código fuente, historial, ejemplos y pruebas. La cobertura del 100 % **no garantiza por sí sola** que el software carezca de defectos.

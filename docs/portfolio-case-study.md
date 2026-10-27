@@ -82,10 +82,10 @@ exact PR heads before the respective verified squash merges.
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
 | csv-quality-report | 1,776 | 100% line and branch | [9/9 jobs: CR-only legacy CSV fix merged to main](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) |
-| ops-field-brief | 278 | 100% line and branch | [11/11 jobs: exact-head multiline CSV source-line diagnostics](https://github.com/rodrix91/ops-field-brief/actions/runs/40596506521) |
+| ops-field-brief | 286 | 100% line and branch | [11/11 jobs: exact-head CR-only CSV auto parser and Excel hint fix](https://github.com/rodrix91/ops-field-brief/actions/runs/40599101356) |
 | inventory-policy-lab | 950 | 100% line and branch | [9/9 jobs: exact-head multiline CSV source-line safeguard](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40564204525) |
 
-The [merged operational strict-CSV diagnostics PR #107](https://github.com/rodrix91/ops-field-brief/pull/107) adds physical file line numbers to existing logical-record errors, including multiline quoted fields, while preserving the 273-test [Excel example milestone (#106)](https://github.com/rodrix91/ops-field-brief/pull/106) as historical evidence.
+The [latest merged CR-only CSV compatibility PR #108](https://github.com/rodrix91/ops-field-brief/pull/108) supports legacy carriage-return line endings, single-column stdin and Excel preambles with safe parsing and preserved diagnostics. The preceding [operational strict-CSV diagnostics PR #107](https://github.com/rodrix91/ops-field-brief/pull/107) adds physical file line numbers to existing logical-record errors, including multiline quoted fields, while preserving the 273-test [Excel example milestone (#106)](https://github.com/rodrix91/ops-field-brief/pull/106) as historical evidence.
 
 All three matrices cover Linux, Windows and macOS, and include static
 analysis, package verification and reusable GitHub Actions where
