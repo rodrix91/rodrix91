@@ -8,7 +8,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,699 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,741 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 245 tests, 100% coverage, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 889 tests, 100% coverage, reusable GitHub Action, CITATION.cff |
 
@@ -29,6 +29,8 @@ Three small standard-library Python tools for CSV and operations work:
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
+
+The [GitHub Action JSON accounting safeguard (#219)](https://github.com/rodrix91/csv-quality-report/pull/219) now rejects reports with inconsistent header counts, invalid or duplicated selected-column identities, and impossible duplicate-row totals before publishing a supposedly successful artifact. It retains valid full and `--columns` profiles without changing their JSON schema. The [exact-head CI run](https://github.com/rodrix91/csv-quality-report/actions/runs/40446427550) passed **1,741 tests**, **100% line and branch coverage**, Ruff, strict mypy, and **9/9** Linux/Windows/macOS, package and Action jobs. Earlier engineering milestones remain intact below.
 
 The [GitHub Action validated JSON quality-report safeguard (#213)](https://github.com/rodrix91/csv-quality-report/pull/213) checks that each **fresh** JSON artifact is valid, contains core CSV-profile fields and agrees with the actual quality-gate exit status (success `0` or failed check `8`) before the Action exposes its report path or declares success. Malformed, incomplete or contradictory results fail closed, preventing misleading downstream pipeline decisions while preserving the existing freshness and error guards. The [exact-head CI run](https://github.com/rodrix91/csv-quality-report/actions/runs/40424108611) passed **1,695 tests**, **100% line and branch coverage**, Ruff, strict mypy and **9/9** Action, sdist, Linux/Windows/macOS jobs before squash merge. The prior 1,666-test and older milestones remain below.
 
