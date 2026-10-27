@@ -38,7 +38,7 @@ Expected: **exit code 1**, because this synthetic fixture exceeds the configured
 PYTHONPATH=src python -m inventory_policy_lab examples/demand_synthetic.csv
 ```
 
-Examine forecast selection, service assumptions and inventory-policy replay results. The [regional Excel/ERP CSV milestone (#95)](https://github.com/rodrix91/inventory-policy-lab/pull/95) adds explicit comma, semicolon, tab and pipe input without changing the comma default; see its [CI evidence](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40523140357). These are illustrative model outputs, not purchase recommendations or verified commercial savings. See the [hand-checked example](https://github.com/rodrix91/inventory-policy-lab#worked-example-checked-by-hand).
+Examine forecast selection, service assumptions and inventory-policy replay results. The [regional Excel/ERP CSV milestone (#95)](https://github.com/rodrix91/inventory-policy-lab/pull/95) adds explicit comma, semicolon, tab and pipe input without changing the comma default. The subsequently [merged Excel `sep=` preamble enhancement (#96)](https://github.com/rodrix91/inventory-policy-lab/pull/96) recognizes an exact first-line hint when it matches the explicit delimiter: for a file beginning with `sep=;`, pass `--delimiter semicolon`. Contradictory or unsupported hints fail safely rather than guessing; see [940 passing tests, full coverage and 9/9 CI checks](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40550550444). These are illustrative model outputs, not purchase recommendations or verified commercial savings. See the [hand-checked example](https://github.com/rodrix91/inventory-policy-lab#worked-example-checked-by-hand).
 
 ## Five-minute review on Windows PowerShell
 
