@@ -78,7 +78,7 @@ the corresponding source changes were squash-merged:
 
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
-| csv-quality-report | 1,741 | 100% line and branch | [9/9 jobs — JSON report column and duplicate integrity](https://github.com/rodrix91/csv-quality-report/actions/runs/40446427550) |
+| csv-quality-report | 1,744 | 100% line and branch | [9/9 jobs — fail-closed UTF-16 decoding](https://github.com/rodrix91/csv-quality-report/actions/runs/40514885949) |
 | ops-field-brief | 251 | 100% line and branch | [11/11 jobs — direct gzip CSV support](https://github.com/rodrix91/ops-field-brief/actions/runs/40447175148) |
 | inventory-policy-lab | 906 | 100% line and branch | [9/9 jobs — explicit Excel/ERP input encodings](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40451743319) |
 
