@@ -38,7 +38,7 @@ Expected: **exit code 1**, because this synthetic fixture exceeds the configured
 PYTHONPATH=src python -m inventory_policy_lab examples/demand_synthetic.csv
 ```
 
-Examine forecast selection, service assumptions and inventory-policy replay results. These are illustrative model outputs, not purchase recommendations or verified commercial savings. See the [hand-checked example](https://github.com/rodrix91/inventory-policy-lab#worked-example-checked-by-hand).
+Examine forecast selection, service assumptions and inventory-policy replay results. The [regional Excel/ERP CSV milestone (#95)](https://github.com/rodrix91/inventory-policy-lab/pull/95) adds explicit comma, semicolon, tab and pipe input without changing the comma default; see its [CI evidence](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40523140357). These are illustrative model outputs, not purchase recommendations or verified commercial savings. See the [hand-checked example](https://github.com/rodrix91/inventory-policy-lab#worked-example-checked-by-hand).
 
 ## What a reviewer can verify
 
