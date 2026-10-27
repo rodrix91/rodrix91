@@ -82,7 +82,7 @@ before its verified squash merge.
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
 | csv-quality-report | 1,771 | 100% line and branch | [9/9 jobs: Unicode-safe Markdown and lossless JSON](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) |
-| ops-field-brief | 270 | 100% line and branch | [11/11 jobs: safe Unicode formatting](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308) |
+| ops-field-brief | 273 | 100% line and branch | [11/11 jobs: reproducible Excel operations sample merged to main](https://github.com/rodrix91/ops-field-brief/actions/runs/40556567860) |
 | inventory-policy-lab | 943 | 100% line and branch | [9/9 jobs: exact-head executable Excel demo PR](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) |
 
 All three matrices cover Linux, Windows and macOS, and include static

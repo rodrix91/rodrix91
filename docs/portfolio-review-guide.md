@@ -88,7 +88,7 @@ copy/paste snippets have not been separately executed interactively.
 - **Controls:** optional fail-closed quality gates are tested, including intentionally malformed or incomplete input.
 - **Communication:** each README explains limitations and documents how to reproduce examples.
 
-For a detailed design explanation, see the [portfolio case study](portfolio-case-study.md). The latest checked operational-report milestone passed [270 tests and 11/11 CI jobs](https://github.com/rodrix91/ops-field-brief/actions/runs/40545973308), including safe rendering of invisible Unicode formatting controls without changing source CSV or JSON values. Earlier Excel `sep=` CSV-header handling also remains validated. For current checks and test counts, use the linked repositories' latest CI runs rather than treating an older count as a live measurement.
+For a detailed design explanation, see the [portfolio case study](portfolio-case-study.md). The latest checked operational-report milestone passed [273 tests and 11/11 main CI jobs](https://github.com/rodrix91/ops-field-brief/actions/runs/40556567860), including a [real synthetic Excel `sep=;` fixture](https://github.com/rodrix91/ops-field-brief/blob/main/examples/orders-excel-sep.csv) and an executable JSON quality-gate example. Earlier Unicode-safe rendering and Excel-header handling remain validated. For current checks and test counts, use the linked repositories' latest CI runs rather than treating an older count as a live measurement.
 
 ## Limits and responsible interpretation
 
