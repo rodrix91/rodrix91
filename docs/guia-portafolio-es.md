@@ -75,7 +75,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 
 | Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia |
 |---|---:|---:|---|
-| csv-quality-report | 1.776 | 100 % | [9/9 verificaciones aprobadas para CSV con saltos CR](https://github.com/rodrix91/csv-quality-report/actions/runs/40558185020) |
+| csv-quality-report | 1.776 | 100 % | [9/9 verificaciones aprobadas en main para CSV con saltos CR](https://github.com/rodrix91/csv-quality-report/actions/runs/40558419557) |
 | ops-field-brief | 273 | 100 % | [11/11 verificaciones aprobadas en main](https://github.com/rodrix91/ops-field-brief/actions/runs/40556567860) |
 | inventory-policy-lab | 943 | 100 % | [9/9 verificaciones aprobadas en el PR #97](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) |
 
