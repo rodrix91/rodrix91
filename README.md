@@ -8,7 +8,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,771 tests, 100% line/branch coverage, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,776 tests, 100% line/branch coverage, legacy CR-only CSV support, strict typing, PEP 561, CITATION.cff, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 273 tests, 100% coverage, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 943 tests, 100% coverage, a runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
@@ -20,7 +20,7 @@ remain documented below.
 
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,771 tests and 100% line/branch coverage; 9/9 CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) | [PR #221](https://github.com/rodrix91/csv-quality-report/pull/221): visible Unicode controls in Markdown while preserving source values in JSON |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,776 tests and 100% line/branch coverage; 9/9 exact-head PR CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40558185020) | [Merged PR #222](https://github.com/rodrix91/csv-quality-report/pull/222): reliable delimiter auto-detection for long, CR-only legacy CSV files |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [273 tests and 100% line/branch coverage; 11/11 main CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40556567860) | [Merged PR #106](https://github.com/rodrix91/ops-field-brief/pull/106): reproducible Excel `sep=;` operations export and genuine CLI quality-gate test |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [943 tests, 100% line/branch coverage and 9/9 passing exact-head PR CI jobs](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) | [Merged PR #97](https://github.com/rodrix91/inventory-policy-lab/pull/97): reproducible synthetic Excel `sep=` example with validated API and CLI paths; builds on [PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96) |
 
@@ -45,6 +45,8 @@ Three small standard-library Python tools for CSV and operations work:
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
+
+The [legacy CSV line-ending safeguard (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) fixes `--delimiter auto` when long, carriage-return-only (`CR`) records cross the 64-KiB detection window. It drops incomplete sample records at either a CR or LF boundary while preserving LF/CRLF behavior and existing report formats. The [exact-head PR CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40558185020) passed **1,776 tests**, **100% line and branch coverage**, Ruff, strict mypy, source distributions and **9/9** Linux/Windows/macOS and Action jobs before [squash merge](https://github.com/rodrix91/csv-quality-report/pull/222). Earlier 1,771-test Unicode milestones remain below as historical evidence.
 
 The [UTF-16 streaming decoding safeguard (#220)](https://github.com/rodrix91/csv-quality-report/pull/220) normalizes Python codec errors that do not provide a byte offset into the existing CLI encoding error (exit 4), avoiding unhandled exceptions when spreadsheet CSV exports lack a required BOM. It covers both ordinary and gzip streams, retains accurate decoder-provided offsets, and preserves pre-existing JSON outputs on failure. The [exact-head CI run](https://github.com/rodrix91/csv-quality-report/actions/runs/40514885949) passed **1,744 tests**, **100% line and branch coverage**, Ruff, strict mypy, source packaging and **9/9** Linux/Windows/macOS and Action checks. Earlier engineering milestones remain below.
 
