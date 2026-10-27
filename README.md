@@ -2,6 +2,8 @@
 
 I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
+**New to this portfolio?** [Start with the five-minute reviewer guide](docs/portfolio-review-guide.md) for reproducible examples, business questions and limitations.
+
 ## Portfolio at a glance
 
 | Project | Purpose | Engineering signal |
