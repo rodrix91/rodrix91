@@ -76,7 +76,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 | Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia |
 |---|---:|---:|---|
 | csv-quality-report | 1.771 | 100 % | [9/9 verificaciones aprobadas](https://github.com/rodrix91/csv-quality-report/actions/runs/40547706951) |
-| ops-field-brief | 273 | 100 % | [11/11 verificaciones aprobadas](https://github.com/rodrix91/ops-field-brief/actions/runs/40556286920) |
+| ops-field-brief | 273 | 100 % | [11/11 verificaciones aprobadas en main](https://github.com/rodrix91/ops-field-brief/actions/runs/40556567860) |
 | inventory-policy-lab | 943 | 100 % | [9/9 verificaciones aprobadas en el PR #97](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40552823173) |
 
 Los repositorios contienen su documentación, código fuente, historial, ejemplos y pruebas. La cobertura del 100 % **no garantiza por sí sola** que el software carezca de defectos.
