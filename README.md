@@ -8,11 +8,11 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,793 tests, 100% line/branch coverage, strict malformed-quote rejection, validated Excel `sep=` quotes, legacy CR-only CSV support, strict typing, PEP 561, CITATION.cff, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,796 tests, 100% line/branch coverage, strict ISO hours including Python 3.14, malformed-quote rejection, Excel `sep=` metadata checks, CR-only CSV support, PEP 561, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 291 tests, 100% coverage, explicit/auto stdin CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 966 tests, 100% coverage, Unicode-safe ERP headers and validated monthly calendar years, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
-## Latest verified engineering results (27 October 2026)
+## Latest verified engineering results (27 October 2026, Bolivia time)
 
 These are **CI-verified snapshots**, not estimates of stars, downloads, adoption, or
 production deployments. The historical milestones and reproducible case studies
@@ -20,9 +20,9 @@ remain documented below.
 
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,793 tests and 100% line/branch coverage; 9/9 exact-head CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40610110107) | [Merged PR #224](https://github.com/rodrix91/csv-quality-report/pull/224): reject unterminated or incorrectly closed CSV quotations; builds on [PR #223 Excel sep= validation](https://github.com/rodrix91/csv-quality-report/pull/223) |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [291 tests and 100% line/branch coverage; 11/11 exact-head CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40606326700) | [Merged PR #109](https://github.com/rodrix91/ops-field-brief/pull/109): read legacy CR-only stdin with an explicit delimiter; builds on [PR #108 auto-delimiter fix](https://github.com/rodrix91/ops-field-brief/pull/108) |
-| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [966 tests, 100% line/branch coverage and 9/9 passing exact-head PR CI jobs](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40607684934) | [PR #100](https://github.com/rodrix91/inventory-policy-lab/pull/100): fail-closed detection of Unicode-equivalent ERP headers; builds on [PR #99 calendar-year validation](https://github.com/rodrix91/inventory-policy-lab/pull/99) |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,796 tests, 100% line/branch coverage and 12/12 exact-head CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40615229561) | [Merged PR #225](https://github.com/rodrix91/csv-quality-report/pull/225): preserve strict `00`-`23` ISO datetime hours on Python 3.14; test Linux, Windows and macOS |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [291 tests and 100% line/branch coverage; 14/14 `main` CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40614888276) | [Merged PR #110](https://github.com/rodrix91/ops-field-brief/pull/110): add Python 3.14 Linux, Windows and macOS coverage without changing runtime behavior |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [966 tests, 100% line/branch coverage and 12/12 exact-head PR CI jobs passed](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40614828896) | [Merged PR #101](https://github.com/rodrix91/inventory-policy-lab/pull/101): test Python 3.14 on Linux, Windows and macOS |
 
 All three projects are **alpha-stage reference implementations**, not claims of
 enterprise deployments or real customer outcomes. Reproducible synthetic examples
@@ -45,6 +45,8 @@ Three small standard-library Python tools for CSV and operations work:
 ## Featured project
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
+
+The [Python 3.14 strict datetime compatibility fix (#225)](https://github.com/rodrix91/csv-quality-report/pull/225) rejects `24:00` explicitly, including timezone and seconds variants, rather than interpreting it as the next day's midnight. Its [exact-head CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40615229561) passed **1,796 tests**, **100% line/branch coverage** and **12/12** checks including Python 3.14 on Linux, macOS and Windows, Ruff, mypy, sdist and the reusable Action. This is an alpha-stage implementation, not a production deployment.
 
 The [malformed quoted CSV safeguard (#224)](https://github.com/rodrix91/csv-quality-report/pull/224) stops quality reports from silently accepting unterminated quoted fields or invalid text following closing quotes. It rejects malformed input in files, gzip and standard input while preserving valid quoted multiline cells and previously generated JSON reports on errors. The [exact-head CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40610110107) passed **1,793 tests**, **100% line and branch coverage**, Ruff, formatting, strict mypy and **9/9** Linux/Windows/macOS, package and Action jobs before squash merge. The earlier 1,782-test balanced Excel `sep=` milestone remains documented below.
 
