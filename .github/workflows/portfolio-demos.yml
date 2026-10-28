@@ -1,0 +1,60 @@
+name: Portfolio synthetic demos
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  demos:
+    name: demos (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Check out demo verifier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Check out verified csv-quality-report source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: rodrix91/csv-quality-report
+          ref: d9de64fd7bcb56b8eeec68696d396f58bb2b01c4
+          path: csv-quality-report
+          persist-credentials: false
+
+      - name: Check out verified ops-field-brief source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: rodrix91/ops-field-brief
+          ref: f35431b10cbe4b9277d0edbe83ece09b7bfb0992
+          path: ops-field-brief
+          persist-credentials: false
+
+      - name: Check out verified inventory-policy-lab source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: rodrix91/inventory-policy-lab
+          ref: 59b69e4c65c9abe8c0e9290564b2aae5471d477b
+          path: inventory-policy-lab
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.14"
+
+      - name: Unit-test portfolio result expectations
+        run: python -m unittest discover -s tests -p 'test_portfolio_demos.py' -v
+
+      - name: Execute and verify the three independent demos
+        run: python scripts/verify_portfolio_demos.py
