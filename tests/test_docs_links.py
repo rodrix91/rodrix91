@@ -61,6 +61,46 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide.md", "# Hello\n# Hello\n")
         self.assertEqual(check_links(self.root), [])
 
+    def test_reference_links_and_collapsed_links_resolve(self) -> None:
+        self.write(
+            "README.md",
+            "[Reviewer guide][PORTFOLIO GUIDE]\n"
+            "[Manual][]\n"
+            "[PORTFOLIO   GUIDE]: docs/guide.md#five-minute-review\n"
+            "[Manual]: <docs/guide.md>\n",
+        )
+        self.write("docs/guide.md", "# Five-minute review\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_reference_to_missing_file_is_rejected(self) -> None:
+        self.write("README.md", "[Guide][ref]\n[ref]: docs/missing.md\n")
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_reference_to_missing_heading_is_rejected(self) -> None:
+        self.write("README.md", "[Guide][ref]\n[ref]: docs/guide.md#missing\n")
+        self.write("docs/guide.md", "# Present\n")
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
+    def test_undefined_reference_fails_closed(self) -> None:
+        self.write("README.md", "[Guide][undocumented]\n")
+        self.assertIn("undefined reference", check_links(self.root)[0])
+
+    def test_duplicate_definitions_do_not_silently_override(self) -> None:
+        self.write(
+            "README.md",
+            "[Guide][ref]\n[Ref]: docs/guide.md\n[ref]: docs/other.md\n",
+        )
+        self.write("docs/guide.md", "# Guide\n")
+        self.assertIn("duplicate reference", check_links(self.root)[0])
+
+    def test_inline_code_examples_are_not_links(self) -> None:
+        self.write(
+            "README.md",
+            "Use "+chr(96)+"[x][undefined]"+chr(96)+" or "+chr(96)+"[z](missing.md)"+chr(96)+" in documentation.\n",
+        )
+        self.assertEqual(check_links(self.root), [])
+
+
 
 if __name__ == "__main__":
     unittest.main()
