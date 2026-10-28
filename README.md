@@ -17,7 +17,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 | Project | Purpose | Engineering signal |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,796 tests, 100% line/branch coverage, strict ISO hours including Python 3.14, malformed-quote rejection, Excel `sep=` metadata checks, CR-only CSV support, PEP 561, cross-platform CI |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 291 tests, 100% coverage, explicit/auto stdin CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 297 tests, 100% coverage, NFC-safe opt-in key/group/header checks, explicit/auto stdin CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 966 tests, 100% coverage, Unicode-safe ERP headers and validated monthly calendar years, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
 ## Latest verified engineering results (27 October 2026, Bolivia time)
@@ -31,7 +31,7 @@ Python **3.14 is now explicitly listed in the package metadata** of all three pr
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,796 tests, 100% line/branch coverage and 12/12 `main` CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40617268332) | [PR #226](https://github.com/rodrix91/csv-quality-report/pull/226) advertises Python 3.14 after the [strict datetime fix #225](https://github.com/rodrix91/csv-quality-report/pull/225) |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [291 tests and 100% line/branch coverage; 14/14 `main` CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40617399628) | [PR #111](https://github.com/rodrix91/ops-field-brief/pull/111) advertises Python 3.14 after [cross-platform verification #110](https://github.com/rodrix91/ops-field-brief/pull/110) |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [297 tests and 100% line/branch coverage; 14/14 `main` CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40622576717) | [PR #112](https://github.com/rodrix91/ops-field-brief/pull/112) fixes NFC-equivalent business keys, groups and headers under opt-in flags |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [966 tests, 100% line/branch coverage and 12/12 exact-head PR CI jobs passed](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40617137840) | [PR #102](https://github.com/rodrix91/inventory-policy-lab/pull/102) advertises Python 3.14 after [cross-platform verification #101](https://github.com/rodrix91/inventory-policy-lab/pull/101) |
 
 All three projects are **alpha-stage reference implementations**, not claims of
