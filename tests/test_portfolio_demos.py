@@ -152,6 +152,44 @@ class PortfolioDemoContractTests(unittest.TestCase):
                 previous,
             )
 
+    def test_nonfinite_baseline_fixtures_contain_real_numeric_tokens(self) -> None:
+        import json
+        import math
+
+        root = Path(__file__).resolve().parents[1]
+        fixtures = (
+            ("nonstandard-baseline-nan.json", '"limit":NaN', "nan"),
+            ("overflow-baseline-exponent.json", '"limit":1e309', "inf"),
+        )
+        for filename, token, expected in fixtures:
+            with self.subTest(filename=filename):
+                source = (
+                    root / "tests" / "fixtures" / filename
+                ).read_text(encoding="utf-8")
+                self.assertIn(token, source)
+                value = json.loads(source)["metadata"]["limit"]
+                self.assertTrue(math.isnan(value) if expected == "nan" else math.isinf(value))
+
+    def test_nonfinite_baseline_negative_checks_require_specific_errors(self) -> None:
+        import subprocess
+
+        previous = '{"status":"verified"}\n'
+        for marker in (
+            "non-standard baseline JSON numeric constant: NaN",
+            "non-finite baseline JSON numeric value: 1e309",
+        ):
+            with self.subTest(error=marker):
+                failed = subprocess.CompletedProcess(
+                    args=[], returncode=3, stdout="", stderr=f"error: {marker}"
+                )
+                check_baseline_rejection(failed, previous, previous, marker)
+                with self.assertRaisesRegex(ValueError, "CSV baseline safeguard"):
+                    check_baseline_rejection(
+                        failed, previous, '{"status":"overwritten"}\n', marker
+                    )
+                with self.assertRaisesRegex(ValueError, "CSV baseline safeguard"):
+                    check_baseline_rejection(failed, previous, previous, "wrong error")
+
     def test_pinned_source_commits_match_reproduction_guide(self) -> None:
         """The workflow and public reproduction table must reference the same SHAs."""
         import re

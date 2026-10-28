@@ -156,17 +156,20 @@ def verify_canonical_unicode_example(root: Path) -> str:
 
 
 def check_baseline_rejection(
-    result: subprocess.CompletedProcess[str], previous: str, after: str
+    result: subprocess.CompletedProcess[str],
+    previous: str,
+    after: str,
+    expected_error: str = "duplicate baseline JSON key: 'rows'",
 ) -> None:
-    """A duplicated historical JSON field must fail without a false success."""
+    """A corrupted historical JSON field must fail without a false success."""
     if (
         result.returncode != 3
         or result.stdout != ""
-        or "duplicate baseline JSON key: 'rows'" not in result.stderr
+        or expected_error not in result.stderr
         or after != previous
     ):
         raise ValueError(
-            "CSV baseline safeguard did not reject duplicate JSON keys "
+            "CSV baseline safeguard did not reject invalid JSON values "
             "while preserving the prior report"
         )
 
@@ -196,6 +199,46 @@ def verify_ambiguous_baseline_example(root: Path) -> str:
     return "csv-quality-report ambiguous baseline: PASS (expected input exit 3)"
 
 
+def verify_nonfinite_baseline_examples(root: Path) -> str:
+    """Reject nonstandard and overflowed JSON numbers without losing output."""
+    project = (root / "csv-quality-report").resolve()
+    cases = (
+        (
+            "nonstandard-baseline-nan.json",
+            "non-standard baseline JSON numeric constant: NaN",
+        ),
+        (
+            "overflow-baseline-exponent.json",
+            "non-finite baseline JSON numeric value: 1e309",
+        ),
+    )
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("Nonfinite baseline demo: CSV source checkout missing")
+    previous = '{"status":"previously verified"}\n'
+    with tempfile.TemporaryDirectory() as directory:
+        saved = Path(directory) / "existing-report.json"
+        for filename, expected_error in cases:
+            fixture = (root / "tests" / "fixtures" / filename).resolve()
+            if not fixture.is_file():
+                raise FileNotFoundError(f"Nonfinite baseline demo fixture missing: {filename}")
+            saved.write_text(previous, encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable, "-m", "csv_quality_report",
+                    "examples/tiny.csv", "--baseline", str(fixture),
+                    "--format", "json", "--json-output", str(saved),
+                ],
+                cwd=project,
+                env={**os.environ, "PYTHONPATH": str(project / "src")},
+                capture_output=True, text=True, encoding="utf-8",
+                check=False, timeout=120,
+            )
+            check_baseline_rejection(
+                result, previous, saved.read_text(encoding="utf-8"), expected_error
+            )
+    return "csv-quality-report nonfinite baselines: PASS (2 expected input exit 3)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -205,12 +248,13 @@ def main() -> int:
         outcomes = verify_examples(root)
         outcomes.append(verify_canonical_unicode_example(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
+        outcomes.append(verify_nonfinite_baseline_examples(root))
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError) as exc:
         print(f"Portfolio demo validation failed: {exc}", file=sys.stderr)
         return 1
     for outcome in outcomes:
         print(outcome)
-    print("Three independent demos and both synthetic integrity checks passed.")
+    print("Three independent demos and all synthetic integrity checks passed.")
     return 0
 
 

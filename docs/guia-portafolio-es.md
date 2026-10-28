@@ -32,6 +32,8 @@ La [corrección #223, integrada](https://github.com/rodrix91/csv-quality-report/
 
 La [protección #224, integrada](https://github.com/rodrix91/csv-quality-report/pull/224) impide generar un informe de calidad con campos CSV entrecomillados incorrectamente (comillas sin cerrar o texto después de una comilla de cierre). Funciona con entrada estándar, gzip y saltos de línea antiguos, manteniendo intacto un informe JSON previamente verificado si la lectura falla. El [CI exacto](https://github.com/rodrix91/csv-quality-report/actions/runs/40610110107) aprobó **1.793 pruebas**, **100 % de cobertura de líneas y ramas** y **9/9 verificaciones**; se conserva el hito anterior de 1.782 pruebas.
 
+La [mejora #228 integrada](https://github.com/rodrix91/csv-quality-report/pull/228) también impide aceptar números JSON no estándar (`NaN` e infinitos) o valores desbordados como `1e309` en las referencias históricas. Las [pruebas sintéticas reproducibles](portfolio-smoke-checks.md) verifican que el programa rechaza estos casos sin modificar informes válidos previos.
+
 La [protección #227 integrada](https://github.com/rodrix91/csv-quality-report/pull/227) impide utilizar informes históricos JSON con nombres de propiedades duplicados que podrían ocultar inconsistencias de datos. Antes de procesar un nuevo CSV devuelve un error controlado y conserva el informe anterior. La [prueba sintética automatizada](portfolio-smoke-checks.md) reproduce esta situación sin información real.
 
 ### 2. Comprobar una alerta de integridad operativa
@@ -91,7 +93,7 @@ Estas cifras corresponden a **ejecuciones concretas y exitosas en la rama princi
 
 | Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia actual |
 |---|---:|---:|---|
-| csv-quality-report | 1.801 | 100 % | [12/12 verificaciones aprobadas en main](https://github.com/rodrix91/csv-quality-report/actions/runs/40623933718) |
+| csv-quality-report | 1.818 | 100 % | [12/12 verificaciones aprobadas en main](https://github.com/rodrix91/csv-quality-report/actions/runs/40625104404) |
 | ops-field-brief | 297 | 100 % | [14/14 verificaciones aprobadas en main](https://github.com/rodrix91/ops-field-brief/actions/runs/40622576717) |
 | inventory-policy-lab | 966 | 100 % | [12/12 verificaciones aprobadas en main](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40617941997) |
 
