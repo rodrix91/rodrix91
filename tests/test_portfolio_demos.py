@@ -7,7 +7,11 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from verify_portfolio_demos import EXAMPLES, check_report  # noqa: E402
+from verify_portfolio_demos import (  # noqa: E402
+    EXAMPLES,
+    check_canonical_unicode_gate,
+    check_report,
+)
 
 
 class PortfolioDemoContractTests(unittest.TestCase):
@@ -75,6 +79,40 @@ class PortfolioDemoContractTests(unittest.TestCase):
                 with self.subTest(guide=guide, project=name):
                     expected = ("PYTHONPATH=src", "python", "-m", module, *args)
                     self.assertIn(expected, commands)
+
+
+    def test_optional_unicode_quality_gate_detects_hidden_duplicates(self) -> None:
+        default = {
+            "rows": 2, "duplicate_keys": 0, "distinct_groups": 2,
+            "failed_duplicates": False, "failed_group_share": False,
+            "failed_distinct_groups": False,
+        }
+        enabled = {
+            "rows": 2, "duplicate_keys": 1, "distinct_groups": 1,
+            "top_group_share": 1.0,
+            "failed_duplicates": True, "failed_group_share": True,
+            "failed_distinct_groups": True,
+            "casefold_key": True, "casefold_group": True,
+        }
+        check_canonical_unicode_gate(default, enabled)
+        with self.assertRaisesRegex(ValueError, "opt-in gates"):
+            check_canonical_unicode_gate(default, {**enabled, "duplicate_keys": 0})
+        with self.assertRaisesRegex(ValueError, "default unexpectedly merged"):
+            check_canonical_unicode_gate({**default, "duplicate_keys": 1}, enabled)
+
+    def test_canonical_unicode_fixture_is_a_real_two_form_sample(self) -> None:
+        import csv
+        from unicodedata import normalize
+
+        root = Path(__file__).resolve().parents[1]
+        fixture = root / "tests" / "fixtures" / "canonical-unicode-keys.csv"
+        with fixture.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(set(rows[0]), {"order_id", "buyer"})
+        for field in ("order_id", "buyer"):
+            self.assertNotEqual(rows[0][field], rows[1][field])
+            self.assertEqual(normalize("NFC", rows[0][field]), normalize("NFC", rows[1][field]))
 
     def test_pinned_source_commits_match_reproduction_guide(self) -> None:
         """The workflow and public reproduction table must reference the same SHAs."""
