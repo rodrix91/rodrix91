@@ -56,5 +56,5 @@ jobs:
       - name: Unit-test portfolio result expectations
         run: python -m unittest discover -s tests -p 'test_portfolio_demos.py' -v
 
-      - name: Execute and verify the three independent demos
+      - name: Execute independent demos and historical-integrity checks
         run: python scripts/verify_portfolio_demos.py
