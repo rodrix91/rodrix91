@@ -82,12 +82,12 @@ CI checks are also linked in the project documentation.
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
 | csv-quality-report | 1,782 | 100% line and branch | [9/9 jobs: balanced Excel sep directive safeguard](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) |
-| ops-field-brief | 286 | 100% line and branch | [11/11 jobs: exact-head CR-only CSV auto parser and Excel hint fix](https://github.com/rodrix91/ops-field-brief/actions/runs/40599101356) |
+| ops-field-brief | 291 | 100% line and branch | [11/11 jobs: exact-head CR-only explicit stdin fix](https://github.com/rodrix91/ops-field-brief/actions/runs/40606326700) |
 | inventory-policy-lab | 958 | 100% line and branch | [9/9 jobs: exact-head real calendar-year validation](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40603064172) |
 
 The [merged CSV metadata integrity safeguard (#223)](https://github.com/rodrix91/csv-quality-report/pull/223) preserves malformed half-quoted `sep=` headers as input, rather than stripping the first line. The [earlier CR-only delimiter improvement (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) remains separately documented.
 
-The [latest merged CR-only CSV compatibility PR #108](https://github.com/rodrix91/ops-field-brief/pull/108) supports legacy carriage-return line endings, single-column stdin and Excel preambles with safe parsing and preserved diagnostics. The preceding [operational strict-CSV diagnostics PR #107](https://github.com/rodrix91/ops-field-brief/pull/107) adds physical file line numbers to existing logical-record errors, including multiline quoted fields, while preserving the 273-test [Excel example milestone (#106)](https://github.com/rodrix91/ops-field-brief/pull/106) as historical evidence.
+The [new explicit-stdin safeguard (#109)](https://github.com/rodrix91/ops-field-brief/pull/109) supports classic `CR` physical record endings with a selected separator and preserves existing strict CSV location diagnostics, BOM handling and LF/CRLF behavior. The earlier [CR-only auto-delimiter fix (#108)](https://github.com/rodrix91/ops-field-brief/pull/108) supports legacy carriage-return line endings, single-column stdin and Excel preambles with safe parsing and preserved diagnostics. The preceding [operational strict-CSV diagnostics PR #107](https://github.com/rodrix91/ops-field-brief/pull/107) adds physical file line numbers to existing logical-record errors, including multiline quoted fields, while preserving the 273-test [Excel example milestone (#106)](https://github.com/rodrix91/ops-field-brief/pull/106) as historical evidence.
 
 All three matrices cover Linux, Windows and macOS, and include static
 analysis, package verification and reusable GitHub Actions where
