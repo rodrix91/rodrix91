@@ -77,7 +77,7 @@ These figures are **completed, commit-specific GitHub Actions CI snapshots on ma
 
 | Repository | Tests | Coverage | Current verified main CI |
 |---|---:|---:|---|
-| csv-quality-report | 1,801 | 100% line and branch | [12/12 jobs: duplicate baseline JSON-key safeguard](https://github.com/rodrix91/csv-quality-report/actions/runs/40623933718) |
+| csv-quality-report | 1,818 | 100% line and branch | [12/12 jobs: non-finite JSON baseline safeguard](https://github.com/rodrix91/csv-quality-report/actions/runs/40625104404) |
 | ops-field-brief | 297 | 100% line and branch | [14/14 jobs: Unicode NFC quality safeguards](https://github.com/rodrix91/ops-field-brief/actions/runs/40622576717) |
 | inventory-policy-lab | 966 | 100% line and branch | [12/12 jobs: Python 3.14 support](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40617941997) |
 
@@ -85,7 +85,7 @@ The separate [synthetic portfolio smoke workflow](https://github.com/rodrix91/ro
 
 The [opt-in NFC normalization safeguard (#112)](https://github.com/rodrix91/ops-field-brief/pull/112) recognizes canonically equivalent accented business identifiers, groups and headers; default case-sensitive comparisons remain unchanged. The older 291-test operations milestone remains in the linked development history.
 
-The [new duplicate-baseline JSON safeguard (#227)](https://github.com/rodrix91/csv-quality-report/pull/227) rejects repeated JSON property names before trusting historical report metadata. A [synthetic negative test](portfolio-smoke-checks.md) also verifies the existing report is not overwritten on a malformed baseline; this is not a production deployment.
+The [new non-finite baseline number safeguard (#228)](https://github.com/rodrix91/csv-quality-report/pull/228) rejects nonstandard `NaN`/`Infinity` literals and floating-point exponent overflow in historical JSON before an input file is analyzed. The [independent synthetic checks](portfolio-smoke-checks.md) prove that invalid references cannot overwrite a previously verified report. The [earlier duplicate-baseline JSON safeguard (#227)](https://github.com/rodrix91/csv-quality-report/pull/227) rejects repeated JSON property names before trusting historical report metadata. A [synthetic negative test](portfolio-smoke-checks.md) also verifies the existing report is not overwritten on a malformed baseline; this is not a production deployment.
 
 The [earlier merged strict-CSV quoting safeguard (#224)](https://github.com/rodrix91/csv-quality-report/pull/224) rejects corrupted quoted cells before generating quality metrics, including gzip/standard-input exports, while preserving prior JSON reports on invalid data. The preceding [CSV metadata integrity safeguard (#223)](https://github.com/rodrix91/csv-quality-report/pull/223) preserves malformed half-quoted `sep=` headers as input, rather than stripping the first line. The [earlier CR-only delimiter improvement (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) remains separately documented.
 
