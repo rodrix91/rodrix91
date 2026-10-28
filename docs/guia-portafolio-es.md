@@ -62,6 +62,8 @@ El [PR #96, integrado](https://github.com/rodrix91/inventory-policy-lab/pull/96)
 
 La [mejora #99](https://github.com/rodrix91/inventory-policy-lab/pull/99) valida los años de los períodos mensuales e impide que datos como `0000-01` pasen al modelo como fechas reales, sin alterar un informe previamente guardado. Su [CI exacto del PR](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40603064172) completó **958 pruebas**, **100 % de cobertura de líneas y ramas** y **9/9 comprobaciones**. El hito anterior de 950 pruebas sigue documentado.
 
+La [corrección #100](https://github.com/rodrix91/inventory-policy-lab/pull/100) evita interpretar silenciosamente encabezados equivalentes de Unicode, como `sku` y `ſku`, como columnas independientes del ERP. Su [CI exacto](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40607684934) aprobó **966 pruebas**, **100 % de cobertura de líneas y ramas** y **9/9 verificaciones**, conservando el hito anterior de 958 pruebas y los informes preexistentes en caso de datos inválidos.
+
 ## Si utilizas Windows PowerShell
 
 En PowerShell no se emplea el prefijo `PYTHONPATH=src` de Bash. En la raíz **de cada repositorio**, configura temporalmente esta variable:
@@ -87,7 +89,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 |---|---:|---:|---|
 | csv-quality-report | 1.782 | 100 % | [9/9 verificaciones aprobadas en el PR #223](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) |
 | ops-field-brief | 291 | 100 % | [11/11 verificaciones aprobadas en el PR #109](https://github.com/rodrix91/ops-field-brief/actions/runs/40606326700) |
-| inventory-policy-lab | 958 | 100 % | [9/9 verificaciones aprobadas en el PR #99](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40603064172) |
+| inventory-policy-lab | 966 | 100 % | [9/9 verificaciones aprobadas en el PR #100](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40607684934) |
 
 Los repositorios contienen su documentación, código fuente, historial, ejemplos y pruebas. La cobertura del 100 % **no garantiza por sí sola** que el software carezca de defectos.
 
