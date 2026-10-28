@@ -346,7 +346,7 @@ These repositories preserve early coursework and are not current product work:
 
 - [datasciencecoursera](https://github.com/rodrix91/datasciencecoursera) (2020 Coursera R archive)
 - [ProgrammingAssignment2](https://github.com/rodrix91/ProgrammingAssignment2) (preserved R Programming assignment, now with an implemented matrix-inverse cache and [passing Linux, Windows and macOS regression checks](https://github.com/rodrix91/ProgrammingAssignment2/actions/runs/40122011625))
-- [datasharing](https://github.com/rodrix91/datasharing) (data-sharing guide fork)
+- [datasharing](https://github.com/rodrix91/datasharing) (preserved third-party guide with an independent synthetic data handoff companion: [SHA-256 provenance, strict quoted-CSV validation and accurate source-line diagnostics](https://github.com/rodrix91/datasharing/pull/5); [14 tests and 3/3 Linux/macOS/Windows checks on `master`](https://github.com/rodrix91/datasharing/actions/runs/40612876621))
 
 ## Contact
 
