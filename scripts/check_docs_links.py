@@ -12,6 +12,9 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 LINK = re.compile(r"!?\[[^\]\n]*\]\(([^)\n]+)\)")
+REFERENCE_LINK = re.compile(r"!?\[([^\]\n]+)\]\[([^\]\n]*)\]")
+REFERENCE_DEFINITION = re.compile(r"^ {0,3}\[([^\]\n]+)\]:[ \t]*(?:<([^>\n]+)>|(\S+))")
+INLINE_CODE = re.compile(r"(?<!"+chr(96)+r")("+chr(96)+r"+)(.*?)\1(?!"+chr(96)+r")")
 HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.+?)\s*#*\s*$")
 FENCE = re.compile(r"^\s*(" + chr(96) + r"{3,}|~{3,})")
 INLINE_LINK = re.compile(r"\[([^\]]+)\]\([^)]+\)")
@@ -51,8 +54,13 @@ def _anchors(content: str) -> set[str]:
     return found
 
 
+def _reference_key(text: str) -> str:
+    """Markdown reference labels ignore case and repeated whitespace."""
+    return " ".join(text.split()).casefold()
+
+
 def check_links(root: Path) -> list[str]:
-    """Return actionable errors for local relative links and heading fragments."""
+    """Return actionable errors for inline and reference-style local links."""
     root = root.resolve()
     markdown_files = [root / "README.md", *sorted((root / "docs").rglob("*.md"))]
     problems: list[str] = []
@@ -60,9 +68,37 @@ def check_links(root: Path) -> list[str]:
         if not source.is_file():
             problems.append(f"{source.relative_to(root)}: Markdown file is missing")
             continue
-        for line_number, line in _prose_lines(source.read_text(encoding="utf-8")):
-            for match in LINK.finditer(line):
-                address = match.group(1).strip()
+
+        prose = list(_prose_lines(source.read_text(encoding="utf-8")))
+        references: dict[str, str] = {}
+        for line_number, line in prose:
+            definition = REFERENCE_DEFINITION.match(line)
+            if definition is None:
+                continue
+            key = _reference_key(definition.group(1))
+            if key in references:
+                problems.append(
+                    f"{source.relative_to(root)}:{line_number}: duplicate reference [{key}]"
+                )
+            else:
+                references[key] = (definition.group(2) or definition.group(3)).strip()
+
+        for line_number, line in prose:
+            # A code sample is not a navigation link, even when inline.
+            visible = INLINE_CODE.sub("", line)
+            if REFERENCE_DEFINITION.match(visible):
+                continue
+            addresses = [match.group(1).strip() for match in LINK.finditer(visible)]
+            for match in REFERENCE_LINK.finditer(visible):
+                key = _reference_key(match.group(2) or match.group(1))
+                if key not in references:
+                    problems.append(
+                        f"{source.relative_to(root)}:{line_number}: undefined reference [{key}]"
+                    )
+                else:
+                    addresses.append(references[key])
+
+            for address in addresses:
                 parts = urlsplit(address)
                 if parts.scheme or parts.netloc or address.startswith("//"):
                     continue
