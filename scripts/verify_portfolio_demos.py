@@ -148,7 +148,10 @@ def verify_canonical_unicode_example(root: Path) -> str:
         except json.JSONDecodeError as exc:
             raise ValueError("Unicode operations smoke check: invalid JSON") from exc
     check_canonical_unicode_gate(*reports)
-    return "ops-field-brief canonical Unicode: PASS (default exit 0, opt-in gate exit 1)"
+    return (
+        "ops-field-brief canonical Unicode: PASS "
+        "(default exit 0, opt-in gate exit 1)"
+    )
 
 
 def main() -> int:
