@@ -2,6 +2,12 @@
 
 I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
 
+[![CSV quality CI](https://github.com/rodrix91/csv-quality-report/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrix91/csv-quality-report/actions/workflows/ci.yml)
+[![Operations CI](https://github.com/rodrix91/ops-field-brief/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrix91/ops-field-brief/actions/workflows/ci.yml)
+[![Inventory CI](https://github.com/rodrix91/inventory-policy-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrix91/inventory-policy-lab/actions/workflows/ci.yml)
+[![Profile documentation CI](https://github.com/rodrix91/rodrix91/actions/workflows/docs.yml/badge.svg)](https://github.com/rodrix91/rodrix91/actions/workflows/docs.yml)
+
+
 **New to this portfolio?** [Start with the five-minute reviewer guide](docs/portfolio-review-guide.md) for reproducible examples, business questions and limitations. **¿Prefieres español?** [Consulta la guía de evaluación en español](docs/guia-portafolio-es.md), con comandos, resultados previstos y límites documentados.
 
 ## Portfolio at a glance
