@@ -73,19 +73,17 @@ Simulation is not proof of financial impact at a real company.
 
 ## 3. Engineering quality and auditability
 
-The table records completed passing GitHub Actions runs for **specific
-commits**, not an estimate of all future commits or a claim of commercial
-deployment. The latest evidence for these projects comes from all passing jobs on their
-exact pull-request heads before verified squash merges; historical merged-main
-CI checks are also linked in the project documentation.
+These figures are **completed, commit-specific GitHub Actions CI snapshots on main**, not predictions of future releases or claims of commercial adoption. Earlier exact-head PR milestones remain documented below.
 
-| Repository | Tests | Coverage | GitHub Actions evidence |
+| Repository | Tests | Coverage | Current verified main CI |
 |---|---:|---:|---|
-| csv-quality-report | 1,793 | 100% line and branch | [9/9 jobs: strict malformed quoted CSV safeguard](https://github.com/rodrix91/csv-quality-report/actions/runs/40610110107) |
-| ops-field-brief | 291 | 100% line and branch | [11/11 jobs: exact-head CR-only explicit stdin fix](https://github.com/rodrix91/ops-field-brief/actions/runs/40606326700) |
-| inventory-policy-lab | 966 | 100% line and branch | [9/9 jobs: exact-head Unicode-equivalent ERP header protection](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40607684934) |
+| csv-quality-report | 1,796 | 100% line and branch | [12/12 jobs: Python 3.14 support](https://github.com/rodrix91/csv-quality-report/actions/runs/40617268332) |
+| ops-field-brief | 291 | 100% line and branch | [14/14 jobs: Python 3.14 support](https://github.com/rodrix91/ops-field-brief/actions/runs/40617399628) |
+| inventory-policy-lab | 966 | 100% line and branch | [12/12 jobs: Python 3.14 support](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40617941997) |
 
-The [latest merged strict-CSV quoting safeguard (#224)](https://github.com/rodrix91/csv-quality-report/pull/224) rejects corrupted quoted cells before generating quality metrics, including gzip/standard-input exports, while preserving prior JSON reports on invalid data. The preceding [CSV metadata integrity safeguard (#223)](https://github.com/rodrix91/csv-quality-report/pull/223) preserves malformed half-quoted `sep=` headers as input, rather than stripping the first line. The [earlier CR-only delimiter improvement (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) remains separately documented.
+The separate [synthetic portfolio smoke workflow](https://github.com/rodrix91/rodrix91/actions/runs/40620651075) also passed **6/6 cross-platform checks**, exercising all three guide examples as independent CLI processes against pinned public source commits. Its operations fixture **intentionally fails** its data-quality gate with exit code 1. The workflow demonstrates reproducibility, not a deployed end-to-end integration. [Reproduction details](portfolio-smoke-checks.md).
+
+The [earlier merged strict-CSV quoting safeguard (#224)](https://github.com/rodrix91/csv-quality-report/pull/224) rejects corrupted quoted cells before generating quality metrics, including gzip/standard-input exports, while preserving prior JSON reports on invalid data. The preceding [CSV metadata integrity safeguard (#223)](https://github.com/rodrix91/csv-quality-report/pull/223) preserves malformed half-quoted `sep=` headers as input, rather than stripping the first line. The [earlier CR-only delimiter improvement (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) remains separately documented.
 
 The [new explicit-stdin safeguard (#109)](https://github.com/rodrix91/ops-field-brief/pull/109) supports classic `CR` physical record endings with a selected separator and preserves existing strict CSV location diagnostics, BOM handling and LF/CRLF behavior. The earlier [CR-only auto-delimiter fix (#108)](https://github.com/rodrix91/ops-field-brief/pull/108) supports legacy carriage-return line endings, single-column stdin and Excel preambles with safe parsing and preserved diagnostics. The preceding [operational strict-CSV diagnostics PR #107](https://github.com/rodrix91/ops-field-brief/pull/107) adds physical file line numbers to existing logical-record errors, including multiline quoted fields, while preserving the 273-test [Excel example milestone (#106)](https://github.com/rodrix91/ops-field-brief/pull/106) as historical evidence.
 

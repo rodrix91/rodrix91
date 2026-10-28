@@ -85,13 +85,15 @@ Las tres herramientas cuentan con verificaciones automatizadas para Windows, per
 
 ## Evidencia técnica verificable
 
-Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a estimaciones de adopción:
+Estas cifras corresponden a **ejecuciones concretas y exitosas en la rama principal (main)**, no a estimaciones de adopción. Los resultados de PR anteriores se conservan arriba como hitos históricos:
 
-| Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia |
+| Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia actual |
 |---|---:|---:|---|
-| csv-quality-report | 1.793 | 100 % | [9/9 verificaciones aprobadas en el PR #224](https://github.com/rodrix91/csv-quality-report/actions/runs/40610110107) |
-| ops-field-brief | 291 | 100 % | [11/11 verificaciones aprobadas en el PR #109](https://github.com/rodrix91/ops-field-brief/actions/runs/40606326700) |
-| inventory-policy-lab | 966 | 100 % | [9/9 verificaciones aprobadas en el PR #100](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40607684934) |
+| csv-quality-report | 1.796 | 100 % | [12/12 verificaciones aprobadas en main](https://github.com/rodrix91/csv-quality-report/actions/runs/40617268332) |
+| ops-field-brief | 291 | 100 % | [14/14 verificaciones aprobadas en main](https://github.com/rodrix91/ops-field-brief/actions/runs/40617399628) |
+| inventory-policy-lab | 966 | 100 % | [12/12 verificaciones aprobadas en main](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40617941997) |
+
+Adicionalmente, el [workflow de demostraciones sintéticas](https://github.com/rodrix91/rodrix91/actions/runs/40620651075) aprobó **6/6 verificaciones** en Linux, Windows y macOS ejecutando los tres ejemplos de forma **independiente** con commits fijados. El ejemplo de integridad operativa debe finalizar con código 1 porque incumple intencionalmente un control de calidad. [Instrucciones para reproducirlos](portfolio-smoke-checks.md).
 
 Los repositorios contienen su documentación, código fuente, historial, ejemplos y pruebas. La cobertura del 100 % **no garantiza por sí sola** que el software carezca de defectos.
 
