@@ -63,7 +63,7 @@ failure, not an accepted clean file. Thresholds are configurable.
 In `inventory-policy-lab` (Python 3.11+):
 
 ```bash
-PYTHONPATH=src python -m inventory_policy_lab examples/demand_synthetic.csv
+PYTHONPATH=src python -m inventory_policy_lab examples/demand_synthetic.csv --format json
 ```
 
 The synthetic dataset represents twelve SKUs across twenty-four monthly
