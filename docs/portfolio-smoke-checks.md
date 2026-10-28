@@ -10,7 +10,7 @@ The [portfolio demo workflow](../.github/workflows/portfolio-demos.yml) independ
 
 The three copy-and-pasteable Bash invocations in the English guide, Spanish guide, and case study are regression-tested against the actual commands used by the smoke workflow. The pinned source commits in this page are also compared with the workflow checkouts, so a future documentation-only edit cannot silently misdescribe what the CI ran.
 
-The harness checks exit status, JSON parsing, and concrete result invariants, not merely whether a Python process started. It runs only with bundled synthetic fixtures, requires no API keys and does not transmit or publish user data.
+The harness checks exit status, JSON parsing, and concrete result invariants, not merely whether a Python process started. Its additional synthetic [canonical-Unicode fixture](../tests/fixtures/canonical-unicode-keys.csv) verifies that visually identical composed/decomposed labels stay distinct by default but trigger duplicate-key and counterparty-concentration checks when `--casefold-key --casefold-group` is selected. The explicit failure exit code 1 is expected for that optional quality gate; it is not a passed operational dataset. It runs only with bundled synthetic fixtures, requires no API keys and does not transmit or publish user data.
 
 To rerun locally, clone each of the three projects into sibling folders with their repository names under the profile checkout. From the profile checkout run:
 
