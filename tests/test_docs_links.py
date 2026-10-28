@@ -1,0 +1,66 @@
+"""Network-free regressions for the portfolio Markdown link checker."""
+
+from __future__ import annotations
+
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+from check_docs_links import check_links  # noqa: E402
+
+
+class PortfolioLinkTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        (self.root / "docs").mkdir()
+
+    def write(self, path: str, body: str) -> None:
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(body, encoding="utf-8")
+
+    def test_valid_links_and_heading_fragments(self) -> None:
+        self.write("README.md", "[guide](docs/guide.md#five-minute-review)\n")
+        self.write("docs/guide.md", "# Five-minute review\n[home](../README.md)\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_missing_target_is_an_error(self) -> None:
+        self.write("README.md", "[missing](docs/absent.md)\n")
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("missing local file", problems[0])
+
+    def test_nonexistent_heading_is_an_error(self) -> None:
+        self.write("README.md", "[guide](docs/guide.md#wrong-heading)\n")
+        self.write("docs/guide.md", "# Real heading\n")
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
+    def test_external_links_and_fenced_examples_are_skipped(self) -> None:
+        self.write(
+            "README.md",
+            "[GitHub](https://github.com/rodrix91) [email](mailto:test@example.com)\n"
+            "~~~md\n[example](does-not-exist.md)\n~~~\n",
+        )
+        self.assertEqual(check_links(self.root), [])
+
+    def test_relative_parent_traversal_is_rejected(self) -> None:
+        self.write("README.md", "[outside](../../secrets.txt)\n")
+        self.assertIn("path escapes repository", check_links(self.root)[0])
+
+    def test_percent_encoded_name_resolves(self) -> None:
+        self.write("README.md", "[guide](docs/data%20quality.md)\n")
+        self.write("docs/data quality.md", "# Data quality\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_duplicate_heading_slugs_are_numbered(self) -> None:
+        self.write("README.md", "[two](docs/guide.md#hello-1)\n")
+        self.write("docs/guide.md", "# Hello\n# Hello\n")
+        self.assertEqual(check_links(self.root), [])
+
+
+if __name__ == "__main__":
+    unittest.main()
