@@ -62,7 +62,10 @@ class PortfolioDemoContractTests(unittest.TestCase):
         for guide in guides:
             content = (root / guide).read_text(encoding="utf-8")
             commands: list[tuple[str, ...]] = []
-            blocks = re.findall(r"(?ms)^``bash[ \t]*\n(.*?)^```[ \t]*$", content)
+            blocks = re.findall(
+                r"(?ms)^" + chr(96) * 3 + r"bash[ \t]*\n(.*?)^"
+                + chr(96) * 3 + r"[ \t]*$", content
+            )
             for block in blocks:
                 # Join shell line continuations, not arbitrary prose.
                 for line in block.replace(chr(92) + "\n", " ").splitlines():
