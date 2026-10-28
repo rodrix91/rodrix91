@@ -11,7 +11,12 @@ permissions:
 
 jobs:
   links:
-    runs-on: ubuntu-latest
+    name: links (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     timeout-minutes: 10
     steps:
       - name: Check out portfolio
