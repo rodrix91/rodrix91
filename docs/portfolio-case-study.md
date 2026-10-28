@@ -81,11 +81,11 @@ CI checks are also linked in the project documentation.
 
 | Repository | Tests | Coverage | GitHub Actions evidence |
 |---|---:|---:|---|
-| csv-quality-report | 1,782 | 100% line and branch | [9/9 jobs: balanced Excel sep directive safeguard](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) |
+| csv-quality-report | 1,793 | 100% line and branch | [9/9 jobs: strict malformed quoted CSV safeguard](https://github.com/rodrix91/csv-quality-report/actions/runs/40610110107) |
 | ops-field-brief | 291 | 100% line and branch | [11/11 jobs: exact-head CR-only explicit stdin fix](https://github.com/rodrix91/ops-field-brief/actions/runs/40606326700) |
 | inventory-policy-lab | 966 | 100% line and branch | [9/9 jobs: exact-head Unicode-equivalent ERP header protection](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40607684934) |
 
-The [merged CSV metadata integrity safeguard (#223)](https://github.com/rodrix91/csv-quality-report/pull/223) preserves malformed half-quoted `sep=` headers as input, rather than stripping the first line. The [earlier CR-only delimiter improvement (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) remains separately documented.
+The [latest merged strict-CSV quoting safeguard (#224)](https://github.com/rodrix91/csv-quality-report/pull/224) rejects corrupted quoted cells before generating quality metrics, including gzip/standard-input exports, while preserving prior JSON reports on invalid data. The preceding [CSV metadata integrity safeguard (#223)](https://github.com/rodrix91/csv-quality-report/pull/223) preserves malformed half-quoted `sep=` headers as input, rather than stripping the first line. The [earlier CR-only delimiter improvement (#222)](https://github.com/rodrix91/csv-quality-report/pull/222) remains separately documented.
 
 The [new explicit-stdin safeguard (#109)](https://github.com/rodrix91/ops-field-brief/pull/109) supports classic `CR` physical record endings with a selected separator and preserves existing strict CSV location diagnostics, BOM handling and LF/CRLF behavior. The earlier [CR-only auto-delimiter fix (#108)](https://github.com/rodrix91/ops-field-brief/pull/108) supports legacy carriage-return line endings, single-column stdin and Excel preambles with safe parsing and preserved diagnostics. The preceding [operational strict-CSV diagnostics PR #107](https://github.com/rodrix91/ops-field-brief/pull/107) adds physical file line numbers to existing logical-record errors, including multiline quoted fields, while preserving the 273-test [Excel example milestone (#106)](https://github.com/rodrix91/ops-field-brief/pull/106) as historical evidence.
 
