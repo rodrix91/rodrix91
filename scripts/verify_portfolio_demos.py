@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import subprocess
+import tempfile
 import sys
 from pathlib import Path
 from typing import Any
@@ -154,6 +155,47 @@ def verify_canonical_unicode_example(root: Path) -> str:
     )
 
 
+def check_baseline_rejection(
+    result: subprocess.CompletedProcess[str], previous: str, after: str
+) -> None:
+    """A duplicated historical JSON field must fail without a false success."""
+    if (
+        result.returncode != 3
+        or result.stdout != ""
+        or "duplicate baseline JSON key: 'rows'" not in result.stderr
+        or after != previous
+    ):
+        raise ValueError(
+            "CSV baseline safeguard did not reject duplicate JSON keys "
+            "while preserving the prior report"
+        )
+
+
+def verify_ambiguous_baseline_example(root: Path) -> str:
+    """Prove the CSV baseline decoder rejects an ambiguous synthetic JSON file."""
+    project = (root / "csv-quality-report").resolve()
+    fixture = root / "tests" / "fixtures" / "duplicate-baseline-rows.json"
+    if not (project / "src").is_dir() or not fixture.is_file():
+        raise FileNotFoundError("Ambiguous baseline demo: source or fixture missing")
+    previous = '{"status":"previously verified"}\n'
+    with tempfile.TemporaryDirectory() as directory:
+        saved = Path(directory) / "existing-report.json"
+        saved.write_text(previous, encoding="utf-8")
+        result = subprocess.run(
+            [
+                sys.executable, "-m", "csv_quality_report",
+                "examples/tiny.csv", "--baseline", str(fixture.resolve()),
+                "--format", "json", "--json-output", str(saved),
+            ],
+            cwd=project,
+            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            capture_output=True, text=True, encoding="utf-8",
+            check=False, timeout=120,
+        )
+        check_baseline_rejection(result, previous, saved.read_text(encoding="utf-8"))
+    return "csv-quality-report ambiguous baseline: PASS (expected input exit 3)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -162,12 +204,13 @@ def main() -> int:
         root = options.root.resolve()
         outcomes = verify_examples(root)
         outcomes.append(verify_canonical_unicode_example(root))
+        outcomes.append(verify_ambiguous_baseline_example(root))
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError) as exc:
         print(f"Portfolio demo validation failed: {exc}", file=sys.stderr)
         return 1
     for outcome in outcomes:
         print(outcome)
-    print("All three independent, synthetic CLI demonstrations passed.")
+    print("Three independent demos and both synthetic integrity checks passed.")
     return 0
 
 

@@ -9,6 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from verify_portfolio_demos import (  # noqa: E402
     EXAMPLES,
+    check_baseline_rejection,
     check_canonical_unicode_gate,
     check_report,
 )
@@ -113,6 +114,43 @@ class PortfolioDemoContractTests(unittest.TestCase):
         for field in ("order_id", "buyer"):
             self.assertNotEqual(rows[0][field], rows[1][field])
             self.assertEqual(normalize("NFC", rows[0][field]), normalize("NFC", rows[1][field]))
+
+    def test_duplicate_baseline_fixture_preserves_both_conflicting_values(self) -> None:
+        """A duplicate-key file cannot be replaced by an ordinary JSON dump."""
+        import json
+
+        root = Path(__file__).resolve().parents[1]
+        fixture = root / "tests" / "fixtures" / "duplicate-baseline-rows.json"
+        text = fixture.read_text(encoding="utf-8")
+        members: list[list[tuple[str, object]]] = []
+
+        def record_pairs(pairs: list[tuple[str, object]]) -> dict[str, object]:
+            members.append(pairs)
+            return dict(pairs)
+
+        baseline = json.loads(text, object_pairs_hook=record_pairs)
+        self.assertEqual(baseline["rows"], 0)  # What permissive JSON decoding keeps.
+        self.assertEqual(
+            [value for key, value in members[-1] if key == "rows"], [3, 0]
+        )
+
+    def test_ambiguous_baseline_failure_must_preserve_verified_report(self) -> None:
+        import subprocess
+
+        previous = '{"status":"verified"}\n'
+        rejected = subprocess.CompletedProcess(
+            args=[], returncode=3, stdout="",
+            stderr="error: duplicate baseline JSON key: 'rows'",
+        )
+        check_baseline_rejection(rejected, previous, previous)
+        with self.assertRaisesRegex(ValueError, "CSV baseline safeguard"):
+            check_baseline_rejection(rejected, previous, "{}")
+        with self.assertRaisesRegex(ValueError, "CSV baseline safeguard"):
+            check_baseline_rejection(
+                subprocess.CompletedProcess(args=[], returncode=0, stdout="{}", stderr=""),
+                previous,
+                previous,
+            )
 
     def test_pinned_source_commits_match_reproduction_guide(self) -> None:
         """The workflow and public reproduction table must reference the same SHAs."""
