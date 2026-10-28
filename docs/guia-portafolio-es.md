@@ -30,6 +30,8 @@ Resultado esperado: un informe JSON sobre un CSV pequeño. Revisa sus indicadore
 
 La [corrección #223, integrada](https://github.com/rodrix91/csv-quality-report/pull/223) impide que una primera línea `sep=` con comillas desequilibradas se descarte por error como metadato. Su [ejecución CI del PR](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) aprobó **1.782 pruebas**, **100 % de cobertura de líneas y ramas** y **9/9 verificaciones**. El hito anterior de 1.776 pruebas queda documentado.
 
+La [protección #224, integrada](https://github.com/rodrix91/csv-quality-report/pull/224) impide generar un informe de calidad con campos CSV entrecomillados incorrectamente (comillas sin cerrar o texto después de una comilla de cierre). Funciona con entrada estándar, gzip y saltos de línea antiguos, manteniendo intacto un informe JSON previamente verificado si la lectura falla. El [CI exacto](https://github.com/rodrix91/csv-quality-report/actions/runs/40610110107) aprobó **1.793 pruebas**, **100 % de cobertura de líneas y ramas** y **9/9 verificaciones**; se conserva el hito anterior de 1.782 pruebas.
+
 ### 2. Comprobar una alerta de integridad operativa
 
 Repositorio: [ops-field-brief](https://github.com/rodrix91/ops-field-brief), Python 3.10 o superior.
@@ -87,7 +89,7 @@ Estas cifras corresponden a **ejecuciones concretas** de GitHub Actions, no a es
 
 | Proyecto | Pruebas verificadas | Cobertura de líneas y ramas | Evidencia |
 |---|---:|---:|---|
-| csv-quality-report | 1.782 | 100 % | [9/9 verificaciones aprobadas en el PR #223](https://github.com/rodrix91/csv-quality-report/actions/runs/40602272910) |
+| csv-quality-report | 1.793 | 100 % | [9/9 verificaciones aprobadas en el PR #224](https://github.com/rodrix91/csv-quality-report/actions/runs/40610110107) |
 | ops-field-brief | 291 | 100 % | [11/11 verificaciones aprobadas en el PR #109](https://github.com/rodrix91/ops-field-brief/actions/runs/40606326700) |
 | inventory-policy-lab | 966 | 100 % | [9/9 verificaciones aprobadas en el PR #100](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40607684934) |
 
