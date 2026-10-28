@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: rodrix91/csv-quality-report
-          ref: d9de64fd7bcb56b8eeec68696d396f58bb2b01c4
+          ref: aee95d06988b6143e0c8e0a2af378aa3cccc73fb
           path: csv-quality-report
           persist-credentials: false
 
