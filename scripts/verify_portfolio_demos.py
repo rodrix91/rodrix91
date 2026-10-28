@@ -86,12 +86,79 @@ def verify_examples(root: Path) -> list[str]:
     return outcomes
 
 
+def check_canonical_unicode_gate(plain: Any, folded: Any) -> None:
+    """Confirm the optional Unicode comparison flags catch hidden operational risks."""
+    if not isinstance(plain, dict) or not isinstance(folded, dict):
+        raise ValueError("Unicode operations smoke check requires JSON objects")
+    if (
+        plain["rows"] != 2
+        or plain["duplicate_keys"] != 0
+        or plain["distinct_groups"] != 2
+        or plain["failed_duplicates"] is not False
+        or plain["failed_group_share"] is not False
+        or plain["failed_distinct_groups"] is not False
+        or "casefold_key" in plain
+        or "casefold_group" in plain
+    ):
+        raise ValueError("Unicode operations default unexpectedly merged distinct labels")
+    if (
+        folded["rows"] != 2
+        or folded["duplicate_keys"] != 1
+        or folded["distinct_groups"] != 1
+        or folded["top_group_share"] != 1.0
+        or folded["failed_duplicates"] is not True
+        or folded["failed_group_share"] is not True
+        or folded["failed_distinct_groups"] is not True
+        or folded.get("casefold_key") is not True
+        or folded.get("casefold_group") is not True
+    ):
+        raise ValueError("Unicode operations opt-in gates failed to detect canonical duplicates")
+
+
+def verify_canonical_unicode_example(root: Path) -> str:
+    """Run the opt-in NFC comparison in addition to the three base examples."""
+    project = (root / "ops-field-brief").resolve()
+    fixture = (root / "tests" / "fixtures" / "canonical-unicode-keys.csv").resolve()
+    if not (project / "src").is_dir() or not fixture.is_file():
+        raise FileNotFoundError("Unicode smoke check: missing operations code or fixture")
+    common = (
+        str(fixture), "--required", "order_id", "--key", "order_id",
+        "--group", "buyer", "--max-duplicates", "0",
+        "--max-group-share", "0.5", "--min-distinct-groups", "2", "--json",
+    )
+    reports: list[dict[str, Any]] = []
+    for extra, expected_exit in (
+        ((), 0),
+        (("--casefold-key", "--casefold-group"), 1),
+    ):
+        result = subprocess.run(
+            [sys.executable, "-m", "ops_field_brief", *common, *extra],
+            cwd=project,
+            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            capture_output=True, text=True, encoding="utf-8",
+            check=False, timeout=120,
+        )
+        if result.returncode != expected_exit:
+            raise ValueError(
+                f"Unicode operations smoke check: expected exit {expected_exit}, "
+                f"got {result.returncode}; stderr={result.stderr[:600]!r}"
+            )
+        try:
+            reports.append(json.loads(result.stdout))
+        except json.JSONDecodeError as exc:
+            raise ValueError("Unicode operations smoke check: invalid JSON") from exc
+    check_canonical_unicode_gate(*reports)
+    return "ops-field-brief canonical Unicode: PASS (default exit 0, opt-in gate exit 1)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     options = parser.parse_args()
     try:
-        outcomes = verify_examples(options.root.resolve())
+        root = options.root.resolve()
+        outcomes = verify_examples(root)
+        outcomes.append(verify_canonical_unicode_example(root))
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError) as exc:
         print(f"Portfolio demo validation failed: {exc}", file=sys.stderr)
         return 1
