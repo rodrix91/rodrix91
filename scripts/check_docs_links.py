@@ -17,7 +17,6 @@ REFERENCE_DEFINITION = re.compile(r"^ {0,3}\[([^\]\n]+)\]:[ \t]*(?:<([^>\n]+)>|(
 INLINE_CODE = re.compile(r"(?<!"+chr(96)+r")("+chr(96)+r"+)(.*?)\1(?!"+chr(96)+r")")
 HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.+?)\s*#*\s*$")
 FENCE = re.compile(r"^ {0,3}(" + chr(96) + r"{3,}|~{3,})(.*)$")
-INLINE_LINK = re.compile(r"\[([^\]]+)\]\([^)]+\)")
 INLINE_TARGET = re.compile(r"""^\s*(?:<([^>\n]+)>|([^\s<>\n]+))(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'))?[ \t]*$""")
 
 
@@ -52,7 +51,7 @@ def _anchors(content: str) -> set[str]:
         match = HEADING.match(line)
         if not match:
             continue
-        heading = INLINE_LINK.sub(r"\1", match.group(1)).replace(chr(96), "")
+        heading = _heading_link_labels(match.group(1)).replace(chr(96), "")
         slug = re.sub(r"\s+", "-", re.sub(r"[^\w -]", "", heading.casefold()).strip())
         # A literal heading such as "Guide-1" can collide with the generated
         # suffix of a repeated "Guide" heading. Reserve every final slug,
@@ -77,50 +76,69 @@ def _inline_target(address: str) -> str:
     return (parsed.group(1) or parsed.group(2)) if parsed else address
 
 
-def _inline_addresses(line: str) -> list[str]:
-    """Read balanced inline link destinations, including filenames with parentheses.
+def _link_end(line: str, start: int) -> int | None:
+    """Index of the closing ')' of a Markdown link, respecting nested targets."""
+    depth = 0
+    quote = ""
+    in_angle = False
+    escaped = False
+    for index in range(start, len(line)):
+        char = line[index]
+        if escaped:
+            escaped = False
+            continue
+        if char == "\\":
+            escaped = True
+            continue
+        if quote:
+            if char == quote:
+                quote = ""
+            continue
+        if char == "<":
+            in_angle = True
+        elif char == ">":
+            in_angle = False
+        elif char in ("'", '"') and not in_angle and line[index - 1].isspace():
+            quote = char
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            if depth == 0:
+                return index
+            depth -= 1
+    return None
 
-    A quoted optional title may itself contain parentheses. Skip escaped
-    punctuation while searching for the matching closing link delimiter.
-    """
+
+def _inline_addresses(line: str) -> list[str]:
+    """Read balanced inline link destinations, including escaped parentheses."""
     addresses: list[str] = []
     offset = 0
     while match := LINK_START.search(line, offset):
-        start = match.end()
-        depth = 0
-        quote = ""
-        in_angle = False
-        escaped = False
-        for index in range(start, len(line)):
-            char = line[index]
-            if escaped:
-                escaped = False
-                continue
-            if char == "\\":
-                escaped = True
-                continue
-            if quote:
-                if char == quote:
-                    quote = ""
-                continue
-            if char == "<":
-                in_angle = True
-            elif char == ">":
-                in_angle = False
-            elif char in ("'", '"') and not in_angle and line[index - 1].isspace():
-                quote = char
-            elif char == "(":
-                depth += 1
-            elif char == ")":
-                if depth == 0:
-                    address = _inline_target(line[start:index])
-                    addresses.append(re.sub(r"\\([()])", r"\1", address))
-                    offset = index + 1
-                    break
-                depth -= 1
-        else:
+        end = _link_end(line, match.end())
+        if end is None:
             offset = match.end()
+            continue
+        address = _inline_target(line[match.end() : end])
+        addresses.append(re.sub(r"\\([()])", r"\1", address))
+        offset = end + 1
     return addresses
+
+
+def _heading_link_labels(heading: str) -> str:
+    """Use link labels, not destinations, to build Markdown heading anchors."""
+    pieces: list[str] = []
+    offset = 0
+    while match := LINK_START.search(heading, offset):
+        end = _link_end(heading, match.end())
+        if end is None:
+            offset = match.end()
+            continue
+        pieces.append(heading[offset : match.start()])
+        opening = heading[match.start() : match.end()]
+        pieces.append(opening[opening.index("[") + 1 : -2])
+        offset = end + 1
+    pieces.append(heading[offset:])
+    return "".join(pieces)
 
 
 def _reference_key(text: str) -> str:
