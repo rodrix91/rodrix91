@@ -125,7 +125,7 @@ def _inline_addresses(line: str) -> list[str]:
 
 
 def _heading_link_labels(heading: str) -> str:
-    """Use link labels, not destinations, to build Markdown heading anchors."""
+    """Build heading text from inline and reference-style link labels."""
     pieces: list[str] = []
     offset = 0
     while match := LINK_START.search(heading, offset):
@@ -138,7 +138,9 @@ def _heading_link_labels(heading: str) -> str:
         pieces.append(opening[opening.index("[") + 1 : -2])
         offset = end + 1
     pieces.append(heading[offset:])
-    return "".join(pieces)
+    # Reference links render only their labels, just like inline links.
+    # Otherwise # [Guide][manual] incorrectly produces #guidemanual.
+    return REFERENCE_LINK.sub(r"\1", "".join(pieces))
 
 
 def _reference_key(text: str) -> str:

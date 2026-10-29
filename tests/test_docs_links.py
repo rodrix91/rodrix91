@@ -207,6 +207,47 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide.md", "# Guide\n# Guide\n# Guide-1\n")
         self.assertIn("unknown Markdown heading", check_links(self.root)[0])
 
+    def test_reference_heading_uses_visible_label_for_anchor(self) -> None:
+        self.write("README.md", "[review](docs/guide.md#review-guide)\n")
+        self.write(
+            "docs/guide.md",
+            "# [Review guide][manual]\n"
+            "[manual]: ../README.md\n",
+        )
+        self.assertEqual(check_links(self.root), [])
+
+    def test_collapsed_reference_heading_uses_label_for_anchor(self) -> None:
+        self.write("README.md", "[review](docs/guide.md#overview)\n")
+        self.write(
+            "docs/guide.md",
+            "# [Overview][]\n"
+            "[Overview]: ../README.md\n",
+        )
+        self.assertEqual(check_links(self.root), [])
+
+    def test_mixed_inline_and_reference_heading_links(self) -> None:
+        self.write("README.md", "[section](docs/guide.md#build-and-review)\n")
+        self.write(
+            "docs/guide.md",
+            "# [Build](../README.md) and [Review][manual]\n"
+            "[manual]: ../README.md\n",
+        )
+        self.assertEqual(check_links(self.root), [])
+
+    def test_reference_heading_rejects_nonexistent_fragment(self) -> None:
+        self.write("README.md", "[wrong](docs/guide.md#guide-manual)\n")
+        self.write(
+            "docs/guide.md",
+            "# [Guide][manual]\n"
+            "[manual]: ../README.md\n",
+        )
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
+    def test_reference_heading_still_rejects_undefined_target(self) -> None:
+        self.write("README.md", "[review](docs/guide.md#review-guide)\n")
+        self.write("docs/guide.md", "# [Review guide][undefined]\n")
+        self.assertIn("undefined reference", check_links(self.root)[0])
+
     def test_reference_links_and_collapsed_links_resolve(self) -> None:
         self.write(
             "README.md",
