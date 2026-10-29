@@ -119,6 +119,31 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/report(quarter(4)).md", "# Report\n")
         self.assertEqual(check_links(self.root), [])
 
+    def test_angle_destination_with_unbalanced_open_parenthesis(self) -> None:
+        self.write("README.md", "[guide](<docs/report(2026.md>)\n")
+        self.write("docs/report(2026.md", "# Report\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_missing_angle_destination_with_unbalanced_parenthesis_is_detected(self) -> None:
+        self.write("README.md", "[missing](<docs/absent(2026.md>)\n")
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_angle_destination_with_unbalanced_close_parenthesis(self) -> None:
+        self.write("README.md", "[guide](<docs/report)2026.md>)\n")
+        self.write("docs/report)2026.md", "# Report\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_angle_destination_with_parentheses_and_quoted_title(self) -> None:
+        self.write("README.md", '[guide](<docs/report(2026.md> "Read (now)")\n')
+        self.write("docs/report(2026.md", "# Report\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_heading_link_with_unbalanced_angle_destination(self) -> None:
+        self.write("README.md", "[heading](docs/guide.md#next-release)\n")
+        self.write("docs/guide.md", "# [Next release](<report)2026.md>)\n")
+        self.write("docs/report)2026.md", "# Report\n")
+        self.assertEqual(check_links(self.root), [])
+
     def test_quoted_title_with_parentheses_does_not_end_link(self) -> None:
         self.write("README.md", '[guide](docs/guide.md "Read (now)")\n')
         self.write("docs/guide.md", "# Guide\n")

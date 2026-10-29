@@ -77,7 +77,7 @@ def _inline_target(address: str) -> str:
 
 
 def _link_end(line: str, start: int) -> int | None:
-    """Index of the closing ')' of a Markdown link, respecting nested targets."""
+    """End of a link, ignoring literal parentheses inside angle destinations."""
     depth = 0
     quote = ""
     in_angle = False
@@ -100,9 +100,11 @@ def _link_end(line: str, start: int) -> int | None:
             in_angle = False
         elif char in ("'", '"') and not in_angle and line[index - 1].isspace():
             quote = char
-        elif char == "(":
+        elif char == "(" and not in_angle:
+            # Parentheses inside <...> are literal destination characters,
+            # even when unbalanced. They do not nest the link delimiter.
             depth += 1
-        elif char == ")":
+        elif char == ")" and not in_angle:
             if depth == 0:
                 return index
             depth -= 1
