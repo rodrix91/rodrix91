@@ -48,16 +48,21 @@ def _prose_lines(content: str):
 def _anchors(content: str) -> set[str]:
     """Build GitHub-style heading slugs, with repeat-heading suffixes."""
     found: set[str] = set()
-    repetitions: dict[str, int] = {}
     for _, line in _prose_lines(content):
         match = HEADING.match(line)
         if not match:
             continue
         heading = INLINE_LINK.sub(r"\1", match.group(1)).replace(chr(96), "")
         slug = re.sub(r"\s+", "-", re.sub(r"[^\w -]", "", heading.casefold()).strip())
-        count = repetitions.get(slug, 0)
-        repetitions[slug] = count + 1
-        found.add(f"{slug}-{count}" if count else slug)
+        # A literal heading such as "Guide-1" can collide with the generated
+        # suffix of a repeated "Guide" heading. Reserve every final slug,
+        # not just the occurrence count of each unsuffixed heading.
+        candidate = slug
+        number = 0
+        while candidate in found:
+            number += 1
+            candidate = f"{slug}-{number}"
+        found.add(candidate)
     return found
 
 
