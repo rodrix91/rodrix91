@@ -47,6 +47,37 @@ class PortfolioLinkTests(unittest.TestCase):
         )
         self.assertEqual(check_links(self.root), [])
 
+    def test_code_fence_with_info_suffix_inside_is_not_closed(self) -> None:
+        self.write(
+            "README.md",
+            "```text\n```python\n[example](missing.md)\n```\n",
+        )
+        self.assertEqual(check_links(self.root), [])
+
+    def test_indented_fence_marker_does_not_hide_real_broken_links(self) -> None:
+        # Four spaces introduce indented code, not a fenced code block.
+        self.write("README.md", "    ```\n\n[broken](docs/missing.md)\n")
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_fence_with_trailing_text_does_not_create_heading_anchor(self) -> None:
+        self.write("README.md", "[section](docs/guide.md#not-a-heading)\n")
+        self.write(
+            "docs/guide.md",
+            "~~~markdown\n~~~not-a-closer\n# Not a heading\n~~~\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("unknown Markdown heading", problems[0])
+
+    def test_valid_longer_closing_fence_and_trailing_spaces(self) -> None:
+        self.write(
+            "README.md",
+            "````python\n[example](missing.md)\n`````   \n"
+            "[guide](docs/guide.md#real-heading)\n",
+        )
+        self.write("docs/guide.md", "# Real heading\n")
+        self.assertEqual(check_links(self.root), [])
+
     def test_relative_parent_traversal_is_rejected(self) -> None:
         self.write("README.md", "[outside](../../secrets.txt)\n")
         self.assertIn("path escapes repository", check_links(self.root)[0])
