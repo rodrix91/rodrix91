@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-LINK = re.compile(r"!?\[[^\]\n]*\]\(([^)\n]+)\)")
+LINK_START = re.compile(r"!?\[[^\]\n]*\]\(")
 REFERENCE_LINK = re.compile(r"!?\[([^\]\n]+)\]\[([^\]\n]*)\]")
 REFERENCE_DEFINITION = re.compile(r"^ {0,3}\[([^\]\n]+)\]:[ \t]*(?:<([^>\n]+)>|(\S+))")
 INLINE_CODE = re.compile(r"(?<!"+chr(96)+r")("+chr(96)+r"+)(.*?)\1(?!"+chr(96)+r")")
@@ -72,6 +72,52 @@ def _inline_target(address: str) -> str:
     return (parsed.group(1) or parsed.group(2)) if parsed else address
 
 
+def _inline_addresses(line: str) -> list[str]:
+    """Read balanced inline link destinations, including filenames with parentheses.
+
+    A quoted optional title may itself contain parentheses. Skip escaped
+    punctuation while searching for the matching closing link delimiter.
+    """
+    addresses: list[str] = []
+    offset = 0
+    while match := LINK_START.search(line, offset):
+        start = match.end()
+        depth = 0
+        quote = ""
+        in_angle = False
+        escaped = False
+        for index in range(start, len(line)):
+            char = line[index]
+            if escaped:
+                escaped = False
+                continue
+            if char == "\\":
+                escaped = True
+                continue
+            if quote:
+                if char == quote:
+                    quote = ""
+                continue
+            if char == "<":
+                in_angle = True
+            elif char == ">":
+                in_angle = False
+            elif char in ("'", '"') and not in_angle and line[index - 1].isspace():
+                quote = char
+            elif char == "(":
+                depth += 1
+            elif char == ")":
+                if depth == 0:
+                    address = _inline_target(line[start:index])
+                    addresses.append(re.sub(r"\\([()])", r"\1", address))
+                    offset = index + 1
+                    break
+                depth -= 1
+        else:
+            offset = match.end()
+    return addresses
+
+
 def _reference_key(text: str) -> str:
     """Markdown reference labels ignore case and repeated whitespace."""
     return " ".join(text.split()).casefold()
@@ -106,7 +152,7 @@ def check_links(root: Path) -> list[str]:
             visible = INLINE_CODE.sub("", line)
             if REFERENCE_DEFINITION.match(visible):
                 continue
-            addresses = [_inline_target(match.group(1)) for match in LINK.finditer(visible)]
+            addresses = _inline_addresses(visible)
             for match in REFERENCE_LINK.finditer(visible):
                 key = _reference_key(match.group(2) or match.group(1))
                 if key not in references:

@@ -109,6 +109,34 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("README.md", "[outside](../../private.md \"Private\")\n")
         self.assertIn("path escapes repository", check_links(self.root)[0])
 
+    def test_balanced_parentheses_in_local_link_destinations(self) -> None:
+        self.write(
+            "README.md",
+            "[guide](docs/guide(v2).md)\n"
+            "[nested](docs/report(quarter(4)).md)\n",
+        )
+        self.write("docs/guide(v2).md", "# Guide\n")
+        self.write("docs/report(quarter(4)).md", "# Report\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_quoted_title_with_parentheses_does_not_end_link(self) -> None:
+        self.write("README.md", '[guide](docs/guide.md "Read (now)")\n')
+        self.write("docs/guide.md", "# Guide\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_missing_parenthesized_file_is_still_rejected(self) -> None:
+        self.write("README.md", "[missing](docs/absent(v2).md)\n")
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_parenthesized_traversal_still_fails_closed(self) -> None:
+        self.write("README.md", "[outside](../../outside(v2).md)\n")
+        self.assertIn("path escapes repository", check_links(self.root)[0])
+
+    def test_escaped_parenthesis_in_local_filename(self) -> None:
+        self.write("README.md", r"[guide](docs/guide\(v2\).md)" + "\n")
+        self.write("docs/guide(v2).md", "# Guide\n")
+        self.assertEqual(check_links(self.root), [])
+
     def test_relative_parent_traversal_is_rejected(self) -> None:
         self.write("README.md", "[outside](../../secrets.txt)\n")
         self.assertIn("path escapes repository", check_links(self.root)[0])
