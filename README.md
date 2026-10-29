@@ -42,7 +42,7 @@ The three projects are intentionally complementary: profile data quality, valida
 
 **[Explore a reproducible supply-chain case study](docs/portfolio-case-study.md)** — three independent synthetic demos, the business questions they answer, and their verified engineering evidence. The examples do not imply a deployed customer integration.
 
-Across all three active projects, GitHub Actions dependencies are pinned by commit SHA. Current release workflows are configured to produce SHA-256 checksums and GitHub/Sigstore provenance attestations for new wheel and source-distribution releases; these guarantees are not retroactive to older releases. `ops-field-brief` has not yet published its first GitHub release (tracked in [issue #16](https://github.com/rodrix91/ops-field-brief/issues/16)).
+Across all three active projects, GitHub Actions dependencies are pinned by commit SHA. Current release workflows are configured to produce SHA-256 checksums and GitHub/Sigstore provenance attestations for new wheel and source-distribution releases; these guarantees are not retroactive to older releases. `ops-field-brief` has not yet published its first GitHub release (tracked in [issue #16](https://github.com/rodrix91/ops-field-brief/issues/16)). `csv-quality-report` main reports version 0.22.0 with additional Unreleased work; the missing v0.22.0 release tag is tracked in [issue #163](https://github.com/rodrix91/csv-quality-report/issues/163) so newer work is not mislabeled as that version. Latest published release remains v0.21.0.
 
 ## Explore my projects
 
