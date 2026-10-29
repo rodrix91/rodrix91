@@ -151,6 +151,31 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide.md", "# Hello\n# Hello\n")
         self.assertEqual(check_links(self.root), [])
 
+    def test_literal_heading_collides_with_generated_duplicate_slug(self) -> None:
+        self.write(
+            "README.md",
+            "[first](docs/guide.md#guide)\n"
+            "[second](docs/guide.md#guide-1)\n"
+            "[third](docs/guide.md#guide-1-1)\n",
+        )
+        self.write("docs/guide.md", "# Guide\n# Guide\n# Guide-1\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_duplicate_heading_skips_existing_literal_numbered_slug(self) -> None:
+        self.write("README.md", "[third](docs/guide.md#results-2)\n")
+        self.write("docs/guide.md", "# Results\n# Results-1\n# Results\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_repeated_collision_suffix_increments_without_reusing_slug(self) -> None:
+        self.write("README.md", "[fourth](docs/guide.md#guide-1-2)\n")
+        self.write("docs/guide.md", "# Guide\n# Guide\n# Guide-1\n# Guide-1\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_nonexistent_slug_after_collision_is_still_rejected(self) -> None:
+        self.write("README.md", "[wrong](docs/guide.md#guide-2)\n")
+        self.write("docs/guide.md", "# Guide\n# Guide\n# Guide-1\n")
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
     def test_reference_links_and_collapsed_links_resolve(self) -> None:
         self.write(
             "README.md",
