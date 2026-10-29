@@ -16,7 +16,7 @@ REFERENCE_LINK = re.compile(r"!?\[([^\]\n]+)\]\[([^\]\n]*)\]")
 REFERENCE_DEFINITION = re.compile(r"^ {0,3}\[([^\]\n]+)\]:[ \t]*(?:<([^>\n]+)>|(\S+))")
 INLINE_CODE = re.compile(r"(?<!"+chr(96)+r")("+chr(96)+r"+)(.*?)\1(?!"+chr(96)+r")")
 HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.+?)\s*#*\s*$")
-FENCE = re.compile(r"^\s*(" + chr(96) + r"{3,}|~{3,})")
+FENCE = re.compile(r"^ {0,3}(" + chr(96) + r"{3,}|~{3,})(.*)$")
 INLINE_LINK = re.compile(r"\[([^\]]+)\]\([^)]+\)")
 
 
@@ -27,11 +27,17 @@ def _prose_lines(content: str):
     for number, line in enumerate(content.splitlines(), 1):
         match = FENCE.match(line)
         if match:
-            marker = match.group(1)
+            marker, suffix = match.groups()
             if not fence_char:
-                fence_char, fence_length = marker[0], len(marker)
-                continue
-            if marker[0] == fence_char and len(marker) >= fence_length:
+                # Markdown fence markers may be indented by no more than
+                # three spaces; a backtick fence cannot have backticks in
+                # its info string.
+                if marker[0] != "`" or "`" not in suffix:
+                    fence_char, fence_length = marker[0], len(marker)
+                    continue
+            elif marker[0] == fence_char and len(marker) >= fence_length and not suffix.strip():
+                # A closing marker may be longer than the opener, but it
+                # cannot have an info string or other trailing text.
                 fence_char, fence_length = "", 0
                 continue
         if not fence_char:
