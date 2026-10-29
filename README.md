@@ -16,11 +16,11 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,818 tests, 100% line/branch coverage, duplicate and non-finite historical JSON safeguards, strict ISO hours including Python 3.14, malformed-quote rejection, Excel `sep=` metadata checks, CR-only CSV support, PEP 561, cross-platform CI |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,818 tests, 100% line/branch coverage, clean-wheel CLI tested on Linux/Windows/macOS, duplicate and non-finite historical JSON safeguards, strict ISO hours including Python 3.14, malformed-quote rejection, Excel `sep=` metadata checks, CR-only CSV support, PEP 561, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 297 tests, 100% coverage, installed wheel and CLI smoke-tested on Linux/Windows/macOS, NFC-safe opt-in key/group/header checks, explicit/auto stdin CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 1,010 tests, 100% coverage, overflow-safe forecasting means, strict Croston/SBA demand validation, Unicode-safe ERP headers and validated monthly calendar years, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
-## Latest verified engineering results (28 October 2026, Bolivia time)
+## Latest verified engineering results (29 October 2026, Bolivia time)
 
 These are **CI-verified snapshots**, not estimates of stars, downloads, adoption, or
 production deployments. The historical milestones and reproducible case studies
@@ -30,7 +30,7 @@ Python **3.14 is now explicitly listed in the package metadata** of all three pr
 
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,818 tests, 100% line/branch coverage and 12/12 `main` CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40625104404) | [PR #228](https://github.com/rodrix91/csv-quality-report/pull/228) rejects nonstandard and overflowing historical JSON numbers after [duplicate-key safeguard #227](https://github.com/rodrix91/csv-quality-report/pull/227) |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,818 tests, 100% line/branch coverage and 15/15 exact-head PR CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40863826224) | [Merged PR #229](https://github.com/rodrix91/csv-quality-report/pull/229) verifies clean wheel installation and real CLI execution on Linux, Windows and macOS; [PR #228](https://github.com/rodrix91/csv-quality-report/pull/228) protects baseline JSON integrity |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [297 tests, 100% line/branch coverage, and 17/17 exact-head PR CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40807756027) | [Merged PR #113](https://github.com/rodrix91/ops-field-brief/pull/113) verifies fresh-wheel installation and the CLI on Linux, Windows and macOS; [PR #112](https://github.com/rodrix91/ops-field-brief/pull/112) validated NFC-equivalent identifiers |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [1,010 tests, 100% line/branch coverage and 12/12 exact-head PR CI jobs passed](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40805136493) | [Merged PR #105](https://github.com/rodrix91/inventory-policy-lab/pull/105) rejects negative and non-finite direct Croston/SBA demand; [PR #104](https://github.com/rodrix91/inventory-policy-lab/pull/104) stabilized large finite forecast means |
 
@@ -49,7 +49,7 @@ Across all three active projects, GitHub Actions dependencies are pinned by comm
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
 **Data quality and validation.** Profile CSV exports, check field types and missingness, validate business rules, reject ambiguous historical JSON baselines and fail pipelines when a documented quality gate is breached. Includes strict datetime validation and an opt-in GitHub Action.
 
-[Source and quickstart](https://github.com/rodrix91/csv-quality-report) · [Verified CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40625104404)
+[Source and quickstart](https://github.com/rodrix91/csv-quality-report) · [Verified CI](https://github.com/rodrix91/csv-quality-report/actions/runs/40863826224)
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
 **Operational data integrity.** Summarize required-field completeness, duplicate business keys, and counterparty concentration for business exports. Handles common Excel separators, gzip CSV and legacy line endings, with a reusable CI Action.
