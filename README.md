@@ -18,9 +18,9 @@ I build practical Python tools focused on **data quality, automation, reproducib
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 1,818 tests, 100% line/branch coverage, duplicate and non-finite historical JSON safeguards, strict ISO hours including Python 3.14, malformed-quote rejection, Excel `sep=` metadata checks, CR-only CSV support, PEP 561, cross-platform CI |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 297 tests, 100% coverage, NFC-safe opt-in key/group/header checks, explicit/auto stdin CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
-| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 966 tests, 100% coverage, Unicode-safe ERP headers and validated monthly calendar years, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 988 tests, 100% coverage, overflow-safe forecasting means, Unicode-safe ERP headers and validated monthly calendar years, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
-## Latest verified engineering results (27 October 2026, Bolivia time)
+## Latest verified engineering results (28 October 2026, Bolivia time)
 
 These are **CI-verified snapshots**, not estimates of stars, downloads, adoption, or
 production deployments. The historical milestones and reproducible case studies
@@ -32,7 +32,7 @@ Python **3.14 is now explicitly listed in the package metadata** of all three pr
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [1,818 tests, 100% line/branch coverage and 12/12 `main` CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/40625104404) | [PR #228](https://github.com/rodrix91/csv-quality-report/pull/228) rejects nonstandard and overflowing historical JSON numbers after [duplicate-key safeguard #227](https://github.com/rodrix91/csv-quality-report/pull/227) |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [297 tests and 100% line/branch coverage; 14/14 `main` CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/40622576717) | [PR #112](https://github.com/rodrix91/ops-field-brief/pull/112) fixes NFC-equivalent business keys, groups and headers under opt-in flags |
-| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [966 tests, 100% line/branch coverage and 12/12 exact-head PR CI jobs passed](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40617137840) | [PR #102](https://github.com/rodrix91/inventory-policy-lab/pull/102) advertises Python 3.14 after [cross-platform verification #101](https://github.com/rodrix91/inventory-policy-lab/pull/101) |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [988 tests, 100% line/branch coverage and 12/12 exact-head PR CI jobs passed](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40803179173) | [Merged PR #104](https://github.com/rodrix91/inventory-policy-lab/pull/104) prevents intermediate numeric overflow in large finite forecasting means and error metrics |
 
 All three projects are **alpha-stage reference implementations**, not claims of
 enterprise deployments or real customer outcomes. Reproducible synthetic examples
@@ -59,7 +59,7 @@ Across all three active projects, GitHub Actions dependencies are pinned by comm
 ### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
 **Inventory analytics and decisions.** Explore demand classification, forecast backtests, reorder levels, safety stock, EOQ, and policy replay with explicit assumptions and out-of-sample evaluation. Uses reproducible synthetic examples; no customer deployments are claimed.
 
-[Source and quickstart](https://github.com/rodrix91/inventory-policy-lab) · [Verified CI](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40617137840)
+[Source and quickstart](https://github.com/rodrix91/inventory-policy-lab) · [Verified CI](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40803179173)
 
 For deeper technical decisions, limitations, formulas, regression evidence, and past milestones, read the **[complete engineering history](docs/engineering-history.md)**. For a fast hands-on evaluation, start with the [five-minute reviewer guide](docs/portfolio-review-guide.md) or its [Spanish version](docs/guia-portafolio-es.md).
 
