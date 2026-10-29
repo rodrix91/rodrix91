@@ -18,6 +18,7 @@ INLINE_CODE = re.compile(r"(?<!"+chr(96)+r")("+chr(96)+r"+)(.*?)\1(?!"+chr(96)+r
 HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.+?)\s*#*\s*$")
 FENCE = re.compile(r"^ {0,3}(" + chr(96) + r"{3,}|~{3,})(.*)$")
 INLINE_LINK = re.compile(r"\[([^\]]+)\]\([^)]+\)")
+INLINE_TARGET = re.compile(r"""^\s*(?:<([^>\n]+)>|([^\s<>\n]+))(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'))?[ \t]*$""")
 
 
 def _prose_lines(content: str):
@@ -60,6 +61,17 @@ def _anchors(content: str) -> set[str]:
     return found
 
 
+def _inline_target(address: str) -> str:
+    """Strip an optional quoted Markdown title; preserve the path for validation.
+
+    An angle-bracket destination may contain spaces. Unrecognized syntax stays
+    untouched so it cannot be mistaken for a valid local link.
+    """
+    address = address.strip()
+    parsed = INLINE_TARGET.fullmatch(address)
+    return (parsed.group(1) or parsed.group(2)) if parsed else address
+
+
 def _reference_key(text: str) -> str:
     """Markdown reference labels ignore case and repeated whitespace."""
     return " ".join(text.split()).casefold()
@@ -94,7 +106,7 @@ def check_links(root: Path) -> list[str]:
             visible = INLINE_CODE.sub("", line)
             if REFERENCE_DEFINITION.match(visible):
                 continue
-            addresses = [match.group(1).strip() for match in LINK.finditer(visible)]
+            addresses = [_inline_target(match.group(1)) for match in LINK.finditer(visible)]
             for match in REFERENCE_LINK.finditer(visible):
                 key = _reference_key(match.group(2) or match.group(1))
                 if key not in references:

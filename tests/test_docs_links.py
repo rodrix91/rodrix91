@@ -78,6 +78,37 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide.md", "# Real heading\n")
         self.assertEqual(check_links(self.root), [])
 
+    def test_inline_links_with_quoted_titles_and_fragments(self) -> None:
+        self.write(
+            "README.md",
+            "[double](docs/guide.md \"Open the guide\")\n"
+            "[single](docs/guide.md#intro 'Jump to intro')\n"
+            "[website](https://github.com/rodrix91 \"Profile\")\n",
+        )
+        self.write("docs/guide.md", "# Intro\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_angle_bracket_destination_with_spaces_and_title(self) -> None:
+        self.write(
+            "README.md",
+            "[report](<docs/data quality.md> \"Data report\")\n",
+        )
+        self.write("docs/data quality.md", "# Data quality\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_titled_link_to_missing_file_is_still_rejected(self) -> None:
+        self.write("README.md", "[missing](docs/absent.md \"Missing report\")\n")
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_titled_link_to_missing_anchor_is_still_rejected(self) -> None:
+        self.write("README.md", "[missing](docs/guide.md#absent 'Jump')\n")
+        self.write("docs/guide.md", "# Present\n")
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
+    def test_titled_parent_traversal_is_still_rejected(self) -> None:
+        self.write("README.md", "[outside](../../private.md \"Private\")\n")
+        self.assertIn("path escapes repository", check_links(self.root)[0])
+
     def test_relative_parent_traversal_is_rejected(self) -> None:
         self.write("README.md", "[outside](../../secrets.txt)\n")
         self.assertIn("path escapes repository", check_links(self.root)[0])
