@@ -174,6 +174,7 @@ class PortfolioLinkTests(unittest.TestCase):
     def test_unrelated_heading_fragment_still_fails(self) -> None:
         self.write("README.md", "[broken](docs/guide.md#release-notes-v2)\n")
         self.write("docs/guide.md", "# [Release notes](guide(v2).md)\n")
+        self.write("docs/guide(v2).md", "# Release\n")
         self.assertIn("unknown Markdown heading", check_links(self.root)[0])
 
     def test_duplicate_heading_slugs_are_numbered(self) -> None:
