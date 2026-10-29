@@ -146,6 +146,37 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/data quality.md", "# Data quality\n")
         self.assertEqual(check_links(self.root), [])
 
+    def test_heading_link_with_parenthesized_filename_uses_label_slug(self) -> None:
+        self.write("README.md", "[heading](docs/guide.md#release-notes)\n")
+        self.write("docs/guide.md", "# [Release notes](guide(v2).md)\n")
+        self.write("docs/guide(v2).md", "# Release\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_heading_link_with_nested_parentheses_and_title(self) -> None:
+        self.write("README.md", "[heading](docs/guide.md#next-release)\n")
+        self.write(
+            "docs/guide.md",
+            '# [Next release](notes(v2(beta)).md "Notes (reviewed)")\n',
+        )
+        self.write("docs/notes(v2(beta)).md", "# Notes\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_multiple_linked_labels_in_same_heading(self) -> None:
+        self.write("README.md", "[heading](docs/guide.md#part-a-and-part-b)\n")
+        self.write(
+            "docs/guide.md",
+            "# [Part A](a(v2).md) and [Part B](b(v3).md)\n",
+        )
+        self.write("docs/a(v2).md", "# Part A\n")
+        self.write("docs/b(v3).md", "# Part B\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_unrelated_heading_fragment_still_fails(self) -> None:
+        self.write("README.md", "[broken](docs/guide.md#release-notes-v2)\n")
+        self.write("docs/guide.md", "# [Release notes](guide(v2).md)\n")
+        self.write("docs/guide(v2).md", "# Release\n")
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
     def test_duplicate_heading_slugs_are_numbered(self) -> None:
         self.write("README.md", "[two](docs/guide.md#hello-1)\n")
         self.write("docs/guide.md", "# Hello\n# Hello\n")
