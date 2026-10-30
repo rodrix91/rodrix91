@@ -13,6 +13,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_canonical_unicode_gate,
     check_casefold_missing_marker_demo,
     check_canonical_missing_marker_demo,
+    check_inventory_replay_levels,
     check_report,
 )
 
@@ -83,6 +84,75 @@ class PortfolioDemoContractTests(unittest.TestCase):
                     expected = ("PYTHONPATH=src", "python", "-m", module, *args)
                     self.assertIn(expected, commands)
 
+
+    def test_inventory_replay_safety_demo_contract_fails_closed(self) -> None:
+        report = {
+            "sQ": {
+                "periods": 3,
+                "fill_rate": 1.0,
+                "errors": {
+                    "scalar_nan": "reorder_point must be finite, got nan",
+                    "dynamic_inf": "reorder_point[2] must be finite, got inf",
+                    "quantity_nan": "order_quantity must be finite, got nan",
+                    "quantity_dynamic_inf": "order_quantity[2] must be finite, got inf",
+                },
+            },
+            "RS": {
+                "periods": 3,
+                "fill_rate": 1.0,
+                "errors": {
+                    "scalar_nan": "order_up_to must be finite, got nan",
+                    "dynamic_inf": "order_up_to[2] must be finite, got inf",
+                },
+            },
+            "RsS": {
+                "periods": 3,
+                "fill_rate": 1.0,
+                "errors": {
+                    "scalar_nan": "reorder_point must be finite, got nan",
+                    "dynamic_inf": "reorder_point[2] must be finite, got inf",
+                    "quantity_nan": "order_quantity must be finite, got nan",
+                    "quantity_dynamic_inf": "order_quantity[2] must be finite, got inf",
+                },
+            },
+        }
+        check_inventory_replay_levels(report)
+        with self.assertRaisesRegex(ValueError, "unexpected policy set"):
+            check_inventory_replay_levels({**report, "RsS": None, "extra": {}})
+        for policy in report:
+            with self.subTest(policy=policy):
+                with self.assertRaisesRegex(ValueError, "invalid " + policy):
+                    check_inventory_replay_levels({
+                        **report, policy: {**report[policy], "fill_rate": 0.0}
+                    })
+                with self.assertRaisesRegex(ValueError, "invalid " + policy):
+                    check_inventory_replay_levels({
+                        **report,
+                        policy: {
+                            **report[policy],
+                            "errors": {**report[policy]["errors"], "scalar_nan": "UNEXPECTED SUCCESS"},
+                        },
+                    })
+                with self.assertRaisesRegex(ValueError, "invalid " + policy):
+                    check_inventory_replay_levels({
+                        **report,
+                        policy: {
+                            **report[policy],
+                            "errors": {
+                                k: v for k, v in report[policy]["errors"].items()
+                                if k != "dynamic_inf"
+                            },
+                        },
+                    })
+
+    def test_inventory_safety_probe_does_not_claim_live_data(self) -> None:
+        from verify_portfolio_demos import _INVENTORY_REPLAY_PROBE
+
+        self.assertIn("simulate_periodic", _INVENTORY_REPLAY_PROBE)
+        self.assertIn("simulate_rss", _INVENTORY_REPLAY_PROBE)
+        self.assertIn("math.nan", _INVENTORY_REPLAY_PROBE)
+        self.assertIn("math.inf", _INVENTORY_REPLAY_PROBE)
+        self.assertNotIn("requests", _INVENTORY_REPLAY_PROBE)
 
     def test_optional_unicode_quality_gate_detects_hidden_duplicates(self) -> None:
         default = {
