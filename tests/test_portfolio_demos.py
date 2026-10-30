@@ -33,6 +33,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_ops_bounded_sniff,
     check_ops_top_n_contract,
     check_ops_excel_case_contract,
+    check_ops_quoted_excel_contract,
     check_report,
     python_subprocess_env,
 )
@@ -68,7 +69,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 22)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 23)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -202,6 +203,37 @@ class PortfolioDemoContractTests(unittest.TestCase):
                 altered = {**report, "valid": {**report["valid"], field: -1.0}}
                 with self.assertRaisesRegex(ValueError, "invalid API contract"):
                     check_inventory_alpha_contract(altered)
+
+    def test_quoted_excel_probe_rejects_mutated_outputs(self) -> None:
+        correct = {
+            "header": ["order_id", "buyer"],
+            "lines": [3, 4],
+            "buyers": ["Andes", "Paz"],
+        }
+        results = {
+            f"{delimiter}:{spelling}:{source}": dict(correct)
+            for delimiter in ("semicolon", "comma", "pipe", "tab")
+            for spelling in ("sep=", "SEP=", "SeP=")
+            for source in ("stdin", "plain", "gzip")
+        }
+        report = {
+            "results": results,
+            "explicit_header": ["sep=;"],
+            "lookalikes": [True, True, True, True],
+        }
+        check_ops_quoted_excel_contract(report)
+        for case in results:
+            with self.subTest(case=case):
+                mutated = {**report, "results": {**results, case: {**correct, "lines": [2, 3]}}}
+                with self.assertRaisesRegex(ValueError, "invalid separator contract"):
+                    check_ops_quoted_excel_contract(mutated)
+        for changed in (
+            {**report, "explicit_header": ["order_id", "buyer"]},
+            {**report, "lookalikes": [False, True, True, True]},
+            {**report, "results": {k: v for k, v in results.items() if k != "tab:SeP=:gzip"}},
+        ):
+            with self.assertRaisesRegex(ValueError, "invalid separator contract"):
+                check_ops_quoted_excel_contract(changed)
 
     def test_ops_excel_case_probe_rejects_mutated_results(self) -> None:
         valid = {
