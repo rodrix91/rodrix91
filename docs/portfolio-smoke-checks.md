@@ -4,7 +4,7 @@ The [portfolio demo workflow](../.github/workflows/portfolio-demos.yml) independ
 
 | Project | Pinned, reviewed source commit | Expected result |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `b8dd84785a17de091ee031e166ee095978ee6e95` | Exit 0; 3 records, 1 missing quantity |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `99cbdc30de69da3fb4d67f1ccc122b645fb931a1` | Exit 0; 3 records, 1 missing quantity |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | `070bb56c6d2ab0488ba7f4f5cb72443ae2640ac6` | **Intentional exit 1**; 2 incomplete composite keys and 1 extra duplicate |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `88c571f454ca9f8c844f62b9998100d3121da192` | Exit 0; 12 distinct synthetic SKU outputs |
 
