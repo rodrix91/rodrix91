@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import json
+import os
+import subprocess
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from verify_portfolio_demos import (  # noqa: E402
@@ -19,10 +23,43 @@ from verify_portfolio_demos import (  # noqa: E402
     check_na_iterator_contract,
     check_ops_bounded_sniff,
     check_report,
+    python_subprocess_env,
 )
 
 
 class PortfolioDemoContractTests(unittest.TestCase):
+    def test_child_python_explicitly_overrides_legacy_encoding(self) -> None:
+        """A cp1252 environment must not corrupt UTF-8-only Unicode JSON."""
+        with mock.patch.dict(
+            os.environ,
+            {"PYTHONIOENCODING": "cp1252", "PYTHONPATH": "old", "APP_KEEP": "yes"},
+        ):
+            child_env = python_subprocess_env(Path("synthetic-repo"))
+        self.assertEqual(child_env["PYTHONIOENCODING"], "utf-8")
+        self.assertEqual(child_env["PYTHONPATH"], str(Path("synthetic-repo") / "src"))
+        self.assertEqual(child_env["APP_KEEP"], "yes")
+        output = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import json; print(json.dumps({'city': 'Tarija • 東京'}, ensure_ascii=False))",
+            ],
+            env=child_env,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=True,
+            timeout=15,
+        )
+        self.assertEqual(json.loads(output.stdout), {"city": "Tarija • 東京"})
+
+    def test_all_portfolio_probes_use_explicit_child_encoding(self) -> None:
+        script = (
+            Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 11)
+        self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
+
     def test_project_names_and_exit_codes(self) -> None:
         self.assertEqual(
             [(name, code) for name, _, _, code in EXAMPLES],

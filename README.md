@@ -8,7 +8,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 [![Profile documentation CI](https://github.com/rodrix91/rodrix91/actions/workflows/docs.yml/badge.svg)](https://github.com/rodrix91/rodrix91/actions/workflows/docs.yml)
 [![Synthetic portfolio demos](https://github.com/rodrix91/rodrix91/actions/workflows/portfolio-demos.yml/badge.svg)](https://github.com/rodrix91/rodrix91/actions/workflows/portfolio-demos.yml)
 
-**Reproducible CLI demonstrations:** [Three independent, pinned synthetic examples with automated checks](docs/portfolio-smoke-checks.md).
+**Reproducible CLI demonstrations:** [Three independent, pinned synthetic examples with automated checks](docs/portfolio-smoke-checks.md), including explicit UTF-8 subprocess output on Linux, Windows and macOS.
 
 **New to this portfolio?** [Start with the five-minute reviewer guide](docs/portfolio-review-guide.md) for reproducible examples, business questions and limitations. **¿Prefieres español?** [Consulta la guía de evaluación en español](docs/guia-portafolio-es.md), con comandos, resultados previstos y límites documentados.
 

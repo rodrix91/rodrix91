@@ -30,6 +30,19 @@ EXAMPLES: tuple[tuple[str, str, tuple[str, ...], int], ...] = (
 )
 
 
+def python_subprocess_env(project: Path) -> dict[str, str]:
+    """Force UTF-8 output from child interpreters on every runner OS.
+
+    Windows console code pages may otherwise encode Unicode JSON as cp1252,
+    even when the parent subprocess reader explicitly expects UTF-8.
+    """
+    return {
+        **os.environ,
+        "PYTHONPATH": str(project / "src"),
+        "PYTHONIOENCODING": "utf-8",
+    }
+
+
 def check_report(name: str, report: Any) -> None:
     """Validate the documented contract, including the intentional failed gate."""
     if not isinstance(report, dict):
@@ -69,7 +82,7 @@ def verify_examples(root: Path) -> list[str]:
         run = subprocess.run(
             [sys.executable, "-m", module, *args],
             cwd=project,
-            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            env=python_subprocess_env(project),
             capture_output=True, text=True, encoding="utf-8",
             check=False, timeout=120,
         )
@@ -157,7 +170,7 @@ def verify_ops_bounded_sniff(root: Path) -> str:
     result = subprocess.run(
         [sys.executable, "-c", _OPS_BOUNDED_SNIFF_PROBE],
         cwd=project,
-        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        env=python_subprocess_env(project),
         capture_output=True, text=True, encoding="utf-8",
         check=False, timeout=120,
     )
@@ -267,7 +280,7 @@ def verify_na_iterator_contract(root: Path) -> str:
     result = subprocess.run(
         [sys.executable, "-c", _NA_ITERATOR_PROBE],
         cwd=project,
-        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        env=python_subprocess_env(project),
         capture_output=True, text=True, encoding="utf-8",
         check=False, timeout=120,
     )
@@ -373,7 +386,7 @@ def verify_residual_bootstrap_finite(root: Path) -> str:
     result = subprocess.run(
         [sys.executable, "-c", _RESIDUAL_FINITE_PROBE],
         cwd=project,
-        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        env=python_subprocess_env(project),
         capture_output=True, text=True, encoding="utf-8",
         check=False, timeout=120,
     )
@@ -475,7 +488,7 @@ def verify_inventory_bootstrap_demand(root: Path) -> str:
     result = subprocess.run(
         [sys.executable, "-c", _BOOTSTRAP_DEMAND_PROBE],
         cwd=project,
-        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        env=python_subprocess_env(project),
         capture_output=True, text=True, encoding="utf-8",
         check=False, timeout=120,
     )
@@ -570,7 +583,7 @@ def verify_inventory_replay_levels(root: Path) -> str:
     result = subprocess.run(
         [sys.executable, "-c", _INVENTORY_REPLAY_PROBE],
         cwd=project,
-        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        env=python_subprocess_env(project),
         capture_output=True, text=True, encoding="utf-8",
         check=False, timeout=120,
     )
@@ -657,7 +670,7 @@ def verify_casefold_missing_marker_example(root: Path) -> str:
         result = subprocess.run(
             [sys.executable, "-m", "csv_quality_report", *common, *extra],
             cwd=project,
-            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            env=python_subprocess_env(project),
             capture_output=True, text=True, encoding="utf-8",
             check=False, timeout=120,
         )
@@ -712,7 +725,7 @@ def verify_canonical_missing_marker_example(root: Path) -> str:
         result = subprocess.run(
             [sys.executable, "-m", "csv_quality_report", *common, *extra],
             cwd=project,
-            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            env=python_subprocess_env(project),
             capture_output=True, text=True, encoding="utf-8",
             check=False, timeout=120,
         )
@@ -748,7 +761,7 @@ def verify_canonical_unicode_example(root: Path) -> str:
         result = subprocess.run(
             [sys.executable, "-m", "ops_field_brief", *common, *extra],
             cwd=project,
-            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            env=python_subprocess_env(project),
             capture_output=True, text=True, encoding="utf-8",
             check=False, timeout=120,
         )
@@ -804,7 +817,7 @@ def verify_ambiguous_baseline_example(root: Path) -> str:
                 "--format", "json", "--json-output", str(saved),
             ],
             cwd=project,
-            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            env=python_subprocess_env(project),
             capture_output=True, text=True, encoding="utf-8",
             check=False, timeout=120,
         )
@@ -842,7 +855,7 @@ def verify_nonfinite_baseline_examples(root: Path) -> str:
                     "--format", "json", "--json-output", str(saved),
                 ],
                 cwd=project,
-                env={**os.environ, "PYTHONPATH": str(project / "src")},
+                env=python_subprocess_env(project),
                 capture_output=True, text=True, encoding="utf-8",
                 check=False, timeout=120,
             )
