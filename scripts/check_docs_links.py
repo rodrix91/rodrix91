@@ -18,6 +18,15 @@ FENCE = re.compile(r"^ {0,3}(" + chr(96) + r"{3,}|~{3,})(.*)$")
 INLINE_TARGET = re.compile(r"""^\s*(?:<([^>\n]+)>|([^\s<>\n]+))(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'))?[ \t]*$""")
 
 
+def _escaped_by_backslash(line: str, offset: int) -> bool:
+    """An odd-length preceding backslash run escapes a Markdown '<' token."""
+    count = 0
+    while offset > 0 and line[offset - 1] == "\\":
+        count += 1
+        offset -= 1
+    return count % 2 == 1
+
+
 def _without_html_comments(line: str, in_comment: bool) -> tuple[str, bool]:
     """Remove Markdown HTML comments, including comments spanning lines.
 
@@ -36,10 +45,13 @@ def _without_html_comments(line: str, in_comment: bool) -> tuple[str, bool]:
             continue
 
         opening = line.find("<!--", offset)
-        # HTML markers inside inline code are literal, not comments.
-        while opening != -1 and any(
-            code.start() <= opening < code.end()
-            for code in INLINE_CODE.finditer(line)
+        # Escaped openers and markers inside inline code are visible text.
+        while opening != -1 and (
+            _escaped_by_backslash(line, opening)
+            or any(
+                code.start() <= opening < code.end()
+                for code in INLINE_CODE.finditer(line)
+            )
         ):
             opening = line.find("<!--", opening + 4)
         if opening == -1:
