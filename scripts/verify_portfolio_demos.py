@@ -116,6 +116,64 @@ def check_canonical_unicode_gate(plain: Any, folded: Any) -> None:
         raise ValueError("Unicode operations opt-in gates failed to detect canonical duplicates")
 
 
+
+def check_casefold_missing_marker_demo(plain: Any, folded: Any) -> None:
+    """Verify an optional locale-specific missing-token flag without changing defaults."""
+    if not isinstance(plain, dict) or not isinstance(folded, dict):
+        raise ValueError("mixed-case missing-marker demo requires JSON objects")
+    try:
+        plain_columns = {column["name"]: column for column in plain["columns"]}
+        folded_columns = {column["name"]: column for column in folded["columns"]}
+        old_weight = plain_columns["weight_kg"]
+        new_weight = folded_columns["weight_kg"]
+        valid = (
+            plain["rows"] == folded["rows"] == 4
+            and set(plain_columns) == set(folded_columns) == {"order_id", "weight_kg", "status"}
+            and old_weight["missing"] == 1
+            and old_weight["type"] == "string"
+            and new_weight["missing"] == 2
+            and new_weight["type"] == "float"
+            and "na_ignore_case" not in plain
+            and folded.get("na_ignore_case") is True
+        )
+    except (KeyError, TypeError, ValueError):
+        valid = False
+    if not valid:
+        raise ValueError("mixed-case missing-marker demo reported unexpected CSV types or gaps")
+
+
+def verify_casefold_missing_marker_example(root: Path) -> str:
+    """Demonstrate exact matching versus case-insensitive S/D markers in a CSV."""
+    project = (root / "csv-quality-report").resolve()
+    fixture = (root / "tests" / "fixtures" / "bolivia-mixed-na.csv").resolve()
+    if not (project / "src").is_dir() or not fixture.is_file():
+        raise FileNotFoundError("mixed-case missing-marker demo: source or fixture missing")
+    common = (
+        str(fixture), "--delimiter", ";", "--decimal-comma", "--na", "s/d",
+        "--format", "json",
+    )
+    reports: list[dict[str, Any]] = []
+    for extra in ((), ("--na-ignore-case",)):
+        result = subprocess.run(
+            [sys.executable, "-m", "csv_quality_report", *common, *extra],
+            cwd=project,
+            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            capture_output=True, text=True, encoding="utf-8",
+            check=False, timeout=120,
+        )
+        if result.returncode != 0:
+            raise ValueError(
+                "mixed-case missing-marker demo: expected exit 0; "
+                f"got {result.returncode}; stderr={result.stderr[:600]!r}"
+            )
+        try:
+            reports.append(json.loads(result.stdout))
+        except json.JSONDecodeError as exc:
+            raise ValueError("mixed-case missing-marker demo: invalid JSON") from exc
+    check_casefold_missing_marker_demo(*reports)
+    return "csv-quality-report mixed-case missing markers: PASS (default and opt-in exit 0)"
+
+
 def verify_canonical_unicode_example(root: Path) -> str:
     """Run the opt-in NFC comparison in addition to the three base examples."""
     project = (root / "ops-field-brief").resolve()
@@ -247,6 +305,7 @@ def main() -> int:
         root = options.root.resolve()
         outcomes = verify_examples(root)
         outcomes.append(verify_canonical_unicode_example(root))
+        outcomes.append(verify_casefold_missing_marker_example(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError) as exc:
