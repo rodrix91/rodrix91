@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: rodrix91/ops-field-brief
-          ref: 90de5d9991ade53143fade30c8318cb55fa38fe5
+          ref: c9d01e30b39f56328b06b48b78e836d4e8da0f0d
           path: ops-field-brief
           persist-credentials: false
 

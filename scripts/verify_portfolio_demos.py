@@ -1638,6 +1638,118 @@ def verify_csv_max_rows_contract(root: Path) -> str:
     return "csv-quality-report max-rows: PASS (27 invalid, 3 negative, 9 valid)"
 
 
+_OPS_EXCEL_CASE_PROBE = """
+import gzip
+import io
+import json
+import tempfile
+from pathlib import Path
+
+from ops_field_brief.brief import _excel_sep_directive, build_brief, read_csv
+from ops_field_brief.validation import validate_csv_structure
+
+results = {}
+for spelling in ("SEP=", "Sep=", "sEp="):
+    text = chr(10).join((
+        spelling + ";",
+        "order_id;buyer",
+        "A1;Andes",
+        "A2;Paz",
+        "",
+    ))
+    with tempfile.TemporaryDirectory() as dirname:
+        for source in ("stdin", "file", "gzip"):
+            path = Path(dirname) / ("orders.csv.gz" if source == "gzip" else "orders.csv")
+            if source != "stdin":
+                raw = text.encode("utf-8-sig")
+                path.write_bytes(gzip.compress(raw) if source == "gzip" else raw)
+            rows = (
+                read_csv(
+                    Path("-"), delimiter=None, strict=True,
+                    stdin=io.StringIO(chr(0xfeff) + text),
+                )
+                if source == "stdin"
+                else read_csv(path, delimiter=None, strict=True)
+            )
+            validate_csv_structure(rows)
+            brief = build_brief(
+                rows, ["order_id", "buyer"], key="order_id",
+                group="buyer", max_duplicates=0,
+            )
+            results[f"{spelling}:{source}"] = {
+                "header": list(rows.fieldnames),
+                "lines": list(rows.source_lines),
+                "rows": brief.rows,
+                "duplicates": brief.duplicate_keys,
+                "top": [list(item) for item in brief.top],
+            }
+explicit = read_csv(
+    Path("-"), delimiter=";",
+    stdin=io.StringIO(chr(10).join(("SEP=;", "order_id;buyer", "A1;Andes", ""))),
+)
+lookalikes = [
+    _excel_sep_directive(text) is None
+    for text in (
+        "SEP=;extra" + chr(10) + "order_id;buyer",
+        "sép=;" + chr(10) + "order_id;buyer",
+        "SEP=:" + chr(10) + "order_id:buyer",
+    )
+]
+print(json.dumps({
+    "results": results,
+    "explicit_header": list(explicit.fieldnames),
+    "lookalikes": lookalikes,
+}))
+"""
+
+
+def check_ops_excel_case_contract(report: Any) -> None:
+    """Confirm declared Excel separators work only in exact auto mode."""
+    rows = {
+        "header": ["order_id", "buyer"],
+        "lines": [3, 4],
+        "rows": 2,
+        "duplicates": 0,
+        "top": [["Andes", 1], ["Paz", 1]],
+    }
+    expected = {
+        "results": {
+            f"{spelling}:{source}": rows
+            for spelling in ("SEP=", "Sep=", "sEp=")
+            for source in ("stdin", "file", "gzip")
+        },
+        "explicit_header": ["SEP=", ""],
+        "lookalikes": [True, True, True],
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("ops Excel sep-case demo: invalid directive contract")
+
+
+def verify_ops_excel_case_contract(root: Path) -> str:
+    """Run mixed-case Excel directive probes against pinned ops source."""
+    project = (root / "ops-field-brief").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("ops Excel sep-case demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _OPS_EXCEL_CASE_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"ops Excel sep-case demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("ops Excel sep-case demo: malformed JSON") from exc
+    check_ops_excel_case_contract(payload)
+    return "ops-field-brief Excel sep case: PASS (9 sources, exact-only detection)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1660,6 +1772,7 @@ def main() -> int:
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))
         outcomes.append(verify_ops_top_n_contract(root))
+        outcomes.append(verify_ops_excel_case_contract(root))
         outcomes.append(verify_ops_bounded_sniff(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))

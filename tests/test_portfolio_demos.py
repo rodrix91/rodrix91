@@ -30,6 +30,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_csv_max_rows_contract,
     check_ops_bounded_sniff,
     check_ops_top_n_contract,
+    check_ops_excel_case_contract,
     check_report,
     python_subprocess_env,
 )
@@ -65,7 +66,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 19)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 20)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -158,6 +159,41 @@ class PortfolioDemoContractTests(unittest.TestCase):
                 altered = {**report, "valid": {**report["valid"], field: -1.0}}
                 with self.assertRaisesRegex(ValueError, "invalid API contract"):
                     check_inventory_alpha_contract(altered)
+
+    def test_ops_excel_case_probe_rejects_mutated_results(self) -> None:
+        valid = {
+            "header": ["order_id", "buyer"],
+            "lines": [3, 4],
+            "rows": 2,
+            "duplicates": 0,
+            "top": [["Andes", 1], ["Paz", 1]],
+        }
+        results = {
+            f"{spelling}:{source}": dict(valid)
+            for spelling in ("SEP=", "Sep=", "sEp=")
+            for source in ("stdin", "file", "gzip")
+        }
+        report = {
+            "results": results,
+            "explicit_header": ["SEP=", ""],
+            "lookalikes": [True, True, True],
+        }
+        check_ops_excel_case_contract(report)
+        for case in results:
+            with self.subTest(case=case):
+                changed = {
+                    **report,
+                    "results": {**results, case: {**valid, "rows": 1}},
+                }
+                with self.assertRaisesRegex(ValueError, "invalid directive contract"):
+                    check_ops_excel_case_contract(changed)
+        for changed in (
+            {**report, "explicit_header": ["order_id", "buyer"]},
+            {**report, "lookalikes": [False, True, True]},
+            {**report, "results": {k: v for k, v in results.items() if k != "SEP=:gzip"}},
+        ):
+            with self.assertRaisesRegex(ValueError, "invalid directive contract"):
+                check_ops_excel_case_contract(changed)
 
     def test_csv_max_rows_probe_rejects_mutated_results(self) -> None:
         errors = {
