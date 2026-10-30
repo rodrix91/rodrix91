@@ -1525,6 +1525,119 @@ def verify_csv_skip_count_contract(root: Path) -> str:
     return "csv-quality-report skip counts: PASS (54 invalid, 6 negative, valid rows)"
 
 
+_CSV_MAX_ROWS_PROBE = """
+import json
+import tempfile
+from pathlib import Path
+from csv_quality_report.reader import open_rows, read_table
+from csv_quality_report.profile import profile_file
+
+def read_with(api, path, max_rows):
+    if api == "stream":
+        with open_rows(path, max_rows=max_rows) as stream:
+            rows = list(stream)
+            return len(rows), stream.truncated
+    if api == "table":
+        data = read_table(path, max_rows=max_rows)
+        return len(data.rows), data.truncated
+    result = profile_file(path, max_rows=max_rows)
+    return result.rows, result.truncated
+
+invalid = (
+    ("true", True), ("false", False), ("float", 1.0),
+    ("fraction", 1.5), ("text", "1"), ("nan", float("nan")),
+    ("infinity", float("inf")), ("minus_infinity", -float("inf")),
+    ("object", object()),
+)
+errors = {}
+negative = {}
+for api in ("stream", "table", "profile"):
+    for label, value in invalid:
+        try:
+            read_with(api, "missing-synthetic-input.csv", value)
+        except ValueError as exc:
+            errors[f"{api}:{label}"] = str(exc)
+        except Exception as exc:
+            errors[f"{api}:{label}"] = f"UNEXPECTED {type(exc).__name__}"
+        else:
+            errors[f"{api}:{label}"] = "UNEXPECTED SUCCESS"
+    try:
+        read_with(api, "missing-synthetic-input.csv", -1)
+    except ValueError as exc:
+        negative[api] = str(exc)
+    except Exception as exc:
+        negative[api] = f"UNEXPECTED {type(exc).__name__}"
+    else:
+        negative[api] = "UNEXPECTED SUCCESS"
+
+with tempfile.TemporaryDirectory() as dirname:
+    path = Path(dirname) / "records.csv"
+    path.write_text(
+        chr(10).join(("id,buyer", "S1,Andes", "S2,Paz", "")),
+        encoding="utf-8",
+    )
+    valid = {}
+    for api in ("stream", "table", "profile"):
+        for label, value in (("unlimited", None), ("zero", 0), ("one", 1)):
+            valid[f"{api}:{label}"] = read_with(api, path, value)
+print(json.dumps({"errors": errors, "negative": negative, "valid": valid}))
+"""
+
+
+def check_csv_max_rows_contract(report: Any) -> None:
+    """Require early typed limits and unchanged CSV truncation semantics."""
+    expected = {
+        "errors": {
+            f"{api}:{label}": "max_rows must be a non-negative integer or None"
+            for api in ("stream", "table", "profile")
+            for label in (
+                "true", "false", "float", "fraction", "text", "nan",
+                "infinity", "minus_infinity", "object",
+            )
+        },
+        "negative": {
+            api: "max_rows must be >= 0, got -1"
+            for api in ("stream", "table", "profile")
+        },
+        "valid": {
+            f"{api}:{label}": value
+            for api in ("stream", "table", "profile")
+            for label, value in (
+                ("unlimited", [2, False]),
+                ("zero", [0, True]),
+                ("one", [1, True]),
+            )
+        },
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("csv max-rows demo: invalid public API contract")
+
+
+def verify_csv_max_rows_contract(root: Path) -> str:
+    """Exercise pinned public CSV APIs using only synthetic demand rows."""
+    project = (root / "csv-quality-report").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("csv max-rows demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _CSV_MAX_ROWS_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"csv max-rows demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("csv max-rows demo: malformed JSON") from exc
+    check_csv_max_rows_contract(payload)
+    return "csv-quality-report max-rows: PASS (27 invalid, 3 negative, 9 valid)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1538,6 +1651,7 @@ def main() -> int:
         outcomes.append(verify_na_iterator_contract(root))
         outcomes.append(verify_csv_top_n_contract(root))
         outcomes.append(verify_csv_skip_count_contract(root))
+        outcomes.append(verify_csv_max_rows_contract(root))
         outcomes.append(verify_inventory_ma_window_contract(root))
         outcomes.append(verify_inventory_holdout_contract(root))
         outcomes.append(verify_inventory_custom_forecast_contract(root))

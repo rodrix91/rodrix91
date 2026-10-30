@@ -4,7 +4,7 @@ The [portfolio demo workflow](../.github/workflows/portfolio-demos.yml) independ
 
 | Project | Pinned, reviewed source commit | Expected result |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `d01cd8ce5b31e7c219b0b27a031a67a4518b6be2` | Exit 0; 3 records, 1 missing quantity |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `b4acdbdfa719ecbd17cf3cf6529bab121c2444b5` | Exit 0; 3 records, 1 missing quantity |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | `90de5d9991ade53143fade30c8318cb55fa38fe5` | **Intentional exit 1**; 2 incomplete composite keys and 1 extra duplicate |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `008105097e2b6199fabd8484cbf546970201bdcf` | Exit 0; 12 distinct synthetic SKU outputs |
 
@@ -15,6 +15,8 @@ The three copy-and-pasteable Bash invocations in the English guide, Spanish guid
 The current snapshot also exercises the optional case-insensitive missing-value marker feature added in [csv-quality-report PR #232](https://github.com/rodrix91/csv-quality-report/pull/232): the checked-in [Bolivian operations example](../tests/fixtures/bolivia-mixed-na.csv) deliberately mixes `S/D` and `s/d` in a semicolon-delimited, decimal-comma weight column. Default exact matching reports one missing weight and infers a string; enabling `--na-ignore-case` reports two missing weights, infers numeric values, and leaves the original default JSON contract unchanged. Both CLI paths must return exit 0. This is a synthetic demonstration, not operational customer data.
 
 The opt-in NFC normalization safeguard from [csv-quality-report PR #233](https://github.com/rodrix91/csv-quality-report/pull/233) is exercised independently using the synthetic [accented missing-marker fixture](../tests/fixtures/canonical-na-marker.csv). The two representations of `información` are visually identical but differ in Unicode encoding. Without `--na-ignore-case`, the `peso` column remains a string; with the option it is numeric and the missing count increases. Default exact matching and the original CSV bytes remain unchanged.
+
+The [public CSV `max_rows` validation in PR #238](https://github.com/rodrix91/csv-quality-report/pull/238) is independently tested against the pinned merged source across `open_rows()`, `read_table()` and `profile_file()`. The synthetic subprocess checks nine bad types per API (27 failures before reading a missing file), three negative-integer errors, and nine valid results with unlimited, zero and one-row limits. It verifies exact row and truncation metadata, including the supported Python-only `max_rows=0` behavior. The verifier's own unit tests mutate each output and must reject it. Only synthetic rows are used.
 
 The [strict CSV skip-count fix in csv-quality-report PR #237](https://github.com/rodrix91/csv-quality-report/pull/237) is independently verified using its pinned source. A synthetic subprocess exercises `open_rows()`, `read_table()`, and `profile_file()` with nine invalid skip-count types for both `skip_lines` and `skip_footer`, confirming 54 early `ValueError` responses before any missing CSV is opened. Six negative-integer checks retain the original error messages, and valid title/footer skips preserve exactly two sample data rows. Portfolio regression tests deliberately corrupt individual results to ensure the independent verifier fails closed. All rows are synthetic.
 
