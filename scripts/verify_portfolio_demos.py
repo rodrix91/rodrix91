@@ -1853,6 +1853,130 @@ def verify_inventory_warmup_contract(root: Path) -> str:
     return "inventory-policy-lab warmup: PASS (30 invalid, 6 bounds, 9 valid)"
 
 
+_CSV_FIELD_LIMIT_PROBE = """
+import csv
+import json
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from csv_quality_report.profile import profile_file
+from csv_quality_report.reader import open_rows, read_table
+
+def read_with(api, path, size):
+    if api == "stream":
+        with open_rows(path, max_field_size=size) as stream:
+            return len(list(stream))
+    if api == "table":
+        return len(read_table(path, max_field_size=size).rows)
+    return profile_file(path, max_field_size=size).rows
+
+bad = (
+    ("true", True), ("false", False), ("float", 1.0),
+    ("fraction", 1.5), ("text", "2"), ("nan", float("nan")),
+    ("infinity", float("inf")), ("minus_infinity", -float("inf")),
+    ("object", object()), ("zero", 0), ("negative", -1),
+    ("too_large", sys.maxsize + 1), ("huge", 10**400),
+)
+errors = {}
+restored = {}
+before = csv.field_size_limit()
+for api in ("stream", "table", "profile"):
+    for label, value in bad:
+        key = f"{api}:{label}"
+        try:
+            read_with(api, "missing-synthetic-file.csv", value)
+        except ValueError as exc:
+            errors[key] = str(exc)
+        except Exception as exc:
+            errors[key] = f"UNEXPECTED {type(exc).__name__}"
+        else:
+            errors[key] = "UNEXPECTED SUCCESS"
+        restored[key] = csv.field_size_limit() == before
+
+with tempfile.TemporaryDirectory() as dirname:
+    file = Path(dirname) / "records.csv"
+    file.write_text(
+        chr(10).join(("id,region", "A1,Tarija", "A2,Jujuy", "")),
+        encoding="utf-8",
+    )
+    valid = {}
+    for api in ("stream", "table", "profile"):
+        for label, limit in (("default", None), ("explicit", 128)):
+            key = f"{api}:{label}"
+            valid[key] = read_with(api, file, limit)
+            restored[key] = csv.field_size_limit() == before
+
+    cmd = subprocess.run(
+        [sys.executable, "-m", "csv_quality_report", str(file),
+         "--max-field-size", str(sys.maxsize + 1)],
+        capture_output=True, text=True, encoding="utf-8", check=False,
+    )
+    cli = [cmd.returncode, f"must be <= {sys.maxsize}" in cmd.stderr]
+
+print(json.dumps({"errors": errors, "restored": restored, "valid": valid, "cli": cli}))
+"""
+
+
+def check_csv_field_limit_contract(report: Any) -> None:
+    """Reject invalid parser limits without changing process-global CSV state."""
+    errors = {}
+    for api in ("stream", "table", "profile"):
+        for label in (
+            "true", "false", "float", "fraction", "text",
+            "nan", "infinity", "minus_infinity", "object",
+        ):
+            errors[f"{api}:{label}"] = "max_field_size must be a positive integer"
+        for label in ("zero", "negative", "too_large", "huge"):
+            errors[f"{api}:{label}"] = (
+                f"max_field_size must be between 1 and {sys.maxsize}"
+            )
+    expected = {
+        "errors": errors,
+        "restored": {
+            **{key: True for key in errors},
+            **{
+                f"{api}:{label}": True
+                for api in ("stream", "table", "profile")
+                for label in ("default", "explicit")
+            },
+        },
+        "valid": {
+            f"{api}:{label}": 2
+            for api in ("stream", "table", "profile")
+            for label in ("default", "explicit")
+        },
+        "cli": [2, True],
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("csv field-size demo: invalid parser-state contract")
+
+
+def verify_csv_field_limit_contract(root: Path) -> str:
+    """Verify pinned source's parser-state protection using synthetic CSV."""
+    project = (root / "csv-quality-report").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("csv field-size demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _CSV_FIELD_LIMIT_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"csv field-size demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("csv field-size demo: malformed JSON") from exc
+    check_csv_field_limit_contract(payload)
+    return "csv-quality-report field size: PASS (39 invalid, 6 valid, state restored, CLI)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1867,6 +1991,7 @@ def main() -> int:
         outcomes.append(verify_csv_top_n_contract(root))
         outcomes.append(verify_csv_skip_count_contract(root))
         outcomes.append(verify_csv_max_rows_contract(root))
+        outcomes.append(verify_csv_field_limit_contract(root))
         outcomes.append(verify_inventory_ma_window_contract(root))
         outcomes.append(verify_inventory_holdout_contract(root))
         outcomes.append(verify_inventory_custom_forecast_contract(root))
