@@ -1750,6 +1750,109 @@ def verify_ops_excel_case_contract(root: Path) -> str:
     return "ops-field-brief Excel sep case: PASS (9 sources, exact-only detection)"
 
 
+_INVENTORY_WARMUP_PROBE = """
+import json
+from inventory_policy_lab import simulate, simulate_periodic, simulate_rss
+
+methods = (
+    ("sq", simulate, {"reorder_point": 3.0, "order_quantity": 2.0}),
+    ("rs", simulate_periodic, {"order_up_to": 5.0, "review_period": 2}),
+    ("rss", simulate_rss, {
+        "reorder_point": 3.0, "order_quantity": 2.0, "review_period": 2,
+    }),
+)
+bad = (
+    ("true", True), ("false", False), ("float", 1.0),
+    ("fraction", 1.5), ("text", "1"), ("none", None),
+    ("nan", float("nan")), ("infinity", float("inf")),
+    ("minus_infinity", -float("inf")), ("object", object()),
+)
+errors = {}
+bounds = {}
+valid = {}
+for name, method, settings in methods:
+    for label, warmup in bad:
+        try:
+            method([-1.0, 2.0, 3.0], warmup=warmup, lead_time=0.0, **settings)
+        except ValueError as exc:
+            errors[f"{name}:{label}"] = str(exc)
+        except Exception as exc:
+            errors[f"{name}:{label}"] = f"UNEXPECTED {type(exc).__name__}"
+        else:
+            errors[f"{name}:{label}"] = "UNEXPECTED SUCCESS"
+    for label, warmup in (("negative", -1), ("too_many", 4)):
+        try:
+            method([-1.0, 2.0, 3.0], warmup=warmup, lead_time=0.0, **settings)
+        except ValueError as exc:
+            bounds[f"{name}:{label}"] = str(exc)
+        except Exception as exc:
+            bounds[f"{name}:{label}"] = f"UNEXPECTED {type(exc).__name__}"
+        else:
+            bounds[f"{name}:{label}"] = "UNEXPECTED SUCCESS"
+    for label, warmup in (("all_scored", 0), ("one_skipped", 1), ("all_skipped", 3)):
+        result = method([1.0, 2.0, 3.0], warmup=warmup, lead_time=0.0, **settings)
+        valid[f"{name}:{label}"] = [
+            result.periods, result.total_demand, result.fill_rate is None,
+        ]
+print(json.dumps({"errors": errors, "bounds": bounds, "valid": valid}))
+"""
+
+
+def check_inventory_warmup_contract(report: Any) -> None:
+    """Fail closed on invalid warmups and inaccurate replay scoring windows."""
+    expected = {
+        "errors": {
+            f"{name}:{label}": "warmup must be an integer number of periods"
+            for name in ("sq", "rs", "rss")
+            for label in (
+                "true", "false", "float", "fraction", "text",
+                "none", "nan", "infinity", "minus_infinity", "object",
+            )
+        },
+        "bounds": {
+            f"{name}:{label}": "warmup must be between 0 and the number of periods"
+            for name in ("sq", "rs", "rss")
+            for label in ("negative", "too_many")
+        },
+        "valid": {
+            f"{name}:{label}": result
+            for name in ("sq", "rs", "rss")
+            for label, result in (
+                ("all_scored", [3, 6.0, False]),
+                ("one_skipped", [2, 5.0, False]),
+                ("all_skipped", [0, 0.0, True]),
+            )
+        },
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("inventory warmup demo: invalid scored-period contract")
+
+
+def verify_inventory_warmup_contract(root: Path) -> str:
+    """Exercise replay warmups in the exact pinned inventory source."""
+    project = (root / "inventory-policy-lab").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("inventory warmup demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _INVENTORY_WARMUP_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"inventory warmup demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("inventory warmup demo: malformed JSON") from exc
+    check_inventory_warmup_contract(payload)
+    return "inventory-policy-lab warmup: PASS (30 invalid, 6 bounds, 9 valid)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1768,6 +1871,7 @@ def main() -> int:
         outcomes.append(verify_inventory_holdout_contract(root))
         outcomes.append(verify_inventory_custom_forecast_contract(root))
         outcomes.append(verify_inventory_alpha_contract(root))
+        outcomes.append(verify_inventory_warmup_contract(root))
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))

@@ -22,6 +22,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_inventory_holdout_contract,
     check_inventory_custom_forecast_contract,
     check_inventory_alpha_contract,
+    check_inventory_warmup_contract,
     check_inventory_bootstrap_demand,
     check_residual_bootstrap_finite,
     check_na_iterator_contract,
@@ -66,7 +67,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 20)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 21)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -124,6 +125,47 @@ class PortfolioDemoContractTests(unittest.TestCase):
         check_report("ops-field-brief", report)
         with self.assertRaisesRegex(ValueError, "intentional quality gate"):
             check_report("ops-field-brief", {**report, "failed_incomplete_keys": False})
+
+    def test_replay_warmup_probe_detects_mutated_scoring(self) -> None:
+        errors = {
+            f"{name}:{label}": "warmup must be an integer number of periods"
+            for name in ("sq", "rs", "rss")
+            for label in (
+                "true", "false", "float", "fraction", "text",
+                "none", "nan", "infinity", "minus_infinity", "object",
+            )
+        }
+        bounds = {
+            f"{name}:{label}": "warmup must be between 0 and the number of periods"
+            for name in ("sq", "rs", "rss")
+            for label in ("negative", "too_many")
+        }
+        valid = {
+            f"{name}:{label}": result
+            for name in ("sq", "rs", "rss")
+            for label, result in (
+                ("all_scored", [3, 6.0, False]),
+                ("one_skipped", [2, 5.0, False]),
+                ("all_skipped", [0, 0.0, True]),
+            )
+        }
+        report = {"errors": errors, "bounds": bounds, "valid": valid}
+        check_inventory_warmup_contract(report)
+        for name in errors:
+            with self.subTest(invalid=name):
+                changed = {**report, "errors": {**errors, name: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid scored-period contract"):
+                    check_inventory_warmup_contract(changed)
+        for name in bounds:
+            with self.subTest(bound=name):
+                changed = {**report, "bounds": {**bounds, name: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid scored-period contract"):
+                    check_inventory_warmup_contract(changed)
+        for name in valid:
+            with self.subTest(valid=name):
+                changed = {**report, "valid": {**valid, name: [999, 999.0, False]}}
+                with self.assertRaisesRegex(ValueError, "invalid scored-period contract"):
+                    check_inventory_warmup_contract(changed)
 
     def test_smoothing_alpha_probe_rejects_mutated_results(self) -> None:
         invalid = (
