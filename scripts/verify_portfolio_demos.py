@@ -1454,7 +1454,7 @@ for api in apis:
 
 with tempfile.TemporaryDirectory() as dirname:
     path = Path(dirname) / "export.csv"
-    path.write_text("Title\nid,buyer\nS1,Andes\nS2,Paz\nTotal\n", encoding="utf-8")
+    path.write_text("Title\\nid,buyer\\nS1,Andes\\nS2,Paz\\nTotal\\n", encoding="utf-8")
     with open_rows(path, skip_lines=1, skip_footer=1) as stream:
         streaming = list(stream)
     table = read_table(path, skip_lines=1, skip_footer=1)
