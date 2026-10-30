@@ -87,6 +87,93 @@ def verify_examples(root: Path) -> list[str]:
     return outcomes
 
 
+_OPS_BOUNDED_SNIFF_PROBE = """
+import io
+import json
+from pathlib import Path
+from unittest import mock
+from ops_field_brief.brief import read_csv
+from ops_field_brief.validation import validate_csv_structure
+
+class BoundedReader(io.TextIOWrapper):
+    def __init__(self, content):
+        super().__init__(io.BytesIO(content.encode("utf-8")),
+                         encoding="utf-8", newline="")
+    def read(self, size=-1):
+        if size < 0:
+            raise AssertionError("unbounded delimiter sniff")
+        return super().read(size)
+
+cases = []
+for separator in (",", ";", "\\t", "|"):
+    for newline in ("\\n", "\\r\\n", "\\r"):
+        source = (f"id{separator}buyer{newline}"
+                  f"A1{separator}Andes{newline}"
+                  f"A2{separator}Tarija{newline}"
+                  f"A3{separator}" + "x" * 9000 + newline)
+        with mock.patch.object(Path, "open", return_value=BoundedReader(source)):
+            rows = read_csv(Path("synthetic.csv"), delimiter=None, strict=True)
+        validate_csv_structure(rows)
+        cases.append({
+            "separator": separator,
+            "newline": newline,
+            "rows": len(rows),
+            "fields": list(rows.fieldnames),
+            "source_lines": list(rows.source_lines),
+            "last_value_length": len(rows[-1]["buyer"]),
+        })
+print(json.dumps(cases))
+"""
+
+
+def check_ops_bounded_sniff(report: Any) -> None:
+    """Require the pinned operations source to pass twelve bounded sniff cases."""
+    expected = {(separator, newline) for separator in (",", ";", "\t", "|")
+                for newline in ("\n", "\r\n", "\r")}
+    if not isinstance(report, list) or len(report) != len(expected):
+        raise ValueError("ops bounded sniff demo: missing or extra delimiter cases")
+    seen: set[tuple[str, str]] = set()
+    for record in report:
+        if not isinstance(record, dict):
+            raise ValueError("ops bounded sniff demo: expected a JSON record")
+        pair = (record.get("separator"), record.get("newline"))
+        if (
+            pair not in expected
+            or pair in seen
+            or record.get("rows") != 3
+            or record.get("fields") != ["id", "buyer"]
+            or record.get("source_lines") != [2, 3, 4]
+            or record.get("last_value_length") != 9000
+        ):
+            raise ValueError("ops bounded sniff demo: invalid delimiter result")
+        seen.add(pair)
+
+
+def verify_ops_bounded_sniff(root: Path) -> str:
+    """Run strict CSV long-record regression against the immutable ops checkout."""
+    project = (root / "ops-field-brief").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("ops bounded sniff demo: missing operations source")
+    result = subprocess.run(
+        [sys.executable, "-c", _OPS_BOUNDED_SNIFF_PROBE],
+        cwd=project,
+        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"ops bounded sniff demo: expected exit 0, got {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("ops bounded sniff demo: invalid JSON") from exc
+    check_ops_bounded_sniff(report)
+    return "ops-field-brief bounded strict sniff: PASS (12 delimiters/newlines, no unbounded read)"
+
+
 _INVENTORY_REPLAY_PROBE = """
 import json
 import math
@@ -458,6 +545,7 @@ def main() -> int:
         outcomes.append(verify_casefold_missing_marker_example(root))
         outcomes.append(verify_canonical_missing_marker_example(root))
         outcomes.append(verify_inventory_replay_levels(root))
+        outcomes.append(verify_ops_bounded_sniff(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError) as exc:
