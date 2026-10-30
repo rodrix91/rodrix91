@@ -127,22 +127,33 @@ def _inline_addresses(line: str) -> list[str]:
 
 
 def _heading_link_labels(heading: str) -> str:
-    """Build heading text from inline and reference-style link labels."""
+    """Use rendered link labels while retaining literal text inside inline code."""
+
+    def prose_labels(prose: str) -> str:
+        pieces: list[str] = []
+        offset = 0
+        while match := LINK_START.search(prose, offset):
+            end = _link_end(prose, match.end())
+            if end is None:
+                offset = match.end()
+                continue
+            pieces.append(prose[offset : match.start()])
+            opening = prose[match.start() : match.end()]
+            pieces.append(opening[opening.index("[") + 1 : -2])
+            offset = end + 1
+        pieces.append(prose[offset:])
+        return REFERENCE_LINK.sub(r"\1", "".join(pieces))
+
+    # Inline code displays its brackets, parentheses and reference suffix
+    # literally, so it must not undergo link-label substitutions.
     pieces: list[str] = []
     offset = 0
-    while match := LINK_START.search(heading, offset):
-        end = _link_end(heading, match.end())
-        if end is None:
-            offset = match.end()
-            continue
-        pieces.append(heading[offset : match.start()])
-        opening = heading[match.start() : match.end()]
-        pieces.append(opening[opening.index("[") + 1 : -2])
-        offset = end + 1
-    pieces.append(heading[offset:])
-    # Reference links render only their labels, just like inline links.
-    # Otherwise # [Guide][manual] incorrectly produces #guidemanual.
-    return REFERENCE_LINK.sub(r"\1", "".join(pieces))
+    for code in INLINE_CODE.finditer(heading):
+        pieces.append(prose_labels(heading[offset : code.start()]))
+        pieces.append(code.group(0))
+        offset = code.end()
+    pieces.append(prose_labels(heading[offset:]))
+    return "".join(pieces)
 
 
 def _reference_key(text: str) -> str:
