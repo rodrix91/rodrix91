@@ -14,6 +14,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_casefold_missing_marker_demo,
     check_canonical_missing_marker_demo,
     check_inventory_replay_levels,
+    check_ops_bounded_sniff,
     check_report,
 )
 
@@ -84,6 +85,34 @@ class PortfolioDemoContractTests(unittest.TestCase):
                     expected = ("PYTHONPATH=src", "python", "-m", module, *args)
                     self.assertIn(expected, commands)
 
+
+    def test_ops_strict_sniff_checks_every_delimiter_and_line_ending(self) -> None:
+        cases = [
+            {
+                "separator": separator,
+                "newline": newline,
+                "rows": 3,
+                "fields": ["id", "buyer"],
+                "source_lines": [2, 3, 4],
+                "last_value_length": 9000,
+            }
+            for separator in (",", ";", "\t", "|")
+            for newline in ("\n", "\r\n", "\r")
+        ]
+        check_ops_bounded_sniff(cases)
+        variants = (
+            cases[:-1],
+            [*cases[:-1], cases[0]],
+            [*cases[:-1], {**cases[-1], "rows": 2}],
+            [*cases[:-1], {**cases[-1], "last_value_length": 8999}],
+            [*cases[:-1], {**cases[-1], "source_lines": [2, 4, 5]}],
+            [*cases[:-1], {**cases[-1], "separator": "?"}],
+            [*cases[:-1], None],
+        )
+        for broken in variants:
+            with self.subTest(broken=broken[-1] if broken else "missing"):
+                with self.assertRaisesRegex(ValueError, "ops bounded sniff demo"):
+                    check_ops_bounded_sniff(broken)
 
     def test_inventory_replay_safety_demo_contract_fails_closed(self) -> None:
         report = {
