@@ -21,6 +21,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_inventory_bootstrap_demand,
     check_residual_bootstrap_finite,
     check_na_iterator_contract,
+    check_csv_top_n_contract,
     check_ops_bounded_sniff,
     check_report,
     python_subprocess_env,
@@ -57,7 +58,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 11)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 12)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -153,6 +154,42 @@ class PortfolioDemoContractTests(unittest.TestCase):
             with self.subTest(broken=broken[-1] if broken else "missing"):
                 with self.assertRaisesRegex(ValueError, "ops bounded sniff demo"):
                     check_ops_bounded_sniff(broken)
+
+    def test_python_top_n_demo_fails_closed_on_dropped_guards(self) -> None:
+        errors = {
+            f"{api}_{n}": "top_n must be 0 or greater"
+            for n in (-1, -7)
+            for api in ("direct", "memory", "stream", "missing")
+        }
+        valid = {
+            "same_reports": True,
+            "rows": 3,
+            "distinct": 3,
+            "top_n": 0,
+            "empty_examples": True,
+        }
+        report = {"errors": errors, "valid": valid}
+        check_csv_top_n_contract(report)
+        for key in errors:
+            with self.subTest(key=key):
+                with self.assertRaisesRegex(ValueError, "unexpected validation"):
+                    check_csv_top_n_contract({
+                        **report,
+                        "errors": {**errors, key: "UNEXPECTED SUCCESS"},
+                    })
+        with self.assertRaisesRegex(ValueError, "unexpected validation"):
+            check_csv_top_n_contract({
+                **report,
+                "errors": {key: value for key, value in errors.items() if key != "direct_-1"},
+            })
+        for key in valid:
+            with self.subTest(valid=key):
+                corrupted = 1 if key == "top_n" else False
+                with self.assertRaisesRegex(ValueError, "unexpected validation"):
+                    check_csv_top_n_contract({
+                        **report,
+                        "valid": {**valid, key: corrupted},
+                    })
 
     def test_na_iterator_contract_detects_missingness_and_metadata_regressions(self) -> None:
         expected = {

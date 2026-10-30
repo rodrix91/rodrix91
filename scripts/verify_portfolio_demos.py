@@ -187,6 +187,99 @@ def verify_ops_bounded_sniff(root: Path) -> str:
     return "ops-field-brief bounded strict sniff: PASS (12 delimiters/newlines, no unbounded read)"
 
 
+_CSV_TOP_N_PROBE = """
+import json
+import tempfile
+from pathlib import Path
+from csv_quality_report.profile import profile_rows, profile_file, build_report
+from csv_quality_report.reader import read_table
+
+with tempfile.TemporaryDirectory() as temporary:
+    source = Path(temporary) / "synthetic.csv"
+    source.write_text("sku,qty\\nA,1\\nB,2\\nC,3\\n", encoding="utf-8")
+    table = read_table(source)
+    results = {}
+    for n in (-1, -7):
+        for api, run in (
+            ("direct", lambda: profile_rows(
+                ["sku", "qty"], iter([["A", "1"], ["B", "2"]]), top_n=n)),
+            ("memory", lambda: build_report(table, top_n=n)),
+            ("stream", lambda: profile_file(source, top_n=n)),
+            ("missing", lambda: profile_file(
+                Path(temporary) / "missing.csv", top_n=n)),
+        ):
+            name = f"{api}_{n}"
+            try:
+                run()
+            except ValueError as exc:
+                results[name] = str(exc)
+            else:
+                results[name] = "UNEXPECTED SUCCESS"
+    direct = profile_rows(
+        ["sku", "qty"], iter([["A", "1"], ["B", "2"], ["C", "3"]]), top_n=0
+    )
+    memory = build_report(table, top_n=0)
+    stream = profile_file(source, top_n=0)
+    valid = {
+        "same_reports": memory == stream,
+        "rows": stream.rows,
+        "distinct": stream.columns[0].distinct,
+        "top_n": stream.top_n,
+        "empty_examples": (
+            direct.columns[0].top_values == memory.columns[0].top_values
+            == stream.columns[0].top_values == []
+        ),
+    }
+print(json.dumps({"errors": results, "valid": valid}))
+"""
+
+
+def check_csv_top_n_contract(report: Any) -> None:
+    """Verify Python API rejects negative limits without hiding valid counts."""
+    expected_errors = {
+        f"{api}_{n}": "top_n must be 0 or greater"
+        for n in (-1, -7)
+        for api in ("direct", "memory", "stream", "missing")
+    }
+    expected_valid = {
+        "same_reports": True,
+        "rows": 3,
+        "distinct": 3,
+        "top_n": 0,
+        "empty_examples": True,
+    }
+    if not isinstance(report, dict) or report != {
+        "errors": expected_errors,
+        "valid": expected_valid,
+    }:
+        raise ValueError("csv top_n Python API demo: unexpected validation or metrics")
+
+
+def verify_csv_top_n_contract(root: Path) -> str:
+    """Check the pinned CSV source for consistent Python API limit validation."""
+    project = (root / "csv-quality-report").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("csv top_n Python API demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _CSV_TOP_N_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"csv top_n Python API demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("csv top_n Python API demo: malformed JSON") from exc
+    check_csv_top_n_contract(report)
+    return "csv-quality-report negative top_n guard: PASS (8 cases; zero unchanged)"
+
+
 _NA_ITERATOR_PROBE = """
 import json
 import tempfile
@@ -876,6 +969,7 @@ def main() -> int:
         outcomes.append(verify_casefold_missing_marker_example(root))
         outcomes.append(verify_canonical_missing_marker_example(root))
         outcomes.append(verify_na_iterator_contract(root))
+        outcomes.append(verify_csv_top_n_contract(root))
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))
