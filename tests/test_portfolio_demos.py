@@ -18,6 +18,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_casefold_missing_marker_demo,
     check_canonical_missing_marker_demo,
     check_inventory_replay_levels,
+    check_inventory_ma_window_contract,
     check_inventory_bootstrap_demand,
     check_residual_bootstrap_finite,
     check_na_iterator_contract,
@@ -58,7 +59,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 12)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 13)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -84,6 +85,45 @@ class PortfolioDemoContractTests(unittest.TestCase):
         check_report("ops-field-brief", report)
         with self.assertRaisesRegex(ValueError, "intentional quality gate"):
             check_report("ops-field-brief", {**report, "failed_incomplete_keys": False})
+
+    def test_moving_average_window_probe_rejects_mutated_results(self) -> None:
+        expected_errors = {
+            "true": "moving-average window must be a positive integer, got True",
+            "false": "moving-average window must be a positive integer, got False",
+            "fraction": "moving-average window must be a positive integer, got 1.5",
+            "string": "moving-average window must be a positive integer, got '2'",
+            "none": "moving-average window must be a positive integer, got None",
+            "nan": "moving-average window must be a positive integer, got nan",
+            "infinity": "moving-average window must be a positive integer, got inf",
+        }
+        nonpositive = {
+            "zero": "moving-average window must be at least 1, got 0",
+            "negative": "moving-average window must be at least 1, got -1",
+        }
+        report = {
+            "errors": expected_errors,
+            "nonpositive": nonpositive,
+            "valid": [9.0, 6.5, 5.0],
+        }
+        check_inventory_ma_window_contract(report)
+        for name in expected_errors:
+            with self.subTest(invalid=name):
+                corrupted = {
+                    **report,
+                    "errors": {**expected_errors, name: "UNEXPECTED SUCCESS"},
+                }
+                with self.assertRaisesRegex(ValueError, "invalid API contract"):
+                    check_inventory_ma_window_contract(corrupted)
+        for name in nonpositive:
+            with self.subTest(nonpositive=name):
+                corrupted = {
+                    **report,
+                    "nonpositive": {**nonpositive, name: "UNEXPECTED SUCCESS"},
+                }
+                with self.assertRaisesRegex(ValueError, "invalid API contract"):
+                    check_inventory_ma_window_contract(corrupted)
+        with self.assertRaisesRegex(ValueError, "invalid API contract"):
+            check_inventory_ma_window_contract({**report, "valid": [9.0, 6.5, 4.0]})
 
     def test_inventory_has_twelve_distinct_synthetic_skus(self) -> None:
         report = {"skus": [{"sku": f"SKU-{n:03d}"} for n in range(12)], "settings": {}}
