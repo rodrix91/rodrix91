@@ -11,6 +11,7 @@ from verify_portfolio_demos import (  # noqa: E402
     EXAMPLES,
     check_baseline_rejection,
     check_canonical_unicode_gate,
+    check_casefold_missing_marker_demo,
     check_report,
 )
 
@@ -100,6 +101,48 @@ class PortfolioDemoContractTests(unittest.TestCase):
             check_canonical_unicode_gate(default, {**enabled, "duplicate_keys": 0})
         with self.assertRaisesRegex(ValueError, "default unexpectedly merged"):
             check_canonical_unicode_gate({**default, "duplicate_keys": 1}, enabled)
+
+    def test_casefold_na_demo_checks_expected_missingness_and_type(self) -> None:
+        def report(missing: int, inferred: str, enabled: bool) -> dict:
+            result = {
+                "rows": 4,
+                "columns": [
+                    {"name": "order_id", "missing": 0, "type": "string"},
+                    {"name": "weight_kg", "missing": missing, "type": inferred},
+                    {"name": "status", "missing": 0, "type": "string"},
+                ],
+            }
+            if enabled:
+                result["na_ignore_case"] = True
+            return result
+
+        default = report(1, "string", False)
+        casefold = report(2, "float", True)
+        check_casefold_missing_marker_demo(default, casefold)
+        for changed in (
+            report(2, "string", False),
+            report(1, "float", True),
+            {**casefold, "na_ignore_case": False},
+            {**default, "rows": 0},
+            {**casefold, "columns": []},
+        ):
+            with self.subTest(changed=changed):
+                with self.assertRaisesRegex(ValueError, "mixed-case missing-marker demo"):
+                    if "na_ignore_case" in changed:
+                        check_casefold_missing_marker_demo(default, changed)
+                    else:
+                        check_casefold_missing_marker_demo(changed, casefold)
+
+    def test_casefold_na_demo_fixture_has_mixed_spelling_and_decimal_commas(self) -> None:
+        import csv
+
+        root = Path(__file__).resolve().parents[1]
+        path = root / "tests" / "fixtures" / "bolivia-mixed-na.csv"
+        with path.open(encoding="utf-8", newline="") as stream:
+            rows = list(csv.DictReader(stream, delimiter=";"))
+        self.assertEqual(len(rows), 4)
+        self.assertEqual(set(rows[0]), {"order_id", "weight_kg", "status"})
+        self.assertEqual([row["weight_kg"] for row in rows], ["1,50", "S/D", "s/d", "2,25"])
 
     def test_canonical_unicode_fixture_is_a_real_two_form_sample(self) -> None:
         import csv
