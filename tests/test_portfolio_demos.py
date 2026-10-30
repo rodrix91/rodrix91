@@ -24,6 +24,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_na_iterator_contract,
     check_csv_top_n_contract,
     check_ops_bounded_sniff,
+    check_ops_top_n_contract,
     check_report,
     python_subprocess_env,
 )
@@ -59,7 +60,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 13)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 14)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -76,6 +77,38 @@ class PortfolioDemoContractTests(unittest.TestCase):
         check_report("csv-quality-report", report)
         with self.assertRaisesRegex(ValueError, "unexpected CSV"):
             check_report("csv-quality-report", {**report, "rows": 4})
+
+    def test_ops_top_n_probe_detects_corrupted_input_validation(self) -> None:
+        errors = {
+            f"{name}_{mode}": "top must be a non-negative integer"
+            for name in (
+                "true", "false", "fraction", "string", "none",
+                "nan", "infinity", "minus_infinity",
+            )
+            for mode in ("no_group", "group")
+        }
+        report = {
+            "errors": errors,
+            "negative": "top must be 0 or greater",
+            "zero": {
+                "rows": 3, "top": [], "top_group_share": 2 / 3,
+                "failed_fields": [],
+            },
+            "one": {"top": [["Andes", 2]], "rows": 3},
+        }
+        check_ops_top_n_contract(report)
+        for label in errors:
+            with self.subTest(invalid_type=label):
+                altered = {**report, "errors": {**errors, label: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid group limit contract"):
+                    check_ops_top_n_contract(altered)
+        for altered in (
+            {**report, "negative": "UNEXPECTED SUCCESS"},
+            {**report, "zero": {**report["zero"], "top_group_share": 0.0}},
+            {**report, "one": {"top": [["Paz", 1]], "rows": 3}},
+        ):
+            with self.assertRaisesRegex(ValueError, "invalid group limit contract"):
+                check_ops_top_n_contract(altered)
 
     def test_operational_negative_gate_is_intentional(self) -> None:
         report = {

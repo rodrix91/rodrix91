@@ -1050,6 +1050,97 @@ def verify_inventory_ma_window_contract(root: Path) -> str:
     return "inventory-policy-lab moving-average windows: PASS (9 rejected, 3 valid)"
 
 
+_OPS_TOP_N_PROBE = """
+import json
+from ops_field_brief.brief import build_brief
+
+rows = [
+    {"shipment": "S1", "buyer": "Andes"},
+    {"shipment": "S2", "buyer": "Paz"},
+    {"shipment": "S3", "buyer": "Andes"},
+]
+invalid = (
+    ("true", True), ("false", False), ("fraction", 1.5),
+    ("string", "2"), ("none", None), ("nan", float("nan")),
+    ("infinity", float("inf")), ("minus_infinity", -float("inf")),
+)
+errors = {}
+for label, value in invalid:
+    for group in (None, "buyer"):
+        key = label + ("_group" if group else "_no_group")
+        try:
+            build_brief(rows, ["shipment", "buyer"], group=group, top_n=value)
+        except ValueError as exc:
+            errors[key] = str(exc)
+        else:
+            errors[key] = "UNEXPECTED SUCCESS"
+try:
+    build_brief(rows, ["shipment", "buyer"], group="buyer", top_n=-1)
+except ValueError as exc:
+    negative = str(exc)
+else:
+    negative = "UNEXPECTED SUCCESS"
+zero = build_brief(rows, ["shipment", "buyer"], group="buyer", top_n=0)
+one = build_brief(rows, ["shipment", "buyer"], group="buyer", top_n=1)
+print(json.dumps({
+    "errors": errors, "negative": negative,
+    "zero": {
+        "rows": zero.rows, "top": zero.top,
+        "top_group_share": zero.top_group_share,
+        "failed_fields": zero.failed_fields,
+    },
+    "one": {"top": one.top, "rows": one.rows},
+}))
+"""
+
+
+def check_ops_top_n_contract(report: Any) -> None:
+    """Fail on accidental boolean limits, invalid types or altered valid counts."""
+    labels = (
+        "true", "false", "fraction", "string", "none", "nan",
+        "infinity", "minus_infinity",
+    )
+    expected = {
+        f"{label}_{suffix}": "top must be a non-negative integer"
+        for label in labels
+        for suffix in ("no_group", "group")
+    }
+    if not isinstance(report, dict) or report != {
+        "errors": expected,
+        "negative": "top must be 0 or greater",
+        "zero": {
+            "rows": 3, "top": [], "top_group_share": 2 / 3, "failed_fields": [],
+        },
+        "one": {"top": [["Andes", 2]], "rows": 3},
+    }:
+        raise ValueError("ops-field-brief top-N demo: invalid group limit contract")
+
+
+def verify_ops_top_n_contract(root: Path) -> str:
+    """Exercise the pinned operational report API with only synthetic rows."""
+    project = (root / "ops-field-brief").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("ops-field-brief top-N demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _OPS_TOP_N_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"ops-field-brief top-N demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("ops-field-brief top-N demo: malformed JSON") from exc
+    check_ops_top_n_contract(payload)
+    return "ops-field-brief top-N limit: PASS (16 invalid calls, 2 valid rankings)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1066,6 +1157,7 @@ def main() -> int:
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))
+        outcomes.append(verify_ops_top_n_contract(root))
         outcomes.append(verify_ops_bounded_sniff(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))
