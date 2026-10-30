@@ -174,6 +174,116 @@ def verify_ops_bounded_sniff(root: Path) -> str:
     return "ops-field-brief bounded strict sniff: PASS (12 delimiters/newlines, no unbounded read)"
 
 
+_NA_ITERATOR_PROBE = """
+import json
+import tempfile
+from pathlib import Path
+from csv_quality_report.profile import build_report, profile_file, profile_rows
+from csv_quality_report.reader import read_table
+
+with tempfile.TemporaryDirectory() as directory:
+    source = Path(directory) / "synthetic.csv"
+    source.write_text(
+        "sku,qty\\nA,7\\nS/D,3\\ns/d,4\\nA,8\\n", encoding="utf-8"
+    )
+    settings = {"unique_keys": [("sku",)]}
+    folded_ref = profile_file(
+        source, na_tokens=("s/d",), na_ignore_case=True, **settings
+    )
+    folded_file = profile_file(
+        source, na_tokens=(x for x in ["s/d"]), na_ignore_case=True, **settings
+    )
+    folded_memory = build_report(
+        read_table(source), na_tokens=(x for x in ["s/d"]),
+        na_ignore_case=True, **settings
+    )
+    direct = profile_rows(
+        ["sku", "qty"],
+        [["A", "7"], ["S/D", "3"], ["s/d", "4"], ["A", "8"]],
+        na_tokens=(x for x in ["s/d"]), na_ignore_case=True, **settings
+    )
+    exact_ref = profile_file(source, na_tokens=("s/d",), **settings)
+    exact_gen = profile_file(source, na_tokens=(x for x in ["s/d"]), **settings)
+    unicode_source = Path(directory) / "unicode.csv"
+    unicode_source.write_text(
+        "qty\\n5\\nSIN INFORMACIO\\u0301N\\n9\\n", encoding="utf-8"
+    )
+    unicode_marker = "sin información"
+    unicode_ref = profile_file(
+        unicode_source, na_tokens=(unicode_marker,), na_ignore_case=True
+    )
+    unicode_gen = profile_file(
+        unicode_source, na_tokens=(x for x in [unicode_marker]),
+        na_ignore_case=True
+    )
+    result = {
+        "folded_parity": folded_ref == folded_file == folded_memory,
+        "folded_missing": folded_file.columns[0].missing,
+        "folded_metadata": list(folded_file.na_tokens),
+        "folded_key": [
+            folded_file.keys[0].checked,
+            folded_file.keys[0].skipped,
+            folded_file.keys[0].repeated,
+        ],
+        "direct_parity": direct.columns == folded_ref.columns
+                         and direct.keys == folded_ref.keys,
+        "exact_parity": exact_ref == exact_gen,
+        "exact_missing": exact_gen.columns[0].missing,
+        "exact_metadata": list(exact_gen.na_tokens),
+        "unicode_parity": unicode_ref == unicode_gen,
+        "unicode_missing": unicode_gen.columns[0].missing,
+        "unicode_type": unicode_gen.columns[0].type,
+        "unicode_metadata": list(unicode_gen.na_tokens),
+    }
+print(json.dumps(result, ensure_ascii=False))
+"""
+
+
+def check_na_iterator_contract(report: Any) -> None:
+    """Require generator-to-tuple parity for missing counts, keys and metadata."""
+    expected = {
+        "folded_parity": True,
+        "folded_missing": 2,
+        "folded_metadata": ["s/d"],
+        "folded_key": [2, 2, 1],
+        "direct_parity": True,
+        "exact_parity": True,
+        "exact_missing": 1,
+        "exact_metadata": ["s/d"],
+        "unicode_parity": True,
+        "unicode_missing": 1,
+        "unicode_type": "int",
+        "unicode_metadata": ["sin información"],
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("csv token iterator demo: unexpected missing-value profile")
+
+
+def verify_na_iterator_contract(root: Path) -> str:
+    """Check real pinned CSV API with one-shot token iterables and synthetic rows."""
+    project = (root / "csv-quality-report").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("csv token iterator demo: missing CSV source")
+    result = subprocess.run(
+        [sys.executable, "-c", _NA_ITERATOR_PROBE],
+        cwd=project,
+        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"csv token iterator demo: expected exit 0, got {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("csv token iterator demo: invalid JSON") from exc
+    check_na_iterator_contract(report)
+    return "csv-quality-report one-shot NA iterators: PASS (stream/memory/key/NFC)"
+
+
 _RESIDUAL_FINITE_PROBE = """
 import json
 import math
@@ -752,6 +862,7 @@ def main() -> int:
         outcomes.append(verify_canonical_unicode_example(root))
         outcomes.append(verify_casefold_missing_marker_example(root))
         outcomes.append(verify_canonical_missing_marker_example(root))
+        outcomes.append(verify_na_iterator_contract(root))
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))
