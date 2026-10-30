@@ -1234,6 +1234,88 @@ def verify_inventory_holdout_contract(root: Path) -> str:
     return "inventory-policy-lab backtest holdout: PASS (12 expected errors, unchanged metrics)"
 
 
+_INVENTORY_CUSTOM_FORECAST_PROBE = """
+import json
+from inventory_policy_lab import backtest, naive
+
+bad_values = (
+    ("true", True), ("false", False), ("numeric_string", "2"),
+    ("none", None), ("complex", 1 + 2j), ("object", object()),
+    ("huge_integer", 10**400),
+)
+errors = {}
+for index in (3, 4):
+    for label, invalid in bad_values:
+        def model(history, bad=invalid, bad_index=index):
+            return bad if len(history) == bad_index else 2.0
+        try:
+            backtest([3.0, 4.0, 5.0, 6.0, 7.0], "custom", model, holdout=2)
+        except ValueError as exc:
+            errors[f"{label}_{index}"] = str(exc)
+        else:
+            errors[f"{label}_{index}"] = "UNEXPECTED SUCCESS"
+valid = backtest(
+    [10.0, 12.0, 8.0, 10.0, 14.0, 6.0, 10.0, 14.0],
+    "naive", naive, holdout=2,
+)
+zero = backtest([0.0, 0.0, 0.0, 0.0], "zero", lambda _: 0.0, holdout=1)
+print(json.dumps({
+    "errors": errors,
+    "valid": {
+        "forecasts": valid.forecasts, "mae": valid.mae,
+        "rmse": valid.rmse, "bias": valid.bias, "mase": valid.mase,
+    },
+    "zero": {"forecasts": zero.forecasts, "mae": zero.mae, "mase": zero.mase},
+}))
+"""
+
+
+def check_inventory_custom_forecast_contract(report: Any) -> None:
+    """Reject invalid custom model types without changing valid backtests."""
+    expected_errors = {
+        f"{label}_{period}": f"custom forecast[{period}] must be finite and non-negative"
+        for period in (3, 4)
+        for label in (
+            "true", "false", "numeric_string", "none",
+            "complex", "object", "huge_integer",
+        )
+    }
+    if not isinstance(report, dict) or report != {
+        "errors": expected_errors,
+        "valid": {
+            "forecasts": [6.0, 10.0],
+            "mae": 4.0, "rmse": 4.0, "bias": -4.0, "mase": 1.0,
+        },
+        "zero": {"forecasts": [0.0], "mae": 0.0, "mase": None},
+    }:
+        raise ValueError("inventory custom forecast demo: invalid model output contract")
+
+
+def verify_inventory_custom_forecast_contract(root: Path) -> str:
+    """Exercise pinned forecasting source with synthetic malformed model outputs."""
+    project = (root / "inventory-policy-lab").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("inventory custom forecast demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _INVENTORY_CUSTOM_FORECAST_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"inventory custom forecast demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("inventory custom forecast demo: malformed JSON") from exc
+    check_inventory_custom_forecast_contract(payload)
+    return "inventory-policy-lab custom forecasts: PASS (14 invalid, 2 valid)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1248,6 +1330,7 @@ def main() -> int:
         outcomes.append(verify_csv_top_n_contract(root))
         outcomes.append(verify_inventory_ma_window_contract(root))
         outcomes.append(verify_inventory_holdout_contract(root))
+        outcomes.append(verify_inventory_custom_forecast_contract(root))
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))
