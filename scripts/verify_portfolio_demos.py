@@ -235,7 +235,7 @@ with tempfile.TemporaryDirectory() as directory:
         "unicode_type": unicode_gen.columns[0].type,
         "unicode_metadata": list(unicode_gen.na_tokens),
     }
-print(json.dumps(result, ensure_ascii=False))
+print(json.dumps(result))  # ASCII-safe JSON across Windows code pages
 """
 
 
