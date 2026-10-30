@@ -6,7 +6,7 @@ The [portfolio demo workflow](../.github/workflows/portfolio-demos.yml) independ
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `3e97d1d986dd551224d1a2941737fedc5d086981` | Exit 0; 3 records, 1 missing quantity |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | `070bb56c6d2ab0488ba7f4f5cb72443ae2640ac6` | **Intentional exit 1**; 2 incomplete composite keys and 1 extra duplicate |
-| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `72bd855e2e8561214168ff5567d81709e702d3a6` | Exit 0; 12 distinct synthetic SKU outputs |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `925eee4d23b1f6d9a14172fe64a84d67bb6d033b` | Exit 0; 12 distinct synthetic SKU outputs |
 
 The three copy-and-pasteable Bash invocations in the English guide, Spanish guide, and case study are regression-tested against the actual commands used by the smoke workflow. The pinned source commits in this page are also compared with the workflow checkouts, so a future documentation-only edit cannot silently misdescribe what the CI ran.
 
