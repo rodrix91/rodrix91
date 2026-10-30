@@ -417,6 +417,14 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide.md", "# Guide\n")
         self.assertEqual(check_links(self.root), [])
 
+    def test_inline_code_comment_opener_does_not_hide_following_links(self) -> None:
+        self.write(
+            "README.md",
+            "The literal " + chr(96) + "<!--" + chr(96)
+            + " is not a comment. [broken](missing.md)\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
     def test_visible_link_after_multiline_comment_is_still_checked(self) -> None:
         self.write(
             "README.md",
