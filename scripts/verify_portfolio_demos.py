@@ -1141,6 +1141,99 @@ def verify_ops_top_n_contract(root: Path) -> str:
     return "ops-field-brief top-N limit: PASS (16 invalid calls, 2 valid rankings)"
 
 
+_INVENTORY_HOLDOUT_PROBE = """
+import json
+from inventory_policy_lab import backtest, naive
+
+def guarded_model(history):
+    calls.append(len(history))
+    return 2.0
+
+invalid = (
+    ("true", True), ("false", False), ("one_float", 1.0),
+    ("fraction", 1.5), ("string", "2"), ("none", None),
+    ("nan", float("nan")), ("infinity", float("inf")),
+    ("minus_infinity", -float("inf")),
+)
+calls = []
+errors = {}
+for label, value in invalid:
+    try:
+        backtest([-1.0, float("nan"), 3.0, 4.0], "custom", guarded_model, holdout=value)
+    except ValueError as exc:
+        errors[label] = str(exc)
+    else:
+        errors[label] = "UNEXPECTED SUCCESS"
+nonpositive = {}
+for label, value in (("zero", 0), ("negative", -1), ("too_large", 3)):
+    try:
+        backtest([1.0, 2.0, 3.0, 4.0], "naive", naive, holdout=value)
+    except ValueError as exc:
+        nonpositive[label] = str(exc)
+    else:
+        nonpositive[label] = "UNEXPECTED SUCCESS"
+valid = backtest([10.0, 12.0, 8.0, 10.0, 14.0, 6.0, 10.0, 14.0], "naive", naive, holdout=2)
+print(json.dumps({
+    "errors": errors,
+    "nonpositive": nonpositive,
+    "calls": calls,
+    "valid": {
+        "forecasts": valid.forecasts, "mae": valid.mae,
+        "rmse": valid.rmse, "bias": valid.bias, "mase": valid.mase,
+    },
+}))
+"""
+
+
+def check_inventory_holdout_contract(report: Any) -> None:
+    """Validate early rejection and unchanged rolling-origin score contract."""
+    expected = {
+        "errors": {
+            label: "backtest holdout must be a positive integer"
+            for label in (
+                "true", "false", "one_float", "fraction", "string", "none",
+                "nan", "infinity", "minus_infinity",
+            )
+        },
+        "nonpositive": {
+            label: "backtest needs holdout >= 1 and at least 2 training periods"
+            for label in ("zero", "negative", "too_large")
+        },
+        "calls": [],
+        "valid": {
+            "forecasts": [6.0, 10.0], "mae": 4.0,
+            "rmse": 4.0, "bias": -4.0, "mase": 1.0,
+        },
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("inventory backtest holdout demo: invalid holdout API contract")
+
+
+def verify_inventory_holdout_contract(root: Path) -> str:
+    """Check the exact pinned public backtest API using synthetic observations."""
+    project = (root / "inventory-policy-lab").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("inventory backtest holdout demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _INVENTORY_HOLDOUT_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"inventory backtest holdout demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("inventory backtest holdout demo: malformed JSON") from exc
+    check_inventory_holdout_contract(payload)
+    return "inventory-policy-lab backtest holdout: PASS (12 expected errors, unchanged metrics)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1154,6 +1247,7 @@ def main() -> int:
         outcomes.append(verify_na_iterator_contract(root))
         outcomes.append(verify_csv_top_n_contract(root))
         outcomes.append(verify_inventory_ma_window_contract(root))
+        outcomes.append(verify_inventory_holdout_contract(root))
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))

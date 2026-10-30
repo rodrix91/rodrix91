@@ -19,6 +19,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_canonical_missing_marker_demo,
     check_inventory_replay_levels,
     check_inventory_ma_window_contract,
+    check_inventory_holdout_contract,
     check_inventory_bootstrap_demand,
     check_residual_bootstrap_finite,
     check_na_iterator_contract,
@@ -60,7 +61,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 14)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 15)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -118,6 +119,48 @@ class PortfolioDemoContractTests(unittest.TestCase):
         check_report("ops-field-brief", report)
         with self.assertRaisesRegex(ValueError, "intentional quality gate"):
             check_report("ops-field-brief", {**report, "failed_incomplete_keys": False})
+
+    def test_backtest_holdout_probe_detects_mutated_results(self) -> None:
+        errors = {
+            label: "backtest holdout must be a positive integer"
+            for label in (
+                "true", "false", "one_float", "fraction", "string", "none",
+                "nan", "infinity", "minus_infinity",
+            )
+        }
+        nonpositive = {
+            label: "backtest needs holdout >= 1 and at least 2 training periods"
+            for label in ("zero", "negative", "too_large")
+        }
+        report = {
+            "errors": errors,
+            "nonpositive": nonpositive,
+            "calls": [],
+            "valid": {
+                "forecasts": [6.0, 10.0], "mae": 4.0,
+                "rmse": 4.0, "bias": -4.0, "mase": 1.0,
+            },
+        }
+        check_inventory_holdout_contract(report)
+        for label in errors:
+            with self.subTest(invalid_holdout=label):
+                changed = {**report, "errors": {**errors, label: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid holdout API contract"):
+                    check_inventory_holdout_contract(changed)
+        for label in nonpositive:
+            with self.subTest(nonpositive=label):
+                changed = {
+                    **report,
+                    "nonpositive": {**nonpositive, label: "UNEXPECTED SUCCESS"},
+                }
+                with self.assertRaisesRegex(ValueError, "invalid holdout API contract"):
+                    check_inventory_holdout_contract(changed)
+        for changed in (
+            {**report, "calls": [4]},
+            {**report, "valid": {**report["valid"], "mae": 0.0}},
+        ):
+            with self.assertRaisesRegex(ValueError, "invalid holdout API contract"):
+                check_inventory_holdout_contract(changed)
 
     def test_moving_average_window_probe_rejects_mutated_results(self) -> None:
         expected_errors = {
