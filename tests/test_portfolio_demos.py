@@ -190,7 +190,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         for changed in (
             {**report, "explicit_header": ["order_id", "buyer"]},
             {**report, "lookalikes": [False, True, True]},
-            {**report, "results": {**results, "SEP=:gzip": dict(valid)}},
+            {**report, "results": {k: v for k, v in results.items() if k != "SEP=:gzip"}},
         ):
             with self.assertRaisesRegex(ValueError, "invalid directive contract"):
                 check_ops_excel_case_contract(changed)
