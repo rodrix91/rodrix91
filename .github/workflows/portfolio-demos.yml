@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: rodrix91/inventory-policy-lab
-          ref: bad5e89b620f7d075673a0867a897ead1779c93d
+          ref: 6e2481708350b43731eb945215b49d10751cc932
           path: inventory-policy-lab
           persist-credentials: false
 
