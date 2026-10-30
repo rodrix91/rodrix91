@@ -174,6 +174,61 @@ def verify_casefold_missing_marker_example(root: Path) -> str:
     return "csv-quality-report mixed-case missing markers: PASS (default and opt-in exit 0)"
 
 
+def check_canonical_missing_marker_demo(plain: Any, folded: Any) -> None:
+    """Confirm NFC-equivalent missing markers are opt-in and keep defaults exact."""
+    if not isinstance(plain, dict) or not isinstance(folded, dict):
+        raise ValueError("canonical missing-marker demo requires JSON objects")
+    try:
+        baseline = plain["columns"]
+        normalized = folded["columns"]
+        valid = (
+            plain["rows"] == folded["rows"] == 3
+            and isinstance(baseline, list)
+            and isinstance(normalized, list)
+            and len(baseline) == len(normalized) == 1
+            and baseline[0]["name"] == normalized[0]["name"] == "peso"
+            and baseline[0]["type"] == "string"
+            and baseline[0]["missing"] == 0
+            and normalized[0]["type"] == "int"
+            and normalized[0]["missing"] == 1
+            and "na_ignore_case" not in plain
+            and folded.get("na_ignore_case") is True
+        )
+    except (KeyError, TypeError, IndexError):
+        valid = False
+    if not valid:
+        raise ValueError("canonical missing-marker demo failed its expected type/missing checks")
+
+
+def verify_canonical_missing_marker_example(root: Path) -> str:
+    """Exercise NFC-composed CLI marker against decomposed-accent CSV content."""
+    project = (root / "csv-quality-report").resolve()
+    fixture = (root / "tests" / "fixtures" / "canonical-na-marker.csv").resolve()
+    if not (project / "src").is_dir() or not fixture.is_file():
+        raise FileNotFoundError("canonical missing-marker demo: source or fixture missing")
+    common = (str(fixture), "--na", "sin información", "--format", "json")
+    reports: list[dict[str, Any]] = []
+    for extra in ((), ("--na-ignore-case",)):
+        result = subprocess.run(
+            [sys.executable, "-m", "csv_quality_report", *common, *extra],
+            cwd=project,
+            env={**os.environ, "PYTHONPATH": str(project / "src")},
+            capture_output=True, text=True, encoding="utf-8",
+            check=False, timeout=120,
+        )
+        if result.returncode != 0:
+            raise ValueError(
+                f"canonical missing-marker demo: expected exit 0; got {result.returncode}; "
+                f"stderr={result.stderr[:600]!r}"
+            )
+        try:
+            reports.append(json.loads(result.stdout))
+        except json.JSONDecodeError as exc:
+            raise ValueError("canonical missing-marker demo: invalid JSON") from exc
+    check_canonical_missing_marker_demo(*reports)
+    return "csv-quality-report NFC missing markers: PASS (default and opt-in exit 0)"
+
+
 def verify_canonical_unicode_example(root: Path) -> str:
     """Run the opt-in NFC comparison in addition to the three base examples."""
     project = (root / "ops-field-brief").resolve()
@@ -306,6 +361,7 @@ def main() -> int:
         outcomes = verify_examples(root)
         outcomes.append(verify_canonical_unicode_example(root))
         outcomes.append(verify_casefold_missing_marker_example(root))
+        outcomes.append(verify_canonical_missing_marker_example(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError) as exc:
