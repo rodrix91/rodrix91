@@ -370,9 +370,6 @@ class PortfolioLinkTests(unittest.TestCase):
         )
         self.assertEqual(check_links(self.root), [])
 
-
-
-
     def test_html_comment_hides_links_without_hiding_visible_neighbors(self) -> None:
         self.write(
             "README.md",
@@ -424,6 +421,30 @@ class PortfolioLinkTests(unittest.TestCase):
             + " is not a comment. [broken](missing.md)\n",
         )
         self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_escaped_html_opener_keeps_following_broken_link_visible(self) -> None:
+        self.write(
+            "README.md",
+            "\\<!-- literal markup [broken](missing.md)\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_even_backslashes_still_allow_real_html_comment(self) -> None:
+        self.write(
+            "README.md",
+            "\\\\<!-- [hidden](missing.md) --> [guide](docs/guide.md)\n",
+        )
+        self.write("docs/guide.md", "# Guide\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_escaped_opener_before_real_comment(self) -> None:
+        self.write(
+            "README.md",
+            "\\<!-- literal <!-- [hidden](missing.md) --> "
+            "[guide](docs/guide.md)\n",
+        )
+        self.write("docs/guide.md", "# Guide\n")
+        self.assertEqual(check_links(self.root), [])
 
     def test_visible_link_after_multiline_comment_is_still_checked(self) -> None:
         self.write(
