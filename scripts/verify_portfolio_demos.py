@@ -1977,6 +1977,121 @@ def verify_csv_field_limit_contract(root: Path) -> str:
     return "csv-quality-report field size: PASS (39 invalid, 6 valid, state restored, CLI)"
 
 
+_OPS_QUOTED_EXCEL_PROBE = """
+import gzip
+import io
+import json
+import tempfile
+from pathlib import Path
+
+from ops_field_brief.brief import _excel_sep_directive, read_csv
+from ops_field_brief.validation import validate_csv_structure
+
+results = {}
+quote = chr(34)
+bom = chr(0xfeff)
+with tempfile.TemporaryDirectory() as dirname:
+    for label, delimiter in (
+        ("semicolon", ";"), ("comma", ","), ("pipe", "|"), ("tab", chr(9))
+    ):
+        for spelling in ("sep=", "SEP=", "SeP="):
+            first = quote + spelling + delimiter + quote
+            content = chr(10).join((
+                first, "order_id" + delimiter + "buyer",
+                "A1" + delimiter + "Andes",
+                "A2" + delimiter + "Paz", "",
+            ))
+            for source in ("stdin", "plain", "gzip"):
+                path = Path(dirname) / (
+                    "orders.csv.gz" if source == "gzip" else "orders.csv"
+                )
+                if source != "stdin":
+                    payload = content.encode("utf-8-sig")
+                    path.write_bytes(
+                        gzip.compress(payload) if source == "gzip" else payload
+                    )
+                rows = (
+                    read_csv(
+                        Path("-"), delimiter=None, strict=True,
+                        stdin=io.StringIO(bom + content),
+                    )
+                    if source == "stdin"
+                    else read_csv(path, delimiter=None, strict=True)
+                )
+                validate_csv_structure(rows)
+                results[f"{label}:{spelling}:{source}"] = {
+                    "header": list(rows.fieldnames),
+                    "lines": list(rows.source_lines),
+                    "buyers": [row["buyer"] for row in rows],
+                }
+
+explicit = read_csv(
+    Path("-"), delimiter=";", strict=True,
+    stdin=io.StringIO(quote + "sep=;" + quote + chr(10) + "order_id;buyer" + chr(10)),
+)
+lookalikes = [
+    _excel_sep_directive(item) is None
+    for item in (
+        quote + "sep=;;" + quote + chr(10) + "order_id;buyer",
+        quote + "sep=;x" + chr(10) + "order_id;buyer",
+        "sep=;" + quote + chr(10) + "order_id;buyer",
+        quote + "sep=x" + quote + chr(10) + "order_id;buyer",
+    )
+]
+print(json.dumps({
+    "results": results,
+    "explicit_header": list(explicit.fieldnames),
+    "lookalikes": lookalikes,
+}))
+"""
+
+
+def check_ops_quoted_excel_contract(report: Any) -> None:
+    """Verify exact quoted separator declarations without swallowing CSV headers."""
+    result = {
+        "header": ["order_id", "buyer"],
+        "lines": [3, 4],
+        "buyers": ["Andes", "Paz"],
+    }
+    expected = {
+        "results": {
+            f"{label}:{spelling}:{source}": result
+            for label in ("semicolon", "comma", "pipe", "tab")
+            for spelling in ("sep=", "SEP=", "SeP=")
+            for source in ("stdin", "plain", "gzip")
+        },
+        "explicit_header": ["sep=;"],
+        "lookalikes": [True, True, True, True],
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("ops quoted Excel demo: invalid separator contract")
+
+
+def verify_ops_quoted_excel_contract(root: Path) -> str:
+    """Execute synthetic quoted Excel CSVs against pinned ops source."""
+    project = (root / "ops-field-brief").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("ops quoted Excel demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _OPS_QUOTED_EXCEL_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"ops quoted Excel demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("ops quoted Excel demo: malformed JSON") from exc
+    check_ops_quoted_excel_contract(payload)
+    return "ops-field-brief quoted Excel: PASS (36 variants, 4 malformed)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -2002,6 +2117,7 @@ def main() -> int:
         outcomes.append(verify_residual_bootstrap_finite(root))
         outcomes.append(verify_ops_top_n_contract(root))
         outcomes.append(verify_ops_excel_case_contract(root))
+        outcomes.append(verify_ops_quoted_excel_contract(root))
         outcomes.append(verify_ops_bounded_sniff(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))
