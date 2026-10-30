@@ -15,6 +15,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_canonical_missing_marker_demo,
     check_inventory_replay_levels,
     check_inventory_bootstrap_demand,
+    check_residual_bootstrap_finite,
     check_ops_bounded_sniff,
     check_report,
 )
@@ -114,6 +115,50 @@ class PortfolioDemoContractTests(unittest.TestCase):
             with self.subTest(broken=broken[-1] if broken else "missing"):
                 with self.assertRaisesRegex(ValueError, "ops bounded sniff demo"):
                     check_ops_bounded_sniff(broken)
+
+    def test_residual_bootstrap_probe_contract_fails_closed(self) -> None:
+        errors = {
+            f"period_{period}_{label}": {
+                "message": f"errors[{period}][1] must be finite, got {value}",
+                "rng_untouched": True,
+            }
+            for period in (1, 2)
+            for label, value in (("nan", "nan"), ("pos_inf", "inf"), ("neg_inf", "-inf"))
+        }
+        report = {
+            "errors": errors,
+            "unused": -2.0,
+            "zero": 0.0,
+            "negative": -3.0,
+            "priority": {
+                "message": "no forecast errors over 2 period(s)",
+                "rng_untouched": True,
+            },
+        }
+        check_residual_bootstrap_finite(report)
+        with self.assertRaisesRegex(ValueError, "invalid protection-interval outcome"):
+            check_residual_bootstrap_finite({**report, "zero": float("nan")})
+        with self.assertRaisesRegex(ValueError, "invalid protection-interval outcome"):
+            check_residual_bootstrap_finite({
+                **report,
+                "errors": {k: v for k, v in errors.items() if k != "period_1_nan"},
+            })
+        with self.assertRaisesRegex(ValueError, "invalid protection-interval outcome"):
+            check_residual_bootstrap_finite({
+                **report,
+                "priority": {**report["priority"], "rng_untouched": False},
+            })
+        for key in errors:
+            with self.subTest(key=key):
+                for replacement in (
+                    {**errors[key], "message": "UNEXPECTED SUCCESS"},
+                    {**errors[key], "rng_untouched": False},
+                ):
+                    with self.assertRaisesRegex(ValueError, "invalid " + key):
+                        check_residual_bootstrap_finite({
+                            **report,
+                            "errors": {**errors, key: replacement},
+                        })
 
     def test_bootstrap_guard_fails_closed_on_missing_errors_or_rng_changes(self) -> None:
         errors = {
