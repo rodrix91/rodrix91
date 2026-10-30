@@ -36,6 +36,12 @@ def _without_html_comments(line: str, in_comment: bool) -> tuple[str, bool]:
             continue
 
         opening = line.find("<!--", offset)
+        # HTML markers inside inline code are literal, not comments.
+        while opening != -1 and any(
+            code.start() <= opening < code.end()
+            for code in INLINE_CODE.finditer(line)
+        ):
+            opening = line.find("<!--", opening + 4)
         if opening == -1:
             visible.append(line[offset:])
             break
