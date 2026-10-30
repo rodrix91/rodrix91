@@ -12,7 +12,7 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE_DEFINITION = re.compile(r"^ {0,3}\[([^\]\n]+)\]:[ \t]*(?:<([^>\n]+)>|(\S+))")
-INLINE_CODE = re.compile(r"(?<!"+chr(96)+r")("+chr(96)+r"+)(.*?)\1(?!"+chr(96)+r")")
+BACKTICK_RUN = re.compile(r"`+")
 HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.+?)\s*#*\s*$")
 FENCE = re.compile(r"^ {0,3}(" + chr(96) + r"{3,}|~{3,})(.*)$")
 INLINE_TARGET = re.compile(r"""^\s*(?:<([^>\n]+)>|([^\s<>\n]+))(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'))?[ \t]*$""")
@@ -26,6 +26,46 @@ def _escaped_by_backslash(line: str, offset: int) -> bool:
         offset -= 1
     return count % 2 == 1
 
+
+
+
+def _inline_code_spans(line: str):
+    """Yield code-span offsets, excluding escaped opening backticks.
+
+    A closing delimiter must match the opening run length. Backslashes inside
+    an actual code span are literal, so they do not escape closing backticks.
+    """
+    runs = list(BACKTICK_RUN.finditer(line))
+    cursor = 0
+    while cursor < len(runs):
+        opening = runs[cursor]
+        if _escaped_by_backslash(line, opening.start()):
+            cursor += 1
+            continue
+        closing_index = next(
+            (
+                index
+                for index in range(cursor + 1, len(runs))
+                if len(runs[index].group()) == len(opening.group())
+            ),
+            None,
+        )
+        if closing_index is None:
+            cursor += 1
+            continue
+        yield opening.start(), runs[closing_index].end()
+        cursor = closing_index + 1
+
+
+def _without_inline_code(line: str) -> str:
+    """Remove actual Markdown inline code without hiding escaped delimiters."""
+    parts: list[str] = []
+    offset = 0
+    for start, end in _inline_code_spans(line):
+        parts.append(line[offset:start])
+        offset = end
+    parts.append(line[offset:])
+    return "".join(parts)
 
 def _without_html_comments(line: str, in_comment: bool) -> tuple[str, bool]:
     """Remove Markdown HTML comments, including comments spanning lines.
@@ -49,8 +89,8 @@ def _without_html_comments(line: str, in_comment: bool) -> tuple[str, bool]:
         while opening != -1 and (
             _escaped_by_backslash(line, opening)
             or any(
-                code.start() <= opening < code.end()
-                for code in INLINE_CODE.finditer(line)
+                start <= opening < end
+                for start, end in _inline_code_spans(line)
             )
         ):
             opening = line.find("<!--", opening + 4)
@@ -287,10 +327,10 @@ def _heading_link_labels(heading: str) -> str:
     # literally, so it must not undergo link-label substitutions.
     pieces: list[str] = []
     offset = 0
-    for code in INLINE_CODE.finditer(heading):
-        pieces.append(prose_labels(heading[offset : code.start()]))
-        pieces.append(code.group(0))
-        offset = code.end()
+    for start, end in _inline_code_spans(heading):
+        pieces.append(prose_labels(heading[offset:start]))
+        pieces.append(heading[start:end])
+        offset = end
     pieces.append(prose_labels(heading[offset:]))
     return "".join(pieces)
 
@@ -326,7 +366,7 @@ def check_links(root: Path) -> list[str]:
 
         for line_number, line in prose:
             # A code sample is not a navigation link, even when inline.
-            visible = INLINE_CODE.sub("", line)
+            visible = _without_inline_code(line)
             if REFERENCE_DEFINITION.match(visible):
                 continue
             addresses = _inline_addresses(visible)
