@@ -174,6 +174,108 @@ def verify_ops_bounded_sniff(root: Path) -> str:
     return "ops-field-brief bounded strict sniff: PASS (12 delimiters/newlines, no unbounded read)"
 
 
+_BOOTSTRAP_DEMAND_PROBE = """
+import json
+import math
+import random
+from inventory_policy_lab import bootstrap_safety_stock
+
+valid_zero = bootstrap_safety_stock([0.0, 0.0], 0.95, 0.0, 2.0, samples=8)
+valid_constant = bootstrap_safety_stock([5.0], 0.95, 5.0, 2.0, samples=8)
+valid_intermit_a = bootstrap_safety_stock(
+    [0.0, 1.0, 4.0], 0.95, 5.0 / 3.0, 2.0, samples=20,
+    rng=random.Random(4),
+)
+valid_intermit_b = bootstrap_safety_stock(
+    [0.0, 1.0, 4.0], 0.95, 5.0 / 3.0, 2.0, samples=20,
+    rng=random.Random(4),
+)
+cases = (
+    ("negative_observation", [-1.0, 0.0, 4.0], 2.0, 1.0),
+    ("nan_observation_zero_interval", [1.0, math.nan, 4.0], 2.0, 0.0),
+    ("infinite_observation", [1.0, 0.0, math.inf], 2.0, 1.0),
+    ("negative_infinite_observation", [1.0, -math.inf, 4.0], 2.0, 1.0),
+    ("negative_expected", [1.0, 0.0, 4.0], -1.0, 1.0),
+    ("nan_expected_zero_interval", [1.0, 0.0, 4.0], math.nan, 0.0),
+    ("infinite_expected", [1.0, 0.0, 4.0], math.inf, 1.0),
+    ("negative_infinite_expected", [1.0, 0.0, 4.0], -math.inf, 1.0),
+)
+errors = {}
+for label, history, expected, lead in cases:
+    rng = random.Random(37)
+    original_state = rng.getstate()
+    try:
+        bootstrap_safety_stock(
+            history, 0.95, expected, lead, samples=8, rng=rng
+        )
+    except ValueError as exc:
+        errors[label] = {
+            "message": str(exc), "rng_untouched": rng.getstate() == original_state
+        }
+    else:
+        errors[label] = {"message": "UNEXPECTED SUCCESS", "rng_untouched": False}
+print(json.dumps({
+    "valid_zero": valid_zero,
+    "valid_constant": valid_constant,
+    "intermittent_seeded": valid_intermit_a == valid_intermit_b,
+    "errors": errors,
+}, allow_nan=False))
+"""
+
+
+def check_inventory_bootstrap_demand(report: Any) -> None:
+    """Verify demand-bootstrap input rejection and unchanged seeded behavior."""
+    expected_errors = {
+        "negative_observation": "demand[0] must be finite and non-negative, got -1.0",
+        "nan_observation_zero_interval": "demand[1] must be finite and non-negative, got nan",
+        "infinite_observation": "demand[2] must be finite and non-negative, got inf",
+        "negative_infinite_observation": "demand[1] must be finite and non-negative, got -inf",
+        "negative_expected": "demand_per_period must be finite and non-negative, got -1.0",
+        "nan_expected_zero_interval": "demand_per_period must be finite and non-negative, got nan",
+        "infinite_expected": "demand_per_period must be finite and non-negative, got inf",
+        "negative_infinite_expected": "demand_per_period must be finite and non-negative, got -inf",
+    }
+    if not isinstance(report, dict):
+        raise ValueError("inventory bootstrap demand demo: expected a JSON object")
+    errors = report.get("errors")
+    if (
+        report.get("valid_zero") != [0.0, 0.0]
+        or report.get("valid_constant") != [10.0, 0.0]
+        or report.get("intermittent_seeded") is not True
+        or not isinstance(errors, dict)
+        or set(errors) != set(expected_errors)
+    ):
+        raise ValueError("inventory bootstrap demand demo: unexpected valid or error cases")
+    for label, expected in expected_errors.items():
+        if errors[label] != {"message": expected, "rng_untouched": True}:
+            raise ValueError(f"inventory bootstrap demand demo: invalid {label} guard")
+
+
+def verify_inventory_bootstrap_demand(root: Path) -> str:
+    """Verify the pinned inventory checkout rejects invalid bootstrap demand."""
+    project = (root / "inventory-policy-lab").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("inventory bootstrap demand demo: missing project source")
+    result = subprocess.run(
+        [sys.executable, "-c", _BOOTSTRAP_DEMAND_PROBE],
+        cwd=project,
+        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"inventory bootstrap demand demo: expected exit 0; got {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("inventory bootstrap demand demo: invalid JSON") from exc
+    check_inventory_bootstrap_demand(report)
+    return "inventory-policy-lab bootstrap demand guard: PASS (8 errors, seeded results)"
+
+
 _INVENTORY_REPLAY_PROBE = """
 import json
 import math
@@ -545,6 +647,7 @@ def main() -> int:
         outcomes.append(verify_casefold_missing_marker_example(root))
         outcomes.append(verify_canonical_missing_marker_example(root))
         outcomes.append(verify_inventory_replay_levels(root))
+        outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_ops_bounded_sniff(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))
