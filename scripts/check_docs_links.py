@@ -100,10 +100,12 @@ def _without_html_comments(line: str, in_comment: bool) -> tuple[str, bool]:
 
 
 def _prose_lines(content: str):
-    """Yield numbered visible lines outside fences and HTML comments."""
+    """Yield visible Markdown outside code blocks and HTML comments."""
     fence_char = ""
     fence_length = 0
     in_comment = False
+    in_indented_code = False
+    can_start_indented_code = True
     for number, line in enumerate(content.splitlines(), 1):
         if fence_char:
             # Comments appearing inside code fences are literal examples.
@@ -112,7 +114,26 @@ def _prose_lines(content: str):
                 marker, suffix = match.groups()
                 if marker[0] == fence_char and len(marker) >= fence_length and not suffix.strip():
                     fence_char, fence_length = "", 0
+                    can_start_indented_code = True
             continue
+
+        if not in_comment:
+            if not line.strip():
+                # Blank lines may separate ordinary prose from indented code.
+                can_start_indented_code = True
+                if in_indented_code:
+                    continue
+            elif re.match(r"^(?: {4}| {0,3}\t)", line) and (
+                in_indented_code or can_start_indented_code
+            ):
+                # Four-column indentation is literal code, not a live link,
+                # fence, or HTML comment. Do not let markers leak into prose.
+                in_indented_code = True
+                continue
+            else:
+                # An indented line cannot interrupt an existing paragraph.
+                in_indented_code = False
+                can_start_indented_code = False
 
         visible, in_comment = _without_html_comments(line, in_comment)
         match = FENCE.match(visible)
