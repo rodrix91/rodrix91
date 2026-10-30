@@ -199,16 +199,28 @@ with tempfile.TemporaryDirectory() as temporary:
     source.write_text("sku,qty\\nA,1\\nB,2\\nC,3\\n", encoding="utf-8")
     table = read_table(source)
     results = {}
-    for n in (-1, -7):
+
+    def unreadable_tokens():
+        raise AssertionError("invalid top_n consumed na_tokens")
+        yield "NA"
+
+    for label, n in (
+        ("-1", -1), ("-7", -7), ("true", True), ("false", False),
+        ("float", 1.5), ("string", "2"), ("none", None),
+    ):
         for api, run in (
             ("direct", lambda: profile_rows(
-                ["sku", "qty"], iter([["A", "1"], ["B", "2"]]), top_n=n)),
-            ("memory", lambda: build_report(table, top_n=n)),
-            ("stream", lambda: profile_file(source, top_n=n)),
+                ["sku", "qty"], iter([["A", "1"], ["B", "2"]]),
+                top_n=n, na_tokens=unreadable_tokens())),
+            ("memory", lambda: build_report(
+                table, top_n=n, na_tokens=unreadable_tokens())),
+            ("stream", lambda: profile_file(
+                source, top_n=n, na_tokens=unreadable_tokens())),
             ("missing", lambda: profile_file(
-                Path(temporary) / "missing.csv", top_n=n)),
+                Path(temporary) / "missing.csv",
+                top_n=n, na_tokens=unreadable_tokens())),
         ):
-            name = f"{api}_{n}"
+            name = f"{api}_{label}"
             try:
                 run()
             except ValueError as exc:
@@ -235,10 +247,18 @@ print(json.dumps({"errors": results, "valid": valid}))
 
 
 def check_csv_top_n_contract(report: Any) -> None:
-    """Verify Python API rejects negative limits without hiding valid counts."""
+    """Verify non-negative integer limits without hiding valid counts."""
     expected_errors = {
-        f"{api}_{n}": "top_n must be 0 or greater"
-        for n in (-1, -7)
+        f"{api}_{label}": message
+        for label, message in (
+            ("-1", "top_n must be 0 or greater"),
+            ("-7", "top_n must be 0 or greater"),
+            ("true", "top_n must be a non-negative integer"),
+            ("false", "top_n must be a non-negative integer"),
+            ("float", "top_n must be a non-negative integer"),
+            ("string", "top_n must be a non-negative integer"),
+            ("none", "top_n must be a non-negative integer"),
+        )
         for api in ("direct", "memory", "stream", "missing")
     }
     expected_valid = {
@@ -277,7 +297,7 @@ def verify_csv_top_n_contract(root: Path) -> str:
     except json.JSONDecodeError as exc:
         raise ValueError("csv top_n Python API demo: malformed JSON") from exc
     check_csv_top_n_contract(report)
-    return "csv-quality-report negative top_n guard: PASS (8 cases; zero unchanged)"
+    return "csv-quality-report strict top_n guard: PASS (28 invalid cases; zero unchanged)"
 
 
 _NA_ITERATOR_PROBE = """

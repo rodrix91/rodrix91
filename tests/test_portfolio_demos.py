@@ -157,8 +157,16 @@ class PortfolioDemoContractTests(unittest.TestCase):
 
     def test_python_top_n_demo_fails_closed_on_dropped_guards(self) -> None:
         errors = {
-            f"{api}_{n}": "top_n must be 0 or greater"
-            for n in (-1, -7)
+            f"{api}_{label}": message
+            for label, message in (
+                ("-1", "top_n must be 0 or greater"),
+                ("-7", "top_n must be 0 or greater"),
+                ("true", "top_n must be a non-negative integer"),
+                ("false", "top_n must be a non-negative integer"),
+                ("float", "top_n must be a non-negative integer"),
+                ("string", "top_n must be a non-negative integer"),
+                ("none", "top_n must be a non-negative integer"),
+            )
             for api in ("direct", "memory", "stream", "missing")
         }
         valid = {
