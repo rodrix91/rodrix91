@@ -232,6 +232,34 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide.md", "# Guide\n# Guide\n# Guide-1\n")
         self.assertIn("unknown Markdown heading", check_links(self.root)[0])
 
+    def test_heading_inline_code_link_syntax_keeps_literal_destination(self) -> None:
+        self.write("README.md", "[heading](docs/guide.md#use-filemd)\n")
+        self.write("docs/guide.md", "# Use \x60[file](.md)\x60\n".replace("\\x60", "\x60"))
+        self.assertEqual(check_links(self.root), [])
+
+    def test_heading_inline_code_reference_syntax_keeps_literal_suffix(self) -> None:
+        self.write("README.md", "[heading](docs/guide.md#read-guidemanual)\n")
+        self.write("docs/guide.md", "# Read \x60[Guide][manual]\x60\n".replace("\\x60", "\x60"))
+        self.assertEqual(check_links(self.root), [])
+
+    def test_heading_mixed_real_link_and_inline_code(self) -> None:
+        self.write("README.md", "[heading](docs/guide.md#build-rawcode)\n")
+        self.write(
+            "docs/guide.md",
+            "# [Build](../README.md) \x60[raw](code)\x60\n".replace("\\x60", "\x60"),
+        )
+        self.assertEqual(check_links(self.root), [])
+
+    def test_heading_multiple_backticks_keep_literal_link_text(self) -> None:
+        self.write("README.md", "[heading](docs/guide.md#run-datav2)\n")
+        self.write("docs/guide.md", "# Run \x60\x60[data](v2)\x60\x60\n".replace("\\x60", "\x60"))
+        self.assertEqual(check_links(self.root), [])
+
+    def test_wrong_fragment_from_code_link_is_still_rejected(self) -> None:
+        self.write("README.md", "[wrong](docs/guide.md#use-file)\n")
+        self.write("docs/guide.md", "# Use \x60[file](.md)\x60\n".replace("\\x60", "\x60"))
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
     def test_reference_heading_uses_visible_label_for_anchor(self) -> None:
         self.write("README.md", "[review](docs/guide.md#review-guide)\n")
         self.write(
