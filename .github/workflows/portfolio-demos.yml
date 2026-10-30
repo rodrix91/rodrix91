@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: rodrix91/csv-quality-report
-          ref: fd91762c93cb22779588c1e02aeeaad211c69aa0
+          ref: 504fb7d08eb75c6a46c3e930fd7bfca84cc32ae9
           path: csv-quality-report
           persist-credentials: false
 
@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: rodrix91/ops-field-brief
-          ref: 410501869119cc41cccb83e97d4a15f840767b94
+          ref: d464ee60813d8dc986a317ee4c7d8b2d83232c49
           path: ops-field-brief
           persist-credentials: false
 
@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: rodrix91/inventory-policy-lab
-          ref: 59b69e4c65c9abe8c0e9290564b2aae5471d477b
+          ref: bad5e89b620f7d075673a0867a897ead1779c93d
           path: inventory-policy-lab
           persist-credentials: false
 
