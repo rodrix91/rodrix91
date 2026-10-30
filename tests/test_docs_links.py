@@ -372,5 +372,65 @@ class PortfolioLinkTests(unittest.TestCase):
 
 
 
+
+    def test_html_comment_hides_links_without_hiding_visible_neighbors(self) -> None:
+        self.write(
+            "README.md",
+            "[first](docs/guide.md) <!-- [hidden](missing.md) --> "
+            "[second](docs/guide.md#intro)\n",
+        )
+        self.write("docs/guide.md", "# Intro\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_multiline_html_comments_hide_links_and_definitions(self) -> None:
+        self.write(
+            "README.md",
+            "<!--\n[broken](missing.md)\n"
+            "[hidden]: missing.md\n-->\n"
+            "[guide](docs/guide.md)\n",
+        )
+        self.write("docs/guide.md", "# Guide\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_commented_fence_cannot_hide_broken_visible_link(self) -> None:
+        self.write(
+            "README.md",
+            "<!--\n" + chr(96) * 3 + "python\n-->\n"
+            "[broken](docs/missing.md)\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_commented_heading_cannot_create_valid_anchor(self) -> None:
+        self.write("README.md", "[missing](docs/guide.md#hidden-heading)\n")
+        self.write(
+            "docs/guide.md",
+            "<!-- # Hidden heading -->\n# Real heading\n",
+        )
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
+    def test_comment_marker_in_fenced_example_does_not_leak_out(self) -> None:
+        self.write(
+            "README.md",
+            chr(96) * 3 + "md\n<!-- an unclosed example\n"
+            + chr(96) * 3 + "\n[guide](docs/guide.md)\n",
+        )
+        self.write("docs/guide.md", "# Guide\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_inline_code_comment_opener_does_not_hide_following_links(self) -> None:
+        self.write(
+            "README.md",
+            "The literal " + chr(96) + "<!--" + chr(96)
+            + " is not a comment. [broken](missing.md)\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_visible_link_after_multiline_comment_is_still_checked(self) -> None:
+        self.write(
+            "README.md",
+            "<!-- ignored\nstill ignored --> [broken](missing.md)\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
 if __name__ == "__main__":
     unittest.main()

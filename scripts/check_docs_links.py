@@ -18,29 +18,63 @@ FENCE = re.compile(r"^ {0,3}(" + chr(96) + r"{3,}|~{3,})(.*)$")
 INLINE_TARGET = re.compile(r"""^\s*(?:<([^>\n]+)>|([^\s<>\n]+))(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'))?[ \t]*$""")
 
 
+def _without_html_comments(line: str, in_comment: bool) -> tuple[str, bool]:
+    """Remove Markdown HTML comments, including comments spanning lines.
+
+    Keep a separating space where a comment starts so unrelated Markdown
+    tokens on either side cannot accidentally join into a new link.
+    """
+    visible: list[str] = []
+    offset = 0
+    while offset < len(line):
+        if in_comment:
+            closing = line.find("-->", offset)
+            if closing == -1:
+                break
+            offset = closing + 3
+            in_comment = False
+            continue
+
+        opening = line.find("<!--", offset)
+        # HTML markers inside inline code are literal, not comments.
+        while opening != -1 and any(
+            code.start() <= opening < code.end()
+            for code in INLINE_CODE.finditer(line)
+        ):
+            opening = line.find("<!--", opening + 4)
+        if opening == -1:
+            visible.append(line[offset:])
+            break
+        visible.extend((line[offset:opening], " "))
+        offset = opening + 4
+        in_comment = True
+    return "".join(visible), in_comment
+
+
 def _prose_lines(content: str):
-    """Yield numbered lines outside fenced Markdown code blocks."""
+    """Yield numbered visible lines outside fences and HTML comments."""
     fence_char = ""
     fence_length = 0
+    in_comment = False
     for number, line in enumerate(content.splitlines(), 1):
-        match = FENCE.match(line)
+        if fence_char:
+            # Comments appearing inside code fences are literal examples.
+            match = FENCE.match(line)
+            if match:
+                marker, suffix = match.groups()
+                if marker[0] == fence_char and len(marker) >= fence_length and not suffix.strip():
+                    fence_char, fence_length = "", 0
+            continue
+
+        visible, in_comment = _without_html_comments(line, in_comment)
+        match = FENCE.match(visible)
         if match:
             marker, suffix = match.groups()
-            if not fence_char:
-                # Markdown fence markers may be indented by no more than
-                # three spaces; a backtick fence cannot have backticks in
-                # its info string.
-                if marker[0] != "`" or "`" not in suffix:
-                    fence_char, fence_length = marker[0], len(marker)
-                    continue
-            elif marker[0] == fence_char and len(marker) >= fence_length and not suffix.strip():
-                # A closing marker may be longer than the opener, but it
-                # cannot have an info string or other trailing text.
-                fence_char, fence_length = "", 0
+            # Backtick fence info strings may not contain backticks.
+            if marker[0] != chr(96) or chr(96) not in suffix:
+                fence_char, fence_length = marker[0], len(marker)
                 continue
-        if not fence_char:
-            yield number, line
-
+        yield number, visible
 
 def _github_lower(text: str) -> str:
     """Lowercase headings without full case folding (which expands ß to ss).
