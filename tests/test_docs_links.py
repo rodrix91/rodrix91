@@ -54,6 +54,50 @@ class PortfolioLinkTests(unittest.TestCase):
         )
         self.assertEqual(check_links(self.root), [])
 
+    def test_indented_code_examples_are_not_local_links(self) -> None:
+        self.write(
+            "README.md",
+            "    [example](missing.md)\n"
+            "    [Reference][hidden]\n"
+            "    [hidden]: also-missing.md\n",
+        )
+        self.assertEqual(check_links(self.root), [])
+
+    def test_blank_line_and_tab_indentation_preserve_visible_navigation(self) -> None:
+        self.write(
+            "README.md",
+            "Paragraph\n\n"
+            "\t[hidden](missing.md)\n"
+            " \t[also-hidden](also-missing.md)\n\n"
+            "[guide](docs/guide.md)\n",
+        )
+        self.write("docs/guide.md", "# Guide\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_indented_html_comment_opener_cannot_hide_real_broken_link(self) -> None:
+        self.write(
+            "README.md",
+            "    <!-- literal example, not a real comment\n"
+            "[broken](missing.md)\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_indented_fence_marker_is_not_a_real_fence(self) -> None:
+        self.write(
+            "README.md",
+            "    ```markdown\n"
+            "[broken](missing.md)\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_indentation_cannot_interrupt_a_visible_paragraph(self) -> None:
+        self.write(
+            "README.md",
+            "Read this first.\n"
+            "    [broken](missing.md)\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
     def test_indented_fence_marker_does_not_hide_real_broken_links(self) -> None:
         # Four spaces introduce indented code, not a fenced code block.
         self.write("README.md", "    ```\n\n[broken](docs/missing.md)\n")
