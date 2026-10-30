@@ -202,6 +202,36 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide(v2).md", "# Release\n")
         self.assertIn("unknown Markdown heading", check_links(self.root)[0])
 
+    def test_german_sharp_s_slug_remains_unicode(self) -> None:
+        self.write("README.md", "[guide](docs/guide.md#straße)\n")
+        self.write("docs/guide.md", "# Straße\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_casefold_expansion_is_not_accepted_as_a_heading_anchor(self) -> None:
+        self.write("README.md", "[wrong](docs/guide.md#strasse)\n")
+        self.write("docs/guide.md", "# Straße\n")
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
+    def test_capital_sharp_s_lowers_without_expansion(self) -> None:
+        self.write("README.md", "[guide](docs/guide.md#großes-update)\n")
+        self.write("docs/guide.md", "# GROẞES UPDATE\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_greek_capital_sigma_does_not_become_final_sigma(self) -> None:
+        self.write("README.md", "[guide](docs/guide.md#οσ)\n")
+        self.write("docs/guide.md", "# ΟΣ\n")
+        self.assertEqual(check_links(self.root), [])
+
+    def test_wrong_greek_final_sigma_fragment_is_rejected(self) -> None:
+        self.write("README.md", "[wrong](docs/guide.md#ος)\n")
+        self.write("docs/guide.md", "# ΟΣ\n")
+        self.assertIn("unknown Markdown heading", check_links(self.root)[0])
+
+    def test_literal_greek_final_sigma_remains_distinct(self) -> None:
+        self.write("README.md", "[guide](docs/guide.md#ος)\n")
+        self.write("docs/guide.md", "# ος\n")
+        self.assertEqual(check_links(self.root), [])
+
     def test_duplicate_heading_slugs_are_numbered(self) -> None:
         self.write("README.md", "[two](docs/guide.md#hello-1)\n")
         self.write("docs/guide.md", "# Hello\n# Hello\n")
