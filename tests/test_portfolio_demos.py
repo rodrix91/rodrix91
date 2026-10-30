@@ -184,10 +184,11 @@ class PortfolioDemoContractTests(unittest.TestCase):
             })
         for key in valid:
             with self.subTest(valid=key):
+                corrupted = 1 if key == "top_n" else False
                 with self.assertRaisesRegex(ValueError, "unexpected validation"):
                     check_csv_top_n_contract({
                         **report,
-                        "valid": {**valid, key: False},
+                        "valid": {**valid, key: corrupted},
                     })
 
     def test_na_iterator_contract_detects_missingness_and_metadata_regressions(self) -> None:
