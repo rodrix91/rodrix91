@@ -11,7 +11,6 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-LINK_START = re.compile(r"!?\[[^\]\n]*\]\(")
 REFERENCE_LINK = re.compile(r"!?\[([^\]\n]+)\]\[([^\]\n]*)\]")
 REFERENCE_DEFINITION = re.compile(r"^ {0,3}\[([^\]\n]+)\]:[ \t]*(?:<([^>\n]+)>|(\S+))")
 INLINE_CODE = re.compile(r"(?<!"+chr(96)+r")("+chr(96)+r"+)(.*?)\1(?!"+chr(96)+r")")
@@ -120,18 +119,63 @@ def _link_end(line: str, start: int) -> int | None:
     return None
 
 
+def _inline_link_starts(line: str):
+    """Yield link label spans, including nested and escaped square brackets.
+
+    CommonMark allows balanced nested brackets in a link label. A flat
+    regular expression misses those links and leaves broken links unchecked.
+    """
+    cursor = 0
+    while cursor < len(line):
+        start = cursor
+        if line[cursor] == "!" and line[cursor + 1 : cursor + 2] == "[":
+            opening = cursor + 1
+        elif line[cursor] == "[":
+            opening = cursor
+        else:
+            cursor += 1
+            continue
+
+        escapes = 0
+        previous = start - 1
+        while previous >= 0 and line[previous] == "\\":
+            escapes += 1
+            previous -= 1
+        if escapes % 2:
+            cursor = opening + 1
+            continue
+
+        depth = 1
+        index = opening + 1
+        escaped = False
+        while index < len(line) and depth:
+            char = line[index]
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == "[":
+                depth += 1
+            elif char == "]":
+                depth -= 1
+            index += 1
+
+        if depth == 0 and line[index : index + 1] == "(":
+            yield start, index + 1, line[opening + 1 : index - 1]
+            cursor = index + 1
+        else:
+            cursor = opening + 1
+
+
 def _inline_addresses(line: str) -> list[str]:
     """Read balanced inline link destinations, including escaped parentheses."""
     addresses: list[str] = []
-    offset = 0
-    while match := LINK_START.search(line, offset):
-        end = _link_end(line, match.end())
+    for _, destination_start, _ in _inline_link_starts(line):
+        end = _link_end(line, destination_start)
         if end is None:
-            offset = match.end()
             continue
-        address = _inline_target(line[match.end() : end])
+        address = _inline_target(line[destination_start:end])
         addresses.append(re.sub(r"\\([()])", r"\1", address))
-        offset = end + 1
     return addresses
 
 
@@ -141,14 +185,14 @@ def _heading_link_labels(heading: str) -> str:
     def prose_labels(prose: str) -> str:
         pieces: list[str] = []
         offset = 0
-        while match := LINK_START.search(prose, offset):
-            end = _link_end(prose, match.end())
-            if end is None:
-                offset = match.end()
+        for start, destination_start, label in _inline_link_starts(prose):
+            if start < offset:
                 continue
-            pieces.append(prose[offset : match.start()])
-            opening = prose[match.start() : match.end()]
-            pieces.append(opening[opening.index("[") + 1 : -2])
+            end = _link_end(prose, destination_start)
+            if end is None:
+                continue
+            pieces.append(prose[offset:start])
+            pieces.append(label)
             offset = end + 1
         pieces.append(prose[offset:])
         return REFERENCE_LINK.sub(r"\1", "".join(pieces))
