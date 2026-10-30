@@ -11,7 +11,6 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCE_LINK = re.compile(r"!?\[([^\]\n]+)\]\[([^\]\n]*)\]")
 REFERENCE_DEFINITION = re.compile(r"^ {0,3}\[([^\]\n]+)\]:[ \t]*(?:<([^>\n]+)>|(\S+))")
 INLINE_CODE = re.compile(r"(?<!"+chr(96)+r")("+chr(96)+r"+)(.*?)\1(?!"+chr(96)+r")")
 HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.+?)\s*#*\s*$")
@@ -119,11 +118,11 @@ def _link_end(line: str, start: int) -> int | None:
     return None
 
 
-def _inline_link_starts(line: str):
-    """Yield link label spans, including nested and escaped square brackets.
+def _bracketed_links(line: str, following: str):
+    """Find nested, escaped link labels followed by the requested delimiter.
 
-    CommonMark allows balanced nested brackets in a link label. A flat
-    regular expression misses those links and leaves broken links unchecked.
+    Labels may include balanced square brackets; scanning only with a flat
+    regular expression silently ignores such Markdown navigation links.
     """
     cursor = 0
     while cursor < len(line):
@@ -160,11 +159,52 @@ def _inline_link_starts(line: str):
                 depth -= 1
             index += 1
 
-        if depth == 0 and line[index : index + 1] == "(":
+        if depth == 0 and line[index : index + 1] == following:
             yield start, index + 1, line[opening + 1 : index - 1]
             cursor = index + 1
         else:
             cursor = opening + 1
+
+
+def _inline_link_starts(line: str):
+    """Find inline Markdown links and image links, including nested labels."""
+    yield from _bracketed_links(line, "(")
+
+
+def _reference_links(line: str):
+    """Yield complete full/collapsed reference links with balanced link text.
+
+    The reference ID itself is a flat label as required by CommonMark, but
+    the visible link text can contain nested or backslash-escaped brackets.
+    """
+    for start, key_start, label in _bracketed_links(line, "["):
+        index = key_start
+        escaped = False
+        while index < len(line):
+            char = line[index]
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == "[":
+                break
+            elif char == "]":
+                yield start, index + 1, label, line[key_start:index]
+                break
+            index += 1
+
+
+def _reference_label_text(prose: str) -> str:
+    """Replace each reference link with its visible label for heading anchors."""
+    parts: list[str] = []
+    offset = 0
+    for start, end, label, _ in _reference_links(prose):
+        if start < offset:
+            continue
+        parts.extend((prose[offset:start], label))
+        offset = end
+    parts.append(prose[offset:])
+    return "".join(parts)
 
 
 def _inline_addresses(line: str) -> list[str]:
@@ -195,7 +235,7 @@ def _heading_link_labels(heading: str) -> str:
             pieces.append(label)
             offset = end + 1
         pieces.append(prose[offset:])
-        return REFERENCE_LINK.sub(r"\1", "".join(pieces))
+        return _reference_label_text("".join(pieces))
 
     # Inline code displays its brackets, parentheses and reference suffix
     # literally, so it must not undergo link-label substitutions.
@@ -244,8 +284,8 @@ def check_links(root: Path) -> list[str]:
             if REFERENCE_DEFINITION.match(visible):
                 continue
             addresses = _inline_addresses(visible)
-            for match in REFERENCE_LINK.finditer(visible):
-                key = _reference_key(match.group(2) or match.group(1))
+            for _, _, label, reference_id in _reference_links(visible):
+                key = _reference_key(reference_id or label)
                 if key not in references:
                     problems.append(
                         f"{source.relative_to(root)}:{line_number}: undefined reference [{key}]"
