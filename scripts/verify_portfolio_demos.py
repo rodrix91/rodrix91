@@ -1403,6 +1403,128 @@ def verify_inventory_alpha_contract(root: Path) -> str:
     return "inventory-policy-lab smoothing alpha: PASS (24 invalid, 4 valid)"
 
 
+_CSV_SKIP_COUNT_PROBE = """
+import json
+import tempfile
+from pathlib import Path
+from csv_quality_report.reader import open_rows, read_table
+from csv_quality_report.profile import profile_file
+
+invalid = (
+    ("true", True), ("false", False), ("integral_float", 1.0),
+    ("fraction", 1.5), ("text", "1"), ("none", None),
+    ("nan", float("nan")), ("infinity", float("inf")),
+    ("minus_infinity", -float("inf")),
+)
+apis = ("stream", "table", "profile")
+options = ("skip_lines", "skip_footer")
+
+def call(api, path, kwargs):
+    if api == "stream":
+        with open_rows(path, **kwargs):
+            pass
+    elif api == "table":
+        read_table(path, **kwargs)
+    else:
+        profile_file(path, **kwargs)
+
+errors = {}
+negative = {}
+for api in apis:
+    for option in options:
+        for label, value in invalid:
+            key = f"{api}:{option}:{label}"
+            try:
+                call(api, "missing-synthetic-input.csv", {option: value})
+            except ValueError as exc:
+                errors[key] = str(exc)
+            except Exception as exc:
+                errors[key] = f"UNEXPECTED {type(exc).__name__}"
+            else:
+                errors[key] = "UNEXPECTED SUCCESS"
+        key = f"{api}:{option}"
+        try:
+            call(api, "missing-synthetic-input.csv", {option: -1})
+        except ValueError as exc:
+            negative[key] = str(exc)
+        except Exception as exc:
+            negative[key] = f"UNEXPECTED {type(exc).__name__}"
+        else:
+            negative[key] = "UNEXPECTED SUCCESS"
+
+with tempfile.TemporaryDirectory() as dirname:
+    path = Path(dirname) / "export.csv"
+    path.write_text("Title\\nid,buyer\\nS1,Andes\\nS2,Paz\\nTotal\\n", encoding="utf-8")
+    with open_rows(path, skip_lines=1, skip_footer=1) as stream:
+        streaming = list(stream)
+    table = read_table(path, skip_lines=1, skip_footer=1)
+    report = profile_file(path, skip_lines=1, skip_footer=1)
+    valid = {
+        "stream": streaming, "table": table.rows,
+        "profile_rows": report.rows,
+        "profile_skipped_lines": report.skipped_lines,
+        "profile_skipped_footer": report.skipped_footer,
+    }
+print(json.dumps({"errors": errors, "negative": negative, "valid": valid}))
+"""
+
+
+def check_csv_skip_count_contract(report: Any) -> None:
+    """Fail closed on bad CSV skip-count types and altered valid rows."""
+    errors = {
+        f"{api}:{option}:{label}": f"{option} must be a non-negative integer"
+        for api in ("stream", "table", "profile")
+        for option in ("skip_lines", "skip_footer")
+        for label in (
+            "true", "false", "integral_float", "fraction", "text",
+            "none", "nan", "infinity", "minus_infinity",
+        )
+    }
+    negative = {
+        f"{api}:{option}": f"{option} must be >= 0, got -1"
+        for api in ("stream", "table", "profile")
+        for option in ("skip_lines", "skip_footer")
+    }
+    expected = {
+        "errors": errors,
+        "negative": negative,
+        "valid": {
+            "stream": [["S1", "Andes"], ["S2", "Paz"]],
+            "table": [["S1", "Andes"], ["S2", "Paz"]],
+            "profile_rows": 2,
+            "profile_skipped_lines": 1,
+            "profile_skipped_footer": 1,
+        },
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("csv skip-count demo: invalid public API contract")
+
+
+def verify_csv_skip_count_contract(root: Path) -> str:
+    """Exercise the exact pinned CSV reader with synthetic title/footer data."""
+    project = (root / "csv-quality-report").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("csv skip-count demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _CSV_SKIP_COUNT_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"csv skip-count demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("csv skip-count demo: malformed JSON") from exc
+    check_csv_skip_count_contract(payload)
+    return "csv-quality-report skip counts: PASS (54 invalid, 6 negative, valid rows)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1415,6 +1537,7 @@ def main() -> int:
         outcomes.append(verify_canonical_missing_marker_example(root))
         outcomes.append(verify_na_iterator_contract(root))
         outcomes.append(verify_csv_top_n_contract(root))
+        outcomes.append(verify_csv_skip_count_contract(root))
         outcomes.append(verify_inventory_ma_window_contract(root))
         outcomes.append(verify_inventory_holdout_contract(root))
         outcomes.append(verify_inventory_custom_forecast_contract(root))

@@ -26,6 +26,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_residual_bootstrap_finite,
     check_na_iterator_contract,
     check_csv_top_n_contract,
+    check_csv_skip_count_contract,
     check_ops_bounded_sniff,
     check_ops_top_n_contract,
     check_report,
@@ -63,7 +64,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 17)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 18)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -156,6 +157,46 @@ class PortfolioDemoContractTests(unittest.TestCase):
                 altered = {**report, "valid": {**report["valid"], field: -1.0}}
                 with self.assertRaisesRegex(ValueError, "invalid API contract"):
                     check_inventory_alpha_contract(altered)
+
+    def test_csv_skip_count_probe_rejects_corrupt_results(self) -> None:
+        errors = {
+            f"{api}:{option}:{label}": f"{option} must be a non-negative integer"
+            for api in ("stream", "table", "profile")
+            for option in ("skip_lines", "skip_footer")
+            for label in (
+                "true", "false", "integral_float", "fraction", "text",
+                "none", "nan", "infinity", "minus_infinity",
+            )
+        }
+        negative = {
+            f"{api}:{option}": f"{option} must be >= 0, got -1"
+            for api in ("stream", "table", "profile")
+            for option in ("skip_lines", "skip_footer")
+        }
+        valid = {
+            "stream": [["S1", "Andes"], ["S2", "Paz"]],
+            "table": [["S1", "Andes"], ["S2", "Paz"]],
+            "profile_rows": 2,
+            "profile_skipped_lines": 1,
+            "profile_skipped_footer": 1,
+        }
+        payload = {"errors": errors, "negative": negative, "valid": valid}
+        check_csv_skip_count_contract(payload)
+        for key in errors:
+            with self.subTest(invalid=key):
+                forged = {**payload, "errors": {**errors, key: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid public API contract"):
+                    check_csv_skip_count_contract(forged)
+        for key in negative:
+            with self.subTest(negative=key):
+                forged = {**payload, "negative": {**negative, key: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid public API contract"):
+                    check_csv_skip_count_contract(forged)
+        for key in valid:
+            with self.subTest(valid=key):
+                forged = {**payload, "valid": {**valid, key: None}}
+                with self.assertRaisesRegex(ValueError, "invalid public API contract"):
+                    check_csv_skip_count_contract(forged)
 
     def test_custom_forecast_probe_detects_forged_model_results(self) -> None:
         errors = {
