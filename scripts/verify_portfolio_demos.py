@@ -978,7 +978,6 @@ def verify_nonfinite_baseline_examples(root: Path) -> str:
     return "csv-quality-report nonfinite baselines: PASS (2 expected input exit 3)"
 
 
-
 _INVENTORY_MA_WINDOW_PROBE = """
 import json
 from inventory_policy_lab import moving_average
