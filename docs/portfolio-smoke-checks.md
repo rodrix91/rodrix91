@@ -6,7 +6,7 @@ The [portfolio demo workflow](../.github/workflows/portfolio-demos.yml) independ
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `db6f9c6f9d1c0c15b52902d3bac2c8b2dbd1fc8d` | Exit 0; 3 records, 1 missing quantity |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | `90de5d9991ade53143fade30c8318cb55fa38fe5` | **Intentional exit 1**; 2 incomplete composite keys and 1 extra duplicate |
-| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `bb089ad96442597186fb1b622ca338f481f56534` | Exit 0; 12 distinct synthetic SKU outputs |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `187a8b4158e7d48186d4b726832ebb7559292d44` | Exit 0; 12 distinct synthetic SKU outputs |
 
 All synthetic subprocesses explicitly set `PYTHONIOENCODING=utf-8` in their child environment, while the parent decodes captured stdout and stderr as UTF-8. This protects multilingual JSON and diagnostics from the Windows console's legacy code pages. The verifier includes a real regression using inherited `cp1252` and a Unicode payload that requires UTF-8; it preserves the per-project `PYTHONPATH` and unrelated environment variables. This only controls test-subprocess I/O encoding and does not modify CSV source files, Python packages or their default CLI output policies.
 
