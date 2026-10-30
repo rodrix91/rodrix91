@@ -87,6 +87,101 @@ def verify_examples(root: Path) -> list[str]:
     return outcomes
 
 
+_INVENTORY_REPLAY_PROBE = """
+import json
+import math
+from inventory_policy_lab import simulate, simulate_periodic, simulate_rss
+
+policies = (
+    ("sQ", simulate, {"reorder_point": 3.0, "order_quantity": 2.0}, "reorder_point"),
+    ("RS", simulate_periodic, {"order_up_to": 5.0, "review_period": 2}, "order_up_to"),
+    ("RsS", simulate_rss, {"reorder_point": 3.0, "order_quantity": 2.0,
+                           "review_period": 2}, "reorder_point"),
+)
+results = {}
+for name, replay, settings, level in policies:
+    valid = replay([1.0, 0.0, 2.0], lead_time=0.0, **settings)
+    cases = {
+        "scalar_nan": {level: math.nan},
+        "dynamic_inf": {level: [3.0, 4.0, math.inf]},
+    }
+    if name != "RS":
+        cases["quantity_nan"] = {"order_quantity": math.nan}
+        cases["quantity_dynamic_inf"] = {"order_quantity": [2.0, 2.0, math.inf]}
+    errors = {}
+    for case, overrides in cases.items():
+        try:
+            replay([1.0, 0.0, 2.0], lead_time=0.0, warmup=2,
+                   **{**settings, **overrides})
+        except ValueError as exc:
+            errors[case] = str(exc)
+        else:
+            errors[case] = "UNEXPECTED SUCCESS"
+    results[name] = {
+        "periods": valid.periods, "fill_rate": valid.fill_rate, "errors": errors
+    }
+print(json.dumps(results, allow_nan=False))
+"""
+
+
+def check_inventory_replay_levels(report: Any) -> None:
+    """Require three valid replay outcomes and every documented invalid-level guard."""
+    expected = {
+        "sQ": {
+            "scalar_nan": "reorder_point must be finite, got nan",
+            "dynamic_inf": "reorder_point[2] must be finite, got inf",
+            "quantity_nan": "order_quantity must be finite, got nan",
+            "quantity_dynamic_inf": "order_quantity[2] must be finite, got inf",
+        },
+        "RS": {
+            "scalar_nan": "order_up_to must be finite, got nan",
+            "dynamic_inf": "order_up_to[2] must be finite, got inf",
+        },
+        "RsS": {
+            "scalar_nan": "reorder_point must be finite, got nan",
+            "dynamic_inf": "reorder_point[2] must be finite, got inf",
+            "quantity_nan": "order_quantity must be finite, got nan",
+            "quantity_dynamic_inf": "order_quantity[2] must be finite, got inf",
+        },
+    }
+    if not isinstance(report, dict) or set(report) != set(expected):
+        raise ValueError("inventory replay safety demo: unexpected policy set")
+    for policy, required in expected.items():
+        record = report[policy]
+        if (
+            not isinstance(record, dict)
+            or record.get("periods") != 3
+            or record.get("fill_rate") != 1.0
+            or record.get("errors") != required
+        ):
+            raise ValueError(f"inventory replay safety demo: invalid {policy} outcome")
+
+
+def verify_inventory_replay_levels(root: Path) -> str:
+    """Exercise the immutable inventory checkout, including expected invalid inputs."""
+    project = (root / "inventory-policy-lab").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("inventory replay safety demo: missing project source")
+    result = subprocess.run(
+        [sys.executable, "-c", _INVENTORY_REPLAY_PROBE],
+        cwd=project,
+        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"inventory replay safety demo: expected exit 0, got {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("inventory replay safety demo: invalid JSON") from exc
+    check_inventory_replay_levels(report)
+    return "inventory-policy-lab replay level safety: PASS (3 policies, 10 expected errors)"
+
+
 def check_canonical_unicode_gate(plain: Any, folded: Any) -> None:
     """Confirm the optional Unicode comparison flags catch hidden operational risks."""
     if not isinstance(plain, dict) or not isinstance(folded, dict):
@@ -362,6 +457,7 @@ def main() -> int:
         outcomes.append(verify_canonical_unicode_example(root))
         outcomes.append(verify_casefold_missing_marker_example(root))
         outcomes.append(verify_canonical_missing_marker_example(root))
+        outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError) as exc:
