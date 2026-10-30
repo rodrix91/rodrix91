@@ -370,6 +370,44 @@ class PortfolioLinkTests(unittest.TestCase):
         )
         self.assertEqual(check_links(self.root), [])
 
+    def test_escaped_backticks_do_not_hide_real_broken_link(self) -> None:
+        self.write(
+            "README.md",
+            "The literal \\" + chr(96) + " is not code: "
+            "[broken](docs/missing.md) \\" + chr(96) + "\n",
+        )
+        self.assertIn("missing local file", check_links(self.root)[0])
+
+    def test_escaped_backtick_before_real_code_still_checks_visible_links(self) -> None:
+        tick = chr(96)
+        self.write(
+            "README.md",
+            "Literal \\" + tick + " and real " + tick
+            + "[hidden](missing.md)" + tick + " [visible](absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("absent.md", problems[0])
+
+    def test_even_backslashes_allow_real_inline_code(self) -> None:
+        tick = chr(96)
+        self.write(
+            "README.md",
+            "\\\\" + tick + "[hidden](missing.md)" + tick + "\n",
+        )
+        self.assertEqual(check_links(self.root), [])
+
+    def test_escaped_backtick_does_not_protect_html_comment_opener(self) -> None:
+        self.write(
+            "README.md",
+            "\\" + chr(96) + " <!-- ignored [hidden](missing.md) --> "
+            "[broken](absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("absent.md", problems[0])
+
+
     def test_html_comment_hides_links_without_hiding_visible_neighbors(self) -> None:
         self.write(
             "README.md",
