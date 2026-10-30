@@ -20,6 +20,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_inventory_replay_levels,
     check_inventory_ma_window_contract,
     check_inventory_holdout_contract,
+    check_inventory_custom_forecast_contract,
     check_inventory_bootstrap_demand,
     check_residual_bootstrap_finite,
     check_na_iterator_contract,
@@ -61,7 +62,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 15)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 16)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -119,6 +120,36 @@ class PortfolioDemoContractTests(unittest.TestCase):
         check_report("ops-field-brief", report)
         with self.assertRaisesRegex(ValueError, "intentional quality gate"):
             check_report("ops-field-brief", {**report, "failed_incomplete_keys": False})
+
+    def test_custom_forecast_probe_detects_forged_model_results(self) -> None:
+        errors = {
+            f"{label}_{index}": f"custom forecast[{index}] must be finite and non-negative"
+            for index in (3, 4)
+            for label in (
+                "true", "false", "numeric_string", "none",
+                "complex", "object", "huge_integer",
+            )
+        }
+        payload = {
+            "errors": errors,
+            "valid": {
+                "forecasts": [6.0, 10.0],
+                "mae": 4.0, "rmse": 4.0, "bias": -4.0, "mase": 1.0,
+            },
+            "zero": {"forecasts": [0.0], "mae": 0.0, "mase": None},
+        }
+        check_inventory_custom_forecast_contract(payload)
+        for label in errors:
+            with self.subTest(invalid=label):
+                changed = {**payload, "errors": {**errors, label: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid model output contract"):
+                    check_inventory_custom_forecast_contract(changed)
+        for changed in (
+            {**payload, "valid": {**payload["valid"], "mae": 0.0}},
+            {**payload, "zero": {**payload["zero"], "mase": 0.0}},
+        ):
+            with self.assertRaisesRegex(ValueError, "invalid model output contract"):
+                check_inventory_custom_forecast_contract(changed)
 
     def test_backtest_holdout_probe_detects_mutated_results(self) -> None:
         errors = {
