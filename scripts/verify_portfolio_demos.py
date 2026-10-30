@@ -978,6 +978,78 @@ def verify_nonfinite_baseline_examples(root: Path) -> str:
     return "csv-quality-report nonfinite baselines: PASS (2 expected input exit 3)"
 
 
+_INVENTORY_MA_WINDOW_PROBE = """
+import json
+from inventory_policy_lab import moving_average
+
+def attempt(window):
+    try:
+        # Invalid window settings must fail before checking this bad demand.
+        moving_average([-1.0, 3.0], window=window)
+    except ValueError as exc:
+        return str(exc)
+    return "UNEXPECTED SUCCESS"
+
+bad_windows = (
+    ("true", True), ("false", False), ("fraction", 1.5),
+    ("string", "2"), ("none", None), ("nan", float("nan")),
+    ("infinity", float("inf")),
+)
+errors = {name: attempt(value) for name, value in bad_windows}
+nonpositive = {"zero": attempt(0), "negative": attempt(-1)}
+valid = [moving_average([2.0, 4.0, 9.0], window=n) for n in (1, 2, 8)]
+print(json.dumps({"errors": errors, "nonpositive": nonpositive, "valid": valid}))
+"""
+
+
+def check_inventory_ma_window_contract(report: Any) -> None:
+    """Verify that only positive integer moving-average windows are accepted."""
+    expected_errors = {
+        "true": "moving-average window must be a positive integer, got True",
+        "false": "moving-average window must be a positive integer, got False",
+        "fraction": "moving-average window must be a positive integer, got 1.5",
+        "string": "moving-average window must be a positive integer, got '2'",
+        "none": "moving-average window must be a positive integer, got None",
+        "nan": "moving-average window must be a positive integer, got nan",
+        "infinity": "moving-average window must be a positive integer, got inf",
+    }
+    expected_nonpositive = {
+        "zero": "moving-average window must be at least 1, got 0",
+        "negative": "moving-average window must be at least 1, got -1",
+    }
+    if not isinstance(report, dict) or report != {
+        "errors": expected_errors,
+        "nonpositive": expected_nonpositive,
+        "valid": [9.0, 6.5, 5.0],
+    }:
+        raise ValueError("inventory moving-average window demo: invalid API contract")
+
+
+def verify_inventory_ma_window_contract(root: Path) -> str:
+    """Exercise a pinned inventory forecasting API with only synthetic values."""
+    project = (root / "inventory-policy-lab").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("inventory moving-average window demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _INVENTORY_MA_WINDOW_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"inventory moving-average window demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("inventory moving-average window demo: malformed JSON") from exc
+    check_inventory_ma_window_contract(report)
+    return "inventory-policy-lab moving-average windows: PASS (9 rejected, 3 valid)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -990,6 +1062,7 @@ def main() -> int:
         outcomes.append(verify_canonical_missing_marker_example(root))
         outcomes.append(verify_na_iterator_contract(root))
         outcomes.append(verify_csv_top_n_contract(root))
+        outcomes.append(verify_inventory_ma_window_contract(root))
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))
