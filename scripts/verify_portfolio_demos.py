@@ -174,6 +174,112 @@ def verify_ops_bounded_sniff(root: Path) -> str:
     return "ops-field-brief bounded strict sniff: PASS (12 delimiters/newlines, no unbounded read)"
 
 
+_RESIDUAL_FINITE_PROBE = """
+import json
+import math
+import random
+from inventory_policy_lab import residual_bootstrap_quantile
+
+errors = {}
+for period in (1, 2):
+    for label, invalid in (("nan", math.nan), ("pos_inf", math.inf),
+                           ("neg_inf", -math.inf)):
+        source = {1: (-2.0, 1.0), 2: (-4.0, 3.0)}
+        source[period] = (0.0, invalid, 1.0)
+        rng = random.Random(31)
+        state = rng.getstate()
+        key = f"period_{period}_{label}"
+        try:
+            residual_bootstrap_quantile(
+                source, 0.95, lead_time=1.0,
+                lead_times=(1.0, 2.0), samples=8, rng=rng,
+            )
+        except ValueError as exc:
+            errors[key] = {
+                "message": str(exc), "rng_untouched": rng.getstate() == state
+            }
+        else:
+            errors[key] = {"message": "UNEXPECTED SUCCESS", "rng_untouched": False}
+unused = residual_bootstrap_quantile(
+    {1: (-2.0,), 3: (math.nan,)},
+    0.95, lead_time=1.0, samples=6, rng=random.Random(7),
+)
+zero = residual_bootstrap_quantile(
+    {0: (math.nan,)}, 0.95, lead_time=0.0, samples=6,
+)
+negative = residual_bootstrap_quantile(
+    {1: (-3.0,)}, 0.95, lead_time=1.0, samples=6,
+)
+rng = random.Random(99)
+before = rng.getstate()
+try:
+    residual_bootstrap_quantile(
+        {1: (math.nan,)}, 0.95, lead_time=1.0,
+        lead_times=(1.0, 2.0), samples=8, rng=rng,
+    )
+except ValueError as exc:
+    priority = {"message": str(exc), "rng_untouched": rng.getstate() == before}
+else:
+    priority = {"message": "UNEXPECTED SUCCESS", "rng_untouched": False}
+print(json.dumps({
+    "errors": errors, "unused": unused, "zero": zero,
+    "negative": negative, "priority": priority,
+}, allow_nan=False))
+"""
+
+
+def check_residual_bootstrap_finite(report: Any) -> None:
+    """Require six indexed rejections and normal finite residual behavior."""
+    expected = {
+        f"period_{period}_{label}": f"errors[{period}][1] must be finite, got {value}"
+        for period in (1, 2)
+        for label, value in (("nan", "nan"), ("pos_inf", "inf"), ("neg_inf", "-inf"))
+    }
+    if not isinstance(report, dict):
+        raise ValueError("residual bootstrap finite demo: expected JSON object")
+    errors = report.get("errors")
+    if (
+        report.get("unused") != -2.0
+        or report.get("zero") != 0.0
+        or report.get("negative") != -3.0
+        or report.get("priority") != {
+            "message": "no forecast errors over 2 period(s)",
+            "rng_untouched": True,
+        }
+        or not isinstance(errors, dict)
+        or set(errors) != set(expected)
+    ):
+        raise ValueError("residual bootstrap finite demo: invalid protection-interval outcome")
+    for label, message in expected.items():
+        if errors[label] != {"message": message, "rng_untouched": True}:
+            raise ValueError(f"residual bootstrap finite demo: invalid {label} guard")
+
+
+def verify_residual_bootstrap_finite(root: Path) -> str:
+    """Exercise the immutable inventory source without using customer data."""
+    project = (root / "inventory-policy-lab").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("residual bootstrap finite demo: missing inventory checkout")
+    result = subprocess.run(
+        [sys.executable, "-c", _RESIDUAL_FINITE_PROBE],
+        cwd=project,
+        env={**os.environ, "PYTHONPATH": str(project / "src")},
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"residual bootstrap finite demo: expected exit 0, got {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("residual bootstrap finite demo: invalid JSON") from exc
+    check_residual_bootstrap_finite(report)
+    return "inventory-policy-lab residual bootstrap guard: PASS (6 indexed cases)"
+
+
 _BOOTSTRAP_DEMAND_PROBE = """
 import json
 import math
@@ -648,6 +754,7 @@ def main() -> int:
         outcomes.append(verify_canonical_missing_marker_example(root))
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
+        outcomes.append(verify_residual_bootstrap_finite(root))
         outcomes.append(verify_ops_bounded_sniff(root))
         outcomes.append(verify_ambiguous_baseline_example(root))
         outcomes.append(verify_nonfinite_baseline_examples(root))
