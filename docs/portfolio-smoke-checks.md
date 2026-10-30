@@ -4,7 +4,7 @@ The [portfolio demo workflow](../.github/workflows/portfolio-demos.yml) independ
 
 | Project | Pinned, reviewed source commit | Expected result |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `b4acdbdfa719ecbd17cf3cf6529bab121c2444b5` | Exit 0; 3 records, 1 missing quantity |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `aafd0c147cf7a8c7a5ccfa2c61eb69631a4ea2db` | Exit 0; 3 records, 1 missing quantity |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | `c9d01e30b39f56328b06b48b78e836d4e8da0f0d` | **Intentional exit 1**; 2 incomplete composite keys and 1 extra duplicate |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `e5387e6a96e282cf9f70d70b7aca9f48c921b568` | Exit 0; 12 distinct synthetic SKU outputs |
 
@@ -17,6 +17,8 @@ The current snapshot also exercises the optional case-insensitive missing-value 
 The opt-in NFC normalization safeguard from [csv-quality-report PR #233](https://github.com/rodrix91/csv-quality-report/pull/233) is exercised independently using the synthetic [accented missing-marker fixture](../tests/fixtures/canonical-na-marker.csv). The two representations of `información` are visually identical but differ in Unicode encoding. Without `--na-ignore-case`, the `peso` column remains a string; with the option it is numeric and the missing count increases. Default exact matching and the original CSV bytes remain unchanged.
 
 The [case-insensitive Excel separator safeguard in ops-field-brief PR #118](https://github.com/rodrix91/ops-field-brief/pull/118) is independently verified using the exact pinned merged source. Nine synthetic CSV exports combine three ASCII-case variants of `sep=;` with stdin, plain files and gzip. The probe checks the real header, physical source lines, row counts, distinct group results and duplicate-key metrics, while separately asserting that explicit delimiters never consume the hint and malformed lookalikes are ignored. Fail-closed portfolio tests mutate every result. All input rows are synthetic.
+
+The [global CSV field-size limit safeguard in csv-quality-report PR #239](https://github.com/rodrix91/csv-quality-report/pull/239) is independently probed against the pinned merged source. A synthetic subprocess checks 39 invalid field limits across public streaming, table and profiling APIs, verifies that each rejected value leaves the process-wide `csv.field_size_limit` unchanged, and checks six successful reads with default and explicit field limits. The same probe invokes the real CLI with an oversized integer and requires a normal exit code 2 instead of an overflow traceback. Portfolio unit tests deliberately corrupt every expected error, restoration flag, valid row count and CLI status to fail closed. All data are synthetic.
 
 The [public CSV `max_rows` validation in PR #238](https://github.com/rodrix91/csv-quality-report/pull/238) is independently tested against the pinned merged source across `open_rows()`, `read_table()` and `profile_file()`. The synthetic subprocess checks nine bad types per API (27 failures before reading a missing file), three negative-integer errors, and nine valid results with unlimited, zero and one-row limits. It verifies exact row and truncation metadata, including the supported Python-only `max_rows=0` behavior. The verifier's own unit tests mutate each output and must reject it. Only synthetic rows are used.
 

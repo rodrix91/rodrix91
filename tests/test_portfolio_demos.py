@@ -29,6 +29,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_csv_top_n_contract,
     check_csv_skip_count_contract,
     check_csv_max_rows_contract,
+    check_csv_field_limit_contract,
     check_ops_bounded_sniff,
     check_ops_top_n_contract,
     check_ops_excel_case_contract,
@@ -67,7 +68,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 21)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 22)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -236,6 +237,50 @@ class PortfolioDemoContractTests(unittest.TestCase):
         ):
             with self.assertRaisesRegex(ValueError, "invalid directive contract"):
                 check_ops_excel_case_contract(changed)
+
+    def test_csv_field_limit_probe_detects_parser_state_mutations(self) -> None:
+        errors = {}
+        for api in ("stream", "table", "profile"):
+            for label in (
+                "true", "false", "float", "fraction", "text",
+                "nan", "infinity", "minus_infinity", "object",
+            ):
+                errors[f"{api}:{label}"] = "max_field_size must be a positive integer"
+            for label in ("zero", "negative", "too_large", "huge"):
+                errors[f"{api}:{label}"] = (
+                    f"max_field_size must be between 1 and {sys.maxsize}"
+                )
+        valid = {
+            f"{api}:{label}": 2
+            for api in ("stream", "table", "profile")
+            for label in ("default", "explicit")
+        }
+        restored = {
+            **{key: True for key in errors},
+            **{key: True for key in valid},
+        }
+        report = {
+            "errors": errors, "valid": valid,
+            "restored": restored, "cli": [2, True],
+        }
+        check_csv_field_limit_contract(report)
+        for key in errors:
+            with self.subTest(invalid=key):
+                changed = {**report, "errors": {**errors, key: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid parser-state contract"):
+                    check_csv_field_limit_contract(changed)
+        for key in restored:
+            with self.subTest(state=key):
+                changed = {**report, "restored": {**restored, key: False}}
+                with self.assertRaisesRegex(ValueError, "invalid parser-state contract"):
+                    check_csv_field_limit_contract(changed)
+        for key in valid:
+            with self.subTest(valid=key):
+                changed = {**report, "valid": {**valid, key: 0}}
+                with self.assertRaisesRegex(ValueError, "invalid parser-state contract"):
+                    check_csv_field_limit_contract(changed)
+        with self.assertRaisesRegex(ValueError, "invalid parser-state contract"):
+            check_csv_field_limit_contract({**report, "cli": [1, False]})
 
     def test_csv_max_rows_probe_rejects_mutated_results(self) -> None:
         errors = {
