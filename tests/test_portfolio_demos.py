@@ -16,6 +16,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_inventory_replay_levels,
     check_inventory_bootstrap_demand,
     check_residual_bootstrap_finite,
+    check_na_iterator_contract,
     check_ops_bounded_sniff,
     check_report,
 )
@@ -115,6 +116,39 @@ class PortfolioDemoContractTests(unittest.TestCase):
             with self.subTest(broken=broken[-1] if broken else "missing"):
                 with self.assertRaisesRegex(ValueError, "ops bounded sniff demo"):
                     check_ops_bounded_sniff(broken)
+
+    def test_na_iterator_contract_detects_missingness_and_metadata_regressions(self) -> None:
+        expected = {
+            "folded_parity": True,
+            "folded_missing": 2,
+            "folded_metadata": ["s/d"],
+            "folded_key": [2, 2, 1],
+            "direct_parity": True,
+            "exact_parity": True,
+            "exact_missing": 1,
+            "exact_metadata": ["s/d"],
+            "unicode_parity": True,
+            "unicode_missing": 1,
+            "unicode_type": "int",
+            "unicode_metadata": ["sin información"],
+        }
+        check_na_iterator_contract(expected)
+        for key, wrong in (
+            ("folded_missing", 0),
+            ("folded_metadata", []),
+            ("folded_key", [4, 0, 1]),
+            ("direct_parity", False),
+            ("exact_parity", False),
+            ("unicode_parity", False),
+            ("unicode_missing", 0),
+            ("unicode_type", "string"),
+            ("unicode_metadata", []),
+        ):
+            with self.subTest(key=key):
+                with self.assertRaisesRegex(ValueError, "csv token iterator demo"):
+                    check_na_iterator_contract({**expected, key: wrong})
+        with self.assertRaisesRegex(ValueError, "csv token iterator demo"):
+            check_na_iterator_contract({k: v for k, v in expected.items() if k != "folded_key"})
 
     def test_residual_bootstrap_probe_contract_fails_closed(self) -> None:
         errors = {

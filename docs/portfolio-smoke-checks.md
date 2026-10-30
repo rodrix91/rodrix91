@@ -4,7 +4,7 @@ The [portfolio demo workflow](../.github/workflows/portfolio-demos.yml) independ
 
 | Project | Pinned, reviewed source commit | Expected result |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `3e97d1d986dd551224d1a2941737fedc5d086981` | Exit 0; 3 records, 1 missing quantity |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `b436e2131957e88f76a0881b96bd66413507f8e4` | Exit 0; 3 records, 1 missing quantity |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | `070bb56c6d2ab0488ba7f4f5cb72443ae2640ac6` | **Intentional exit 1**; 2 incomplete composite keys and 1 extra duplicate |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `88c571f454ca9f8c844f62b9998100d3121da192` | Exit 0; 12 distinct synthetic SKU outputs |
 
@@ -17,6 +17,8 @@ The opt-in NFC normalization safeguard from [csv-quality-report PR #233](https:/
 The [non-finite residual bootstrap guard in inventory-policy-lab PR #113](https://github.com/rodrix91/inventory-policy-lab/pull/113) has its own synthetic smoke probe. It requires indexed errors for NaN, positive infinity and negative infinity across both reachable protection intervals, and verifies that invalid inputs leave the caller's seeded random-generator state untouched. Unreachable intervals, zero-period protection and legitimate negative finite residuals preserve their previous outcomes. The probe also checks that a missing interval retains its original error precedence. All examples are synthetic and test the API contract, not operational stock recommendations.
 
 The [inventory replay validation from PR #111](https://github.com/rodrix91/inventory-policy-lab/pull/111) is also tested against the pinned source. A synthetic in-process Python probe runs **all three replay policies** with finite stock levels, then deliberately supplies `NaN` scalar levels, infinite per-period levels and invalid order quantities where applicable. All valid replays must report three periods and a 100% fill rate; malformed inputs must raise explicit, index-aware `ValueError` exceptions instead of returning misleading metrics. The negative probes are expected errors, not operational inventory data or failed GitHub Actions jobs.
+
+The [one-shot missing-value token fix in csv-quality-report PR #234](https://github.com/rodrix91/csv-quality-report/pull/234) is independently verified against the pinned CSV library using synthetic data. The smoke probe checks that generator-backed `na_tokens` behave exactly like reusable tuples in the direct-row, in-memory and streaming Python APIs. It compares opt-in Unicode NFC/casefold and exact case-sensitive matching, composite-key missing-cell skipping and `Report.na_tokens` metadata. The comparison fails closed if a generator is consumed during validation or reporting, without modifying source CSV values.
 
 The [bootstrap demand-input protection in inventory-policy-lab PR #112](https://github.com/rodrix91/inventory-policy-lab/pull/112) is checked against the immutable inventory source by an additional synthetic probe. It requires finite, non-negative historical and forecast demand, including a zero-period protection interval; eight negative/NaN/infinite examples must be rejected with the correct indexed input error **before drawing from the random generator**. Independent valid zero, constant and intermittent histories must retain zero/finite safety-stock outputs and seeded reproducibility. These are expected input-validation errors, not real customer data or failed CI jobs.
 
