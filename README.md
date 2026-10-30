@@ -20,7 +20,7 @@ I build practical Python tools focused on **data quality, automation, reproducib
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 313 tests, 100% coverage, bounded strict CSV delimiter sniff, fail-closed ambiguous delimiter detection, installed wheel and CLI smoke-tested on Linux/Windows/macOS, NFC-safe opt-in key/group/header checks, explicit/auto stdin CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 1,188 tests, 100% coverage, clean-wheel CLI verified on Linux/Windows/macOS, overflow-safe forecast means, validated backtest actuals and custom predictions, finite scalar/dynamic inventory replay levels, validated bootstrap demand and forecast-residual inputs, strict moving-average integer-window and naive/SES/Croston/SBA demand validation, coefficient-of-variation input checks, Unicode-safe ERP headers and validated monthly calendar years, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
-## Latest verified engineering results (29 October 2026, Bolivia time)
+## Latest verified engineering results (30 October 2026, Bolivia time)
 
 These are **CI-verified snapshots**, not estimates of stars, downloads, adoption, or
 production deployments. The historical milestones and reproducible case studies
