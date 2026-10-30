@@ -14,6 +14,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_casefold_missing_marker_demo,
     check_canonical_missing_marker_demo,
     check_inventory_replay_levels,
+    check_inventory_bootstrap_demand,
     check_ops_bounded_sniff,
     check_report,
 )
@@ -113,6 +114,49 @@ class PortfolioDemoContractTests(unittest.TestCase):
             with self.subTest(broken=broken[-1] if broken else "missing"):
                 with self.assertRaisesRegex(ValueError, "ops bounded sniff demo"):
                     check_ops_bounded_sniff(broken)
+
+    def test_bootstrap_guard_fails_closed_on_missing_errors_or_rng_changes(self) -> None:
+        errors = {
+            "negative_observation": "demand[0] must be finite and non-negative, got -1.0",
+            "nan_observation_zero_interval": "demand[1] must be finite and non-negative, got nan",
+            "infinite_observation": "demand[2] must be finite and non-negative, got inf",
+            "negative_infinite_observation": "demand[1] must be finite and non-negative, got -inf",
+            "negative_expected": "demand_per_period must be finite and non-negative, got -1.0",
+            "nan_expected_zero_interval": "demand_per_period must be finite and non-negative, got nan",
+            "infinite_expected": "demand_per_period must be finite and non-negative, got inf",
+            "negative_infinite_expected": "demand_per_period must be finite and non-negative, got -inf",
+        }
+        report = {
+            "valid_zero": [0.0, 0.0],
+            "valid_constant": [10.0, 0.0],
+            "intermittent_seeded": True,
+            "errors": {
+                key: {"message": message, "rng_untouched": True}
+                for key, message in errors.items()
+            },
+        }
+        check_inventory_bootstrap_demand(report)
+        with self.assertRaisesRegex(ValueError, "unexpected valid or error cases"):
+            check_inventory_bootstrap_demand({**report, "intermittent_seeded": False})
+        with self.assertRaisesRegex(ValueError, "unexpected valid or error cases"):
+            check_inventory_bootstrap_demand({
+                **report, "errors": {
+                    key: value for key, value in report["errors"].items()
+                    if key != "nan_expected_zero_interval"
+                },
+            })
+        for label in errors:
+            with self.subTest(label=label):
+                original = report["errors"][label]
+                for replacement in (
+                    {**original, "message": "UNEXPECTED SUCCESS"},
+                    {**original, "rng_untouched": False},
+                ):
+                    with self.assertRaisesRegex(ValueError, "invalid " + label):
+                        check_inventory_bootstrap_demand({
+                            **report,
+                            "errors": {**report["errors"], label: replacement},
+                        })
 
     def test_inventory_replay_safety_demo_contract_fails_closed(self) -> None:
         report = {
