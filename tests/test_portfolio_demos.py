@@ -21,6 +21,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_inventory_ma_window_contract,
     check_inventory_holdout_contract,
     check_inventory_custom_forecast_contract,
+    check_inventory_alpha_contract,
     check_inventory_bootstrap_demand,
     check_residual_bootstrap_finite,
     check_na_iterator_contract,
@@ -62,7 +63,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 16)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 17)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -120,6 +121,41 @@ class PortfolioDemoContractTests(unittest.TestCase):
         check_report("ops-field-brief", report)
         with self.assertRaisesRegex(ValueError, "intentional quality gate"):
             check_report("ops-field-brief", {**report, "failed_incomplete_keys": False})
+
+    def test_smoothing_alpha_probe_rejects_mutated_results(self) -> None:
+        invalid = (
+            ("true", "True"), ("false", "False"), ("text", "0.5"),
+            ("none", "None"), ("complex", "(1+2j)"),
+            ("list", "[0.5]"), ("dict", "{'alpha': 0.5}"), ("tuple", "(0.5,)"),
+        )
+        errors = {
+            f"{method}:{label}": (
+                f"{'ses' if method == 'ses' else 'croston'} "
+                f"alpha must be in (0, 1], got {shown}"
+            )
+            for method in ("ses", "croston", "sba")
+            for label, shown in invalid
+        }
+        report = {
+            "errors": errors,
+            "valid": {
+                "ses_integer": 4.0,
+                "ses_half": 4.5,
+                "croston_integer": 8 / 3,
+                "sba_integer": 4 / 3,
+            },
+        }
+        check_inventory_alpha_contract(report)
+        for label in errors:
+            with self.subTest(invalid=label):
+                altered = {**report, "errors": {**errors, label: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid API contract"):
+                    check_inventory_alpha_contract(altered)
+        for field in report["valid"]:
+            with self.subTest(valid=field):
+                altered = {**report, "valid": {**report["valid"], field: -1.0}}
+                with self.assertRaisesRegex(ValueError, "invalid API contract"):
+                    check_inventory_alpha_contract(altered)
 
     def test_custom_forecast_probe_detects_forged_model_results(self) -> None:
         errors = {

@@ -1316,6 +1316,93 @@ def verify_inventory_custom_forecast_contract(root: Path) -> str:
     return "inventory-policy-lab custom forecasts: PASS (14 invalid, 2 valid)"
 
 
+_INVENTORY_ALPHA_PROBE = """
+import json
+from inventory_policy_lab import ses, croston, sba
+
+invalid = (
+    ("true", True),
+    ("false", False),
+    ("text", "0.5"),
+    ("none", None),
+    ("complex", 1 + 2j),
+    ("list", [0.5]),
+    ("dict", {"alpha": 0.5}),
+    ("tuple", (0.5,)),
+)
+methods = (("ses", ses), ("croston", croston), ("sba", sba))
+errors = {}
+for method_name, method in methods:
+    for label, value in invalid:
+        try:
+            method([-1.0, float("nan")], alpha=value)
+        except ValueError as exc:
+            errors[f"{method_name}:{label}"] = str(exc)
+        else:
+            errors[f"{method_name}:{label}"] = "UNEXPECTED SUCCESS"
+valid = {
+    "ses_integer": ses([2.0, 8.0, 4.0], alpha=1),
+    "ses_half": ses([2.0, 8.0, 4.0], alpha=0.5),
+    "croston_integer": croston([0.0, 0.0, 8.0, 0.0], alpha=1),
+    "sba_integer": sba([0.0, 0.0, 8.0, 0.0], alpha=1),
+}
+print(json.dumps({"errors": errors, "valid": valid}))
+"""
+
+
+def check_inventory_alpha_contract(report: Any) -> None:
+    """Validate numeric alpha boundaries and fail-closed input rejection."""
+    invalid = (
+        ("true", "True"), ("false", "False"), ("text", "0.5"),
+        ("none", "None"), ("complex", "(1+2j)"), ("list", "[0.5]"),
+        ("dict", "{'alpha': 0.5}"), ("tuple", "(0.5,)"),
+    )
+    expected_errors = {
+        f"{method}:{label}": (
+            f"{'ses' if method == 'ses' else 'croston'} "
+            f"alpha must be in (0, 1], got {shown}"
+        )
+        for method in ("ses", "croston", "sba")
+        for label, shown in invalid
+    }
+    expected = {
+        "errors": expected_errors,
+        "valid": {
+            "ses_integer": 4.0,
+            "ses_half": 4.5,
+            "croston_integer": 8 / 3,
+            "sba_integer": 4 / 3,
+        },
+    }
+    if not isinstance(report, dict) or report != expected:
+        raise ValueError("inventory smoothing alpha demo: invalid API contract")
+
+
+def verify_inventory_alpha_contract(root: Path) -> str:
+    """Exercise pinned source against synthetic alpha values on every runner."""
+    project = (root / "inventory-policy-lab").resolve()
+    if not (project / "src").is_dir():
+        raise FileNotFoundError("inventory smoothing alpha demo: missing source tree")
+    result = subprocess.run(
+        [sys.executable, "-c", _INVENTORY_ALPHA_PROBE],
+        cwd=project,
+        env=python_subprocess_env(project),
+        capture_output=True, text=True, encoding="utf-8",
+        check=False, timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(
+            f"inventory smoothing alpha demo: exit {result.returncode}; "
+            f"stderr={result.stderr[:600]!r}"
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ValueError("inventory smoothing alpha demo: malformed JSON") from exc
+    check_inventory_alpha_contract(payload)
+    return "inventory-policy-lab smoothing alpha: PASS (24 invalid, 4 valid)"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -1331,6 +1418,7 @@ def main() -> int:
         outcomes.append(verify_inventory_ma_window_contract(root))
         outcomes.append(verify_inventory_holdout_contract(root))
         outcomes.append(verify_inventory_custom_forecast_contract(root))
+        outcomes.append(verify_inventory_alpha_contract(root))
         outcomes.append(verify_inventory_replay_levels(root))
         outcomes.append(verify_inventory_bootstrap_demand(root))
         outcomes.append(verify_residual_bootstrap_finite(root))
