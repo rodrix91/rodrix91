@@ -123,7 +123,7 @@ def _prose_lines(content: str):
                 can_start_indented_code = True
                 if in_indented_code:
                     continue
-            elif re.match(r"^(?: {4}| {0,3}\\t)", line) and (
+            elif re.match(r"^(?: {4}| {0,3}\t)", line) and (
                 in_indented_code or can_start_indented_code
             ):
                 # Four-column indentation is literal code, not a live link,
