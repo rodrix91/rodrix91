@@ -27,6 +27,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_na_iterator_contract,
     check_csv_top_n_contract,
     check_csv_skip_count_contract,
+    check_csv_max_rows_contract,
     check_ops_bounded_sniff,
     check_ops_top_n_contract,
     check_report,
@@ -64,7 +65,7 @@ class PortfolioDemoContractTests(unittest.TestCase):
         script = (
             Path(__file__).resolve().parents[1] / "scripts" / "verify_portfolio_demos.py"
         ).read_text(encoding="utf-8")
-        self.assertEqual(script.count("env=python_subprocess_env(project),"), 18)
+        self.assertEqual(script.count("env=python_subprocess_env(project),"), 19)
         self.assertNotIn('env={**os.environ, "PYTHONPATH":', script)
 
     def test_project_names_and_exit_codes(self) -> None:
@@ -157,6 +158,46 @@ class PortfolioDemoContractTests(unittest.TestCase):
                 altered = {**report, "valid": {**report["valid"], field: -1.0}}
                 with self.assertRaisesRegex(ValueError, "invalid API contract"):
                     check_inventory_alpha_contract(altered)
+
+    def test_csv_max_rows_probe_rejects_mutated_results(self) -> None:
+        errors = {
+            f"{api}:{label}": "max_rows must be a non-negative integer or None"
+            for api in ("stream", "table", "profile")
+            for label in (
+                "true", "false", "float", "fraction", "text",
+                "nan", "infinity", "minus_infinity", "object",
+            )
+        }
+        negative = {
+            api: "max_rows must be >= 0, got -1"
+            for api in ("stream", "table", "profile")
+        }
+        valid = {
+            f"{api}:{label}": result
+            for api in ("stream", "table", "profile")
+            for label, result in (
+                ("unlimited", [2, False]),
+                ("zero", [0, True]),
+                ("one", [1, True]),
+            )
+        }
+        report = {"errors": errors, "negative": negative, "valid": valid}
+        check_csv_max_rows_contract(report)
+        for label in errors:
+            with self.subTest(invalid=label):
+                changed = {**report, "errors": {**errors, label: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid public API contract"):
+                    check_csv_max_rows_contract(changed)
+        for label in negative:
+            with self.subTest(negative=label):
+                changed = {**report, "negative": {**negative, label: "UNEXPECTED SUCCESS"}}
+                with self.assertRaisesRegex(ValueError, "invalid public API contract"):
+                    check_csv_max_rows_contract(changed)
+        for label in valid:
+            with self.subTest(valid=label):
+                changed = {**report, "valid": {**valid, label: [0, False]}}
+                with self.assertRaisesRegex(ValueError, "invalid public API contract"):
+                    check_csv_max_rows_contract(changed)
 
     def test_csv_skip_count_probe_rejects_corrupt_results(self) -> None:
         errors = {
