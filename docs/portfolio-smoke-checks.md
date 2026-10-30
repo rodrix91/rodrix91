@@ -4,13 +4,15 @@ The [portfolio demo workflow](../.github/workflows/portfolio-demos.yml) independ
 
 | Project | Pinned, reviewed source commit | Expected result |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `504fb7d08eb75c6a46c3e930fd7bfca84cc32ae9` | Exit 0; 3 records, 1 missing quantity |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | `3e97d1d986dd551224d1a2941737fedc5d086981` | Exit 0; 3 records, 1 missing quantity |
 | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | `d464ee60813d8dc986a317ee4c7d8b2d83232c49` | **Intentional exit 1**; 2 incomplete composite keys and 1 extra duplicate |
 | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | `bad5e89b620f7d075673a0867a897ead1779c93d` | Exit 0; 12 distinct synthetic SKU outputs |
 
 The three copy-and-pasteable Bash invocations in the English guide, Spanish guide, and case study are regression-tested against the actual commands used by the smoke workflow. The pinned source commits in this page are also compared with the workflow checkouts, so a future documentation-only edit cannot silently misdescribe what the CI ran.
 
 The current snapshot also exercises the optional case-insensitive missing-value marker feature added in [csv-quality-report PR #232](https://github.com/rodrix91/csv-quality-report/pull/232): the checked-in [Bolivian operations example](../tests/fixtures/bolivia-mixed-na.csv) deliberately mixes `S/D` and `s/d` in a semicolon-delimited, decimal-comma weight column. Default exact matching reports one missing weight and infers a string; enabling `--na-ignore-case` reports two missing weights, infers numeric values, and leaves the original default JSON contract unchanged. Both CLI paths must return exit 0. This is a synthetic demonstration, not operational customer data.
+
+The opt-in NFC normalization safeguard from [csv-quality-report PR #233](https://github.com/rodrix91/csv-quality-report/pull/233) is exercised independently using the synthetic [accented missing-marker fixture](../tests/fixtures/canonical-na-marker.csv). The two representations of `información` are visually identical but differ in Unicode encoding. Without `--na-ignore-case`, a typed `weight` column remains a string; with the option it is numeric and the missing count increases. Default exact matching and the original CSV bytes remain unchanged.
 
 The [duplicate-key historical JSON fixture](../tests/fixtures/duplicate-baseline-rows.json) also checks the newest CSV safeguard: a baseline containing two `rows` properties must **fail with input exit 3** before any new profiling, and a preexisting report file must remain untouched. This is an intentional negative test, not a failed CI run. The fixture is synthetic and never contains real customer data.
 

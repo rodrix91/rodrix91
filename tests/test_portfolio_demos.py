@@ -12,6 +12,7 @@ from verify_portfolio_demos import (  # noqa: E402
     check_baseline_rejection,
     check_canonical_unicode_gate,
     check_casefold_missing_marker_demo,
+    check_canonical_missing_marker_demo,
     check_report,
 )
 
@@ -143,6 +144,42 @@ class PortfolioDemoContractTests(unittest.TestCase):
         self.assertEqual(len(rows), 4)
         self.assertEqual(set(rows[0]), {"order_id", "weight_kg", "status"})
         self.assertEqual([row["weight_kg"] for row in rows], ["1,50", "S/D", "s/d", "2,25"])
+
+    def test_nfc_missing_marker_demo_checks_exact_and_opt_in_contracts(self) -> None:
+        plain = {
+            "rows": 3, "columns": [{"name": "peso", "type": "string", "missing": 0}],
+        }
+        folded = {
+            "rows": 3, "na_ignore_case": True,
+            "columns": [{"name": "peso", "type": "int", "missing": 1}],
+        }
+        check_canonical_missing_marker_demo(plain, folded)
+        for changed in (
+            {**folded, "na_ignore_case": False},
+            {**folded, "columns": [{"name": "peso", "type": "int", "missing": 0}]},
+            {**folded, "columns": [{"name": "peso", "type": "string", "missing": 1}]},
+            {**folded, "rows": 4},
+        ):
+            with self.subTest(changed=changed):
+                with self.assertRaisesRegex(ValueError, "canonical missing-marker demo"):
+                    check_canonical_missing_marker_demo(plain, changed)
+        with self.assertRaisesRegex(ValueError, "canonical missing-marker demo"):
+            check_canonical_missing_marker_demo({**plain, "na_ignore_case": True}, folded)
+
+    def test_nfc_missing_marker_fixture_is_genuinely_decomposed(self) -> None:
+        import csv
+        from unicodedata import normalize
+
+        root = Path(__file__).resolve().parents[1]
+        fixture = root / "tests" / "fixtures" / "canonical-na-marker.csv"
+        with fixture.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(list(rows[0]), ["peso"])
+        source = rows[1]["peso"]
+        self.assertEqual(normalize("NFC", source), "SIN INFORMACIÓN")
+        self.assertNotEqual(source, normalize("NFC", source))
+        self.assertEqual([rows[0]["peso"], rows[2]["peso"]], ["1", "2"])
 
     def test_canonical_unicode_fixture_is_a_real_two_form_sample(self) -> None:
         import csv
