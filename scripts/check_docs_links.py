@@ -44,6 +44,15 @@ def _prose_lines(content: str):
             yield number, line
 
 
+def _github_lower(text: str) -> str:
+    """Lowercase headings without full case folding (which expands ß to ss).
+
+    GitHub also lowercases uppercase Greek sigma to σ independently of its
+    position; Python's context-sensitive lower() makes word-final Σ into ς.
+    """
+    return text.replace("Σ", "σ").lower()
+
+
 def _anchors(content: str) -> set[str]:
     """Build GitHub-style heading slugs, with repeat-heading suffixes."""
     found: set[str] = set()
@@ -52,7 +61,7 @@ def _anchors(content: str) -> set[str]:
         if not match:
             continue
         heading = _heading_link_labels(match.group(1)).replace(chr(96), "")
-        slug = re.sub(r"\s+", "-", re.sub(r"[^\w -]", "", heading.casefold()).strip())
+        slug = re.sub(r"\s+", "-", re.sub(r"[^\w -]", "", _github_lower(heading)).strip())
         # A literal heading such as "Guide-1" can collide with the generated
         # suffix of a repeated "Guide" heading. Reserve every final slug,
         # not just the occurrence count of each unsuffixed heading.
@@ -212,7 +221,7 @@ def check_links(root: Path) -> list[str]:
                 elif not target.is_file():
                     problems.append(f"{label}: missing local file")
                 elif parts.fragment and target.suffix.lower() == ".md":
-                    fragment = unquote(parts.fragment).casefold()
+                    fragment = _github_lower(unquote(parts.fragment))
                     if fragment not in _anchors(target.read_text(encoding="utf-8")):
                         problems.append(f"{label}: unknown Markdown heading #{fragment}")
     return problems
