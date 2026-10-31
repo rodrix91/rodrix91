@@ -1,10 +1,12 @@
 # Rodrigo Pantoja Navajas
 
-I build practical Python tools focused on **data quality, automation, reproducibility, and clear technical communication**.
+I build reproducible Python tools and browser-based reference projects focused on **data quality, operations, automation, developer experience, and clear technical communication**.
 
 [![CSV quality CI](https://github.com/rodrix91/csv-quality-report/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrix91/csv-quality-report/actions/workflows/ci.yml)
 [![Operations CI](https://github.com/rodrix91/ops-field-brief/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrix91/ops-field-brief/actions/workflows/ci.yml)
 [![Inventory CI](https://github.com/rodrix91/inventory-policy-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrix91/inventory-policy-lab/actions/workflows/ci.yml)
+[![Kit library CI](https://github.com/rodrix91/rodrix-agent-kits/actions/workflows/site-quality.yml/badge.svg)](https://github.com/rodrix91/rodrix-agent-kits/actions/workflows/site-quality.yml)
+[![Stack directory CI](https://github.com/rodrix91/stack-registry/actions/workflows/static-site.yml/badge.svg)](https://github.com/rodrix91/stack-registry/actions/workflows/static-site.yml)
 [![Profile documentation CI](https://github.com/rodrix91/rodrix91/actions/workflows/docs.yml/badge.svg)](https://github.com/rodrix91/rodrix91/actions/workflows/docs.yml)
 [![Synthetic portfolio demos](https://github.com/rodrix91/rodrix91/actions/workflows/portfolio-demos.yml/badge.svg)](https://github.com/rodrix91/rodrix91/actions/workflows/portfolio-demos.yml)
 
@@ -16,11 +18,14 @@ I build practical Python tools focused on **data quality, automation, reproducib
 
 | Project | Purpose | Engineering signal |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 2,013 tests, 100% line/branch coverage, clean-wheel CLI tested on Linux/Windows/macOS, strict non-negative integer top-N, title/footer skip counts, max-rows and bounded parser field-size Python API limits, one-shot generator-safe missing markers, NFC-safe opt-in case-insensitive missing markers for Spanish-language exports, duplicate and non-finite historical JSON safeguards, strict ISO hours including Python 3.14, malformed-quote rejection, Excel `sep=` metadata checks, CR-only CSV support, PEP 561, cross-platform CI |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 343 tests, 100% coverage, strict non-negative integer top-N API limits, bounded strict CSV delimiter sniff, case-insensitive and fully quoted Excel sep hints, fail-closed ambiguous delimiter detection, installed wheel and CLI smoke-tested on Linux/Windows/macOS, NFC-safe opt-in key/group/header checks, explicit/auto stdin CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
-| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 1,310 tests, 100% coverage, clean-wheel CLI verified on Linux/Windows/macOS, overflow-safe forecast means, strict positive integer backtest holdouts, type-safe custom forecasts and SES/Croston/SBA smoothing coefficients, validated backtest actuals and custom predictions, finite scalar/dynamic inventory replay levels and integer replay warmups, validated bootstrap demand and forecast-residual inputs, strict moving-average integer-window and naive/SES/Croston/SBA demand validation, coefficient-of-variation input checks, Unicode-safe ERP headers and validated monthly calendar years, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | Deep CSV profiling, strict baseline rate checks and pipeline quality gates | 2,065 tests, 100% line/branch coverage, clean-wheel CLI tested on Linux/Windows/macOS, strict non-negative integer top-N, title/footer skip counts, max-rows and bounded parser field-size Python API limits, one-shot generator-safe missing markers, NFC-safe opt-in case-insensitive missing markers for Spanish-language exports, duplicate and non-finite historical JSON safeguards, strict ISO hours including Python 3.14, malformed-quote rejection, Excel `sep=` metadata checks, CR-only CSV support, PEP 561, cross-platform CI |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Operational completeness, proportional key integrity and counterparty checks | 357 tests, 100% coverage, strict non-negative integer top-N API limits, bounded strict CSV delimiter sniff, case-insensitive and fully quoted Excel sep hints, fail-closed ambiguous delimiter detection, installed wheel and CLI smoke-tested on Linux/Windows/macOS, NFC-safe opt-in key/group/header checks, explicit/auto stdin CR-only CSV and precise multiline error lines, executable Excel sep= sample, gzip CSV, safe Unicode Markdown, reusable GitHub Action, hashed CI tooling, PEP 561 |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | Inventory policy, bounded replay, stable EOQ and forecasting for supply-chain decisions | 1,346 tests, 100% coverage, clean-wheel CLI verified on Linux/Windows/macOS, overflow-safe forecast means, strict positive integer backtest holdouts, type-safe custom forecasts and SES/Croston/SBA smoothing coefficients, validated backtest actuals and custom predictions, finite scalar/dynamic inventory replay levels and integer replay warmups, validated bootstrap demand and forecast-residual inputs, strict moving-average integer-window and naive/SES/Croston/SBA demand validation, coefficient-of-variation input checks, Unicode-safe ERP headers and validated monthly calendar years, accurate multiline CSV error locations, runnable Excel `sep=` demo, regional CSV separators, gzip and legacy-encoded CSV, reusable GitHub Action, CITATION.cff |
 
-## Latest verified engineering results (30 October 2026, Bolivia time)
+| [rodrix-agent-kits](https://github.com/rodrix91/rodrix-agent-kits) | Bilingual, browser-facing agent-kit library and local finder | Automated Node tests, Astro build, accessible pages, internal-link checks, browser checks, Lighthouse smoke test; [successful `main` CI](https://github.com/rodrix91/rodrix-agent-kits/actions/runs/41166029195) |
+| [stack-registry](https://github.com/rodrix91/stack-registry) | Searchable directory of MCP servers, skills and example stacks | Offline catalog/data integrity checks, bilingual browser-only finder and filter tests, HTML-safe JSON-LD, static build verification; [successful `master` CI](https://github.com/rodrix91/stack-registry/actions/runs/41166852864) |
+
+## Latest verified engineering results (31 October 2026, UTC)
 
 These are **CI-verified snapshots**, not estimates of stars, downloads, adoption, or
 production deployments. The historical milestones and reproducible case studies
@@ -30,36 +35,47 @@ Python **3.14 is now explicitly listed in the package metadata** of all three pr
 
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
-| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [2,013 tests, 100% line/branch coverage and 15/15 `main` CI jobs passed](https://github.com/rodrix91/csv-quality-report/actions/runs/41154029378) | [Merged PR #244](https://github.com/rodrix91/csv-quality-report/pull/244) adds cross-version coverage for a UnicodeError header path; [PR #242](https://github.com/rodrix91/csv-quality-report/pull/242) rejects overflowing Action JSON floats; [PR #241](https://github.com/rodrix91/csv-quality-report/pull/241) rejects duplicate JSON keys |
-| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [343 tests, 100% line/branch coverage, and 17/17 `main` CI jobs passed](https://github.com/rodrix91/ops-field-brief/actions/runs/41155259510) | [Merged PR #130](https://github.com/rodrix91/ops-field-brief/pull/130) safely escapes untrusted optional AI feedback in workflow logs; [PR #129](https://github.com/rodrix91/ops-field-brief/pull/129) rejects nonfinite Action JSON; [PR #128](https://github.com/rodrix91/ops-field-brief/pull/128) rejects duplicate JSON keys |
-| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [1,310 tests, 100% line/branch coverage and 15/15 exact-head PR CI jobs passed](https://github.com/rodrix91/inventory-policy-lab/actions/runs/41155878728) | [Merged PR #121](https://github.com/rodrix91/inventory-policy-lab/pull/121) visibly escapes hidden Unicode in Markdown SKU labels while preserving JSON; [PR #120](https://github.com/rodrix91/inventory-policy-lab/pull/120) makes Pareto labels XML-safe; [PR #119](https://github.com/rodrix91/inventory-policy-lab/pull/119) hardens report output |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [2,065 passing tests, 100% line/branch coverage and 15/15 `main` CI jobs](https://github.com/rodrix91/csv-quality-report/actions/runs/41163468920) | [Merged PR #246](https://github.com/rodrix91/csv-quality-report/pull/246) rejects contradictory column metrics in reusable GitHub Action reports |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | [357 passing tests, 100% line/branch coverage and 17/17 `main` CI jobs](https://github.com/rodrix91/ops-field-brief/actions/runs/41165456388) | [Merged PR #133](https://github.com/rodrix91/ops-field-brief/pull/133) verifies optional row-count quality gates against reported rows |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | [1,346 passing tests, 100% line/branch coverage and 15/15 `main` CI jobs](https://github.com/rodrix91/inventory-policy-lab/actions/runs/41164862493) | [Merged PR #123](https://github.com/rodrix91/inventory-policy-lab/pull/123) rejects duplicate JSON keys and non-finite values in Action reports |
+| [rodrix-agent-kits](https://github.com/rodrix91/rodrix-agent-kits) | [Completed `main` quality workflow](https://github.com/rodrix91/rodrix-agent-kits/actions/runs/41166029195), including accessibility and Lighthouse smoke checks | [Merged PR #17](https://github.com/rodrix91/rodrix-agent-kits/pull/17) adds accent-insensitive bilingual kit search and more efficient ranking |
+| [stack-registry](https://github.com/rodrix91/stack-registry) | [Completed `master` static quality workflow](https://github.com/rodrix91/stack-registry/actions/runs/41166852864), including catalog integrity and site build checks | [Merged PR #20](https://github.com/rodrix91/stack-registry/pull/20) adds accent-insensitive directory search and shareable sort URLs |
 
-All three projects are **alpha-stage reference implementations**, not claims of
-enterprise deployments or real customer outcomes. Reproducible synthetic examples
+The three Python projects are **alpha-stage reference implementations**, while the two web repositories are browser-facing reference sites. None of these work samples is a claim of enterprise deployment, customer adoption, or measured business outcomes. Reproducible synthetic examples
 and documented caveats are available in the reviewer guide and case study.
 
-The three projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions. All three publish `CITATION.cff` metadata for reproducible citation.
+The three Python projects are intentionally complementary: profile data quality, validate operational extracts, then model inventory decisions. The two JavaScript/Astro projects demonstrate a separate focus on information architecture, bilingual user experience, testable local search and static-site quality. All three publish `CITATION.cff` metadata for reproducible citation.
 
 **[Explore a reproducible supply-chain case study](docs/portfolio-case-study.md)** — three independent synthetic demos, the business questions they answer, and their verified engineering evidence. The examples do not imply a deployed customer integration.
 
-Across all three active projects, GitHub Actions dependencies are pinned by commit SHA. Current release workflows are configured to produce SHA-256 checksums and GitHub/Sigstore provenance attestations for new wheel and source-distribution releases; these guarantees are not retroactive to older releases. `ops-field-brief` has not yet published its first GitHub release (tracked in [issue #16](https://github.com/rodrix91/ops-field-brief/issues/16)).
+Across the three Python projects, GitHub Actions dependencies are pinned by commit SHA. Current release workflows are configured to produce SHA-256 checksums and GitHub/Sigstore provenance attestations for new wheel and source-distribution releases; these guarantees are not retroactive to older releases. `ops-field-brief` has not yet published its first GitHub release (tracked in [issue #16](https://github.com/rodrix91/ops-field-brief/issues/16)).
 
 ## Explore my projects
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
 **Data quality and validation.** Profile CSV exports, check field types and missingness, validate business rules, reject ambiguous historical JSON baselines and fail pipelines when a documented quality gate is breached. Includes strict datetime validation and an opt-in GitHub Action.
 
-[Source and quickstart](https://github.com/rodrix91/csv-quality-report) · [Verified CI](https://github.com/rodrix91/csv-quality-report/actions/runs/41154029378)
+[Source and quickstart](https://github.com/rodrix91/csv-quality-report) · [Verified CI](https://github.com/rodrix91/csv-quality-report/actions/runs/41163468920)
 
 ### [ops-field-brief](https://github.com/rodrix91/ops-field-brief)
 **Operational data integrity.** Summarize required-field completeness, duplicate business keys, and counterparty concentration for business exports. Handles common Excel separators, gzip CSV and legacy line endings, with a reusable CI Action.
 
-[Source and quickstart](https://github.com/rodrix91/ops-field-brief) · [Verified CI](https://github.com/rodrix91/ops-field-brief/actions/runs/41155259510)
+[Source and quickstart](https://github.com/rodrix91/ops-field-brief) · [Verified CI](https://github.com/rodrix91/ops-field-brief/actions/runs/41165456388)
 
 ### [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab)
 **Inventory analytics and decisions.** Explore demand classification, forecast backtests, reorder levels, safety stock, EOQ, and policy replay with explicit assumptions and out-of-sample evaluation. Uses reproducible synthetic examples; no customer deployments are claimed.
 
-[Source and quickstart](https://github.com/rodrix91/inventory-policy-lab) · [Verified CI](https://github.com/rodrix91/inventory-policy-lab/actions/runs/41155878728)
+[Source and quickstart](https://github.com/rodrix91/inventory-policy-lab) · [Verified CI](https://github.com/rodrix91/inventory-policy-lab/actions/runs/41164862493)
+
+### [rodrix-agent-kits](https://github.com/rodrix91/rodrix-agent-kits)
+**Developer-facing kit library.** A bilingual catalog with a browser-only kit finder, downloadable examples, accessible page checks and synthetic tests. Its automated quality suite covers Astro, accessibility, links, and Lighthouse; this is not evidence of paid subscribers or production customer usage.
+
+[Source and README](https://github.com/rodrix91/rodrix-agent-kits) · [Verified CI](https://github.com/rodrix91/rodrix-agent-kits/actions/runs/41166029195)
+
+### [stack-registry](https://github.com/rodrix91/stack-registry)
+**MCP and agent-tool discovery.** A categorized registry with bilingual keyword matching, shareable search filters, metadata provenance checks, and static-site security tests. Individual installation snippets are identified as copied or validated according to the project's documented verification method, not independently certified integrations.
+
+[Source and README](https://github.com/rodrix91/stack-registry) · [Verified CI](https://github.com/rodrix91/stack-registry/actions/runs/41166852864)
 
 For deeper technical decisions, limitations, formulas, regression evidence, and past milestones, read the **[complete engineering history](docs/engineering-history.md)**. For a fast hands-on evaluation, start with the [five-minute reviewer guide](docs/portfolio-review-guide.md) or its [Spanish version](docs/guia-portafolio-es.md).
 
@@ -68,13 +84,14 @@ For deeper technical decisions, limitations, formulas, regression evidence, and 
 - Building small, useful developer and data tools
 - Data-quality workflows and automation
 - Reproducible Python projects
+- Browser-only search, internationalization, accessible static sites, and verified information catalogs
 - Testing, documentation, and maintainable CLI design
 - Open-source contributions where I can add concrete value
 - Data quality for logistics, supply chain and trade datasets
 
 ## Languages & tools
 
-Python · pytest · Ruff · mypy · Git · GitHub Actions · Markdown · CSV/data workflows · R
+Python · pytest · Ruff · mypy · JavaScript/TypeScript · Node.js · Astro · Git · GitHub Actions · Markdown · CSV/data workflows · R
 
 ## Spoken languages
 
