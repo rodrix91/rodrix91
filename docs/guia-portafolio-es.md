@@ -14,6 +14,17 @@ Esta guía está dirigida a **reclutadores, equipos de analítica, responsables 
 
 Los proyectos son complementarios desde una perspectiva conceptual, pero **cada uno funciona por separado**. No existe aquí una integración empresarial de extremo a extremo.
 
+## Otros dos proyectos de software web
+
+Además de las tres herramientas Python, el portafolio contiene dos proyectos **independientes** que muestran experiencia en interfaces, organización de información, búsqueda local y verificaciones automáticas:
+
+| Proyecto | Funcionalidad que puede revisar un evaluador | Pruebas públicas |
+|---|---|---|
+| [rodrix-agent-kits](https://github.com/rodrix91/rodrix-agent-kits) | Catálogo bilingüe y buscador local de kits de agentes, con coincidencias en español con y sin tildes | [CI completo en `main`](https://github.com/rodrix91/rodrix-agent-kits/actions/runs/41166029195): pruebas de Node, accesibilidad, enlaces, compilación y Lighthouse |
+| [stack-registry](https://github.com/rodrix91/stack-registry) | Directorio de herramientas MCP con búsqueda por categorías, filtros compartibles y control de metadatos | [CI completo en `master`](https://github.com/rodrix91/stack-registry/actions/runs/41166852864): verificaciones de metadatos, pruebas de búsqueda y compilación del sitio |
+
+Son proyectos públicos de referencia. Sus verificaciones no demuestran clientes reales, adopción empresarial, pagos recibidos ni certificaciones externas. Consulta sus README para reproducir las pruebas.
+
 ## Revisión práctica en cinco minutos
 
 Instala la versión adecuada de Python, clona cada repositorio por separado y ejecuta su comando **desde la raíz del repositorio correspondiente**. Los ejemplos incluidos son sintéticos y están versionados en GitHub.
