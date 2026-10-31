@@ -10,6 +10,17 @@
 | Are operational identifiers and counterparties trustworthy? | [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | Required-field completeness, composite-key controls, duplicate limits and group concentration |
 | How might an inventory policy perform against historical demand? | [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | ABC-XYZ segmentation, forecast backtests, safety stock, reorder points and policy replays |
 
+## Two additional browser-facing work samples
+
+The Python workflow above is one part of the portfolio. For **developer experience, local search, documentation and accessible static sites**, examine these independent JavaScript/Astro projects:
+
+| Work sample | Practical question | Reproducible engineering evidence |
+|---|---|---|
+| [rodrix-agent-kits](https://github.com/rodrix91/rodrix-agent-kits) | Can a bilingual user find an appropriate developer kit locally without sending their query to an AI API? | [Completed `main` CI](https://github.com/rodrix91/rodrix-agent-kits/actions/runs/41166029195): Node regression tests, Astro build, internal links, browser accessibility and Lighthouse smoke checks. The [finder improvement PR #17](https://github.com/rodrix91/rodrix-agent-kits/pull/17) is merged. |
+| [stack-registry](https://github.com/rodrix91/stack-registry) | Can visitors discover categorized MCP tools through reliable search without trusting unchecked external metadata? | [Completed `master` CI](https://github.com/rodrix91/stack-registry/actions/runs/41166852864): offline catalog metadata checks, site build, generated content and search tests. The [directory improvement PR #20](https://github.com/rodrix91/stack-registry/pull/20) is merged. |
+
+These sites are **separate portfolio examples**, not production client deployments, independently audited MCP installations or evidence of subscriptions. Their test commands and limits are documented in each project's README.
+
 ## Five-minute hands-on review
 
 Each command runs **separately, from the named repository's root**, on bundled **synthetic data**. Clone the repository first. These tools do not form a deployed end-to-end integration.
