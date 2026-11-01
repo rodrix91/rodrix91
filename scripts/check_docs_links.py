@@ -221,11 +221,12 @@ def _link_end(line: str, start: int) -> int | None:
     return None
 
 
-def _bracketed_links(line: str, following: str):
-    """Find nested, escaped link labels followed by the requested delimiter.
+def _bracketed_links(line: str, following: str | None):
+    """Find escaped, balanced link labels and an optional following delimiter.
 
-    Labels may include balanced square brackets; scanning only with a flat
-    regular expression silently ignores such Markdown navigation links.
+    For inline/full links, the returned offset skips the opening '(' or '['
+    so existing destination parsers keep working. For shortcut references,
+    it points immediately after the closing ']' to scan adjacent labels.
     """
     cursor = 0
     while cursor < len(line):
@@ -263,8 +264,9 @@ def _bracketed_links(line: str, following: str):
             index += 1
 
         if depth == 0 and (following is None or line[index : index + 1] == following):
-            yield start, index + 1, line[opening + 1 : index - 1]
-            cursor = index + 1
+            next_start = index if following is None else index + 1
+            yield start, next_start, line[opening + 1 : index - 1]
+            cursor = next_start
         else:
             cursor = opening + 1
 
