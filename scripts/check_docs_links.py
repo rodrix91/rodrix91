@@ -221,11 +221,12 @@ def _link_end(line: str, start: int) -> int | None:
     return None
 
 
-def _bracketed_links(line: str, following: str):
-    """Find nested, escaped link labels followed by the requested delimiter.
+def _bracketed_links(line: str, following: str | None):
+    """Find escaped, balanced link labels and an optional following delimiter.
 
-    Labels may include balanced square brackets; scanning only with a flat
-    regular expression silently ignores such Markdown navigation links.
+    For inline/full links, the returned offset skips the opening '(' or '['
+    so existing destination parsers keep working. For shortcut references,
+    it points immediately after the closing ']' to scan adjacent labels.
     """
     cursor = 0
     while cursor < len(line):
@@ -262,9 +263,10 @@ def _bracketed_links(line: str, following: str):
                 depth -= 1
             index += 1
 
-        if depth == 0 and line[index : index + 1] == following:
-            yield start, index + 1, line[opening + 1 : index - 1]
-            cursor = index + 1
+        if depth == 0 and (following is None or line[index : index + 1] == following):
+            next_start = index if following is None else index + 1
+            yield start, next_start, line[opening + 1 : index - 1]
+            cursor = next_start
         else:
             cursor = opening + 1
 
@@ -295,6 +297,23 @@ def _reference_links(line: str):
                 yield start, index + 1, label, line[key_start:index]
                 break
             index += 1
+
+
+def _shortcut_addresses(line: str, references: dict[str, str]) -> list[str]:
+    """Resolve valid shortcut links without treating ordinary [text] as navigation.
+
+    A shortcut reference is a bracketed label with a matching definition,
+    without an explicit destination or a second reference label. Ignore the
+    latter's brackets to avoid reporting a full reference twice.
+    """
+    addresses: list[str] = []
+    for start, end, label in _bracketed_links(line, None):
+        if line[end : end + 1] in ("(", "[") or (start > 0 and line[start - 1] == "]"):
+            continue
+        key = _reference_key(label)
+        if key in references:
+            addresses.append(references[key])
+    return addresses
 
 
 def _reference_label_text(prose: str) -> str:
@@ -387,6 +406,7 @@ def check_links(root: Path) -> list[str]:
             if REFERENCE_DEFINITION.match(visible):
                 continue
             addresses = _inline_addresses(visible)
+            addresses.extend(_shortcut_addresses(visible, references))
             for _, _, label, reference_id in _reference_links(visible):
                 key = _reference_key(reference_id or label)
                 if key not in references:
