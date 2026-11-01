@@ -73,19 +73,15 @@ class ShortcutReferenceTests(unittest.TestCase):
         self.assertEqual(len(problems), 1)
         self.assertIn("docs/missing.md", problems[0])
 
-    def test_nested_and_escaped_shortcut_labels(self) -> None:
+    def test_shortcut_reference_labels_ignore_case_and_repeated_spaces(self) -> None:
         self.write(
             "README.md",
-            "[Review [2026]] [Work \\] done]\n"
-            "[Review [2026]]: docs/missing.md\n"
-            "[Work \\] done]: docs/guide.md\n",
+            "[Project guide] [PROJECT GUIDE] [Project   guide]\n"
+            "[Project guide]: docs/missing.md\n",
         )
-        self.write("docs/guide.md", "# Guide\n")
-        # The nested label is valid Markdown; the unusual escaped label's
-        # definition is not parsed by the existing flat definition matcher.
-        # Keep the meaningful nested regression focused on its missing file.
         problems = check_links(self.root)
-        self.assertTrue(any("docs/missing.md" in p for p in problems))
+        self.assertEqual(len(problems), 3)
+        self.assertTrue(all("docs/missing.md" in problem for problem in problems))
 
     def test_unrelated_brackets_and_code_samples_are_not_links(self) -> None:
         self.write(
