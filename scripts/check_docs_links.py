@@ -426,6 +426,13 @@ def check_links(root: Path) -> list[str]:
                 except ValueError as exc:
                     problems.append(f"{label}: invalid URL ({exc})")
                     continue
+                # An explicit URI scheme is not automatically a safe external
+                # hyperlink. Script, embedded-document and local-file schemes
+                # are inappropriate in a public portfolio and would bypass
+                # the repository-boundary check below.
+                if parts.scheme in {"javascript", "vbscript", "data", "file"}:
+                    problems.append(f"{label}: unsafe URL scheme {parts.scheme!r}")
+                    continue
                 if parts.scheme or parts.netloc or address.startswith("//"):
                     continue
                 relative = unquote(parts.path)

@@ -76,6 +76,28 @@ class PortfolioLinkTests(unittest.TestCase):
         )
         self.assertEqual(check_links(self.root), [])
 
+    def test_unsafe_external_schemes_are_rejected_without_hiding_other_errors(self) -> None:
+        # These schemes previously bypassed the local-file checks as if
+        # every explicit URL scheme represented a safe external hyperlink.
+        self.write(
+            "README.md",
+            "[script](javascript:alert%281%29)\n"
+            "[embedded](data:text/html,unsafe)\n"
+            "[local](file:///tmp/private.txt)\n"
+            "[legacy](VbScRiPt:example)\n"
+            "[safe](https://example.org/docs)\n"
+            "[email](mailto:hello@example.org)\n"
+            "[missing](docs/absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 5)
+        for scheme in ("javascript", "data", "file", "vbscript"):
+            self.assertTrue(
+                any(f"unsafe URL scheme '{scheme}'" in problem for problem in problems),
+                (scheme, problems),
+            )
+        self.assertTrue(any("missing local file" in problem for problem in problems))
+
     def test_code_fence_with_info_suffix_inside_is_not_closed(self) -> None:
         self.write(
             "README.md",
