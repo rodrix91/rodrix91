@@ -33,6 +33,8 @@ remain documented below.
 
 Python **3.14 is now explicitly listed in the package metadata** of all three projects, after passing their Linux, Windows and macOS test matrices. Python 3.10 remains supported by `ops-field-brief`; the other two projects require Python 3.11 or newer. These are tested compatibility claims, not claims of deployment or adoption.
 
+As of 2 November 2026, the package versions on `main` are: `csv-quality-report` 0.23.0, `ops-field-brief` 0.3.0, and `inventory-policy-lab` 0.10.0. Recent reliability work on `csv-quality-report` includes requiring actual UTC offsets for baseline-age clocks (merged PR #256). These version numbers describe the current tree, not published release tags.
+
 | Repository | Verified evidence | Recent improvement |
 |---|---|---|
 | [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | [2,065 passing tests, 100% line/branch coverage and 15/15 `main` CI jobs](https://github.com/rodrix91/csv-quality-report/actions/runs/41163468920) | [Merged PR #246](https://github.com/rodrix91/csv-quality-report/pull/246) rejects contradictory column metrics in reusable GitHub Action reports |
