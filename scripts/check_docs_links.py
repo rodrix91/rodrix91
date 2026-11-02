@@ -417,12 +417,19 @@ def check_links(root: Path) -> list[str]:
                     addresses.append(references[key])
 
             for address in addresses:
-                parts = urlsplit(address)
+                label = f"{source.relative_to(root)}:{line_number}: {address!r}"
+                # urlsplit rejects malformed bracketed hosts (e.g. invalid
+                # IPv6 URLs). Report them as link errors instead of aborting
+                # the entire documentation check with an uncaught exception.
+                try:
+                    parts = urlsplit(address)
+                except ValueError as exc:
+                    problems.append(f"{label}: invalid URL ({exc})")
+                    continue
                 if parts.scheme or parts.netloc or address.startswith("//"):
                     continue
                 relative = unquote(parts.path)
                 target = (source.parent / relative).resolve() if relative else source
-                label = f"{source.relative_to(root)}:{line_number}: {address!r}"
                 if not target.is_relative_to(root):
                     problems.append(f"{label}: path escapes repository")
                 elif not target.is_file():
