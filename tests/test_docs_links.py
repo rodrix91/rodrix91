@@ -39,6 +39,35 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide.md", "# Real heading\n")
         self.assertIn("unknown Markdown heading", check_links(self.root)[0])
 
+    def test_malformed_external_url_reports_error_and_continues(self) -> None:
+        self.write(
+            "README.md",
+            "[bad](https://[broken)\n"
+            "[also missing](docs/absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 2)
+        self.assertIn("README.md:1:", problems[0])
+        self.assertIn("invalid URL", problems[0])
+        self.assertIn("https://[broken", problems[0])
+        self.assertIn("README.md:2:", problems[1])
+        self.assertIn("missing local file", problems[1])
+
+    def test_malformed_reference_target_reports_error(self) -> None:
+        self.write(
+            "README.md",
+            "[broken reference][bad]\n"
+            "[bad]: https://[not-a-host]\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("README.md:1:", problems[0])
+        self.assertIn("invalid URL", problems[0])
+
+    def test_valid_ipv6_external_url_remains_ignored(self) -> None:
+        self.write("README.md", "[valid](https://[::1]/path)\n")
+        self.assertEqual(check_links(self.root), [])
+
     def test_external_links_and_fenced_examples_are_skipped(self) -> None:
         self.write(
             "README.md",
