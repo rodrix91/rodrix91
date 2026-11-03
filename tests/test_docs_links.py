@@ -98,6 +98,19 @@ class PortfolioLinkTests(unittest.TestCase):
             )
         self.assertTrue(any("missing local file" in problem for problem in problems))
 
+    def test_inline_code_cannot_create_links_by_joining_separate_tokens(self) -> None:
+        # The literal code spans between labels and delimiters are not links.
+        self.write(
+            "README.md",
+            "[Guide]`example`(docs/not-a-link.md)\n"
+            "[Review]`sample`[missing]\n"
+            "[real missing](docs/absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("docs/absent.md", problems[0])
+        self.assertIn("missing local file", problems[0])
+
     def test_code_fence_with_info_suffix_inside_is_not_closed(self) -> None:
         self.write(
             "README.md",
