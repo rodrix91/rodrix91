@@ -61,6 +61,9 @@ def _without_inline_code(line: str) -> str:
     offset = 0
     for start, end in _inline_code_spans(line):
         parts.append(line[offset:start])
+        # Inline code separates surrounding Markdown tokens. Removing it
+        # without a gap could synthesize a nonexistent [label](target) link.
+        parts.append(" ")
         offset = end
     parts.append(line[offset:])
     return "".join(parts)
