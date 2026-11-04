@@ -343,6 +343,45 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/data quality.md", "# Data quality\n")
         self.assertEqual(check_links(self.root), [])
 
+    def test_encoded_nul_and_controls_report_errors_without_stopping_checks(self) -> None:
+        self.write(
+            "README.md",
+            "[nul](docs/%00hidden.md)\n"
+            "[tab](docs/%09hidden.md)\n"
+            "[delete](docs/%7Fhidden.md)\n"
+            "[missing](docs/absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 4, problems)
+        for position, problem in enumerate(problems[:3], 1):
+            self.assertIn(f"README.md:{position}:", problem)
+            self.assertIn("control character in local path", problem)
+        self.assertIn("missing local file", problems[3])
+
+    def test_malformed_percent_encoded_utf8_cannot_alias_existing_file_or_anchor(self) -> None:
+        self.write(
+            "README.md",
+            "[bad path](docs/%FF.md)\n"
+            "[bad anchor](docs/guide.md#%E0%80%AF)\n"
+            "[missing](docs/absent.md)\n",
+        )
+        self.write("docs/guide.md", "# Guide\n")
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 3, problems)
+        self.assertIn("invalid UTF-8 in local URL", problems[0])
+        self.assertIn("invalid UTF-8 in local URL", problems[1])
+        self.assertIn("missing local file", problems[2])
+
+    def test_valid_encoded_unicode_filenames_and_anchors_remain_supported(self) -> None:
+        self.write(
+            "README.md",
+            "[guía](docs/gu%C3%ADa.md#introducci%C3%B3n)\n"
+            "[spaces](docs/data%20quality.md)\n",
+        )
+        self.write("docs/guía.md", "# Introducción\n")
+        self.write("docs/data quality.md", "# Data quality\n")
+        self.assertEqual(check_links(self.root), [])
+
     def test_heading_link_with_parenthesized_filename_uses_label_slug(self) -> None:
         self.write("README.md", "[heading](docs/guide.md#release-notes)\n")
         self.write("docs/guide.md", "# [Release notes](guide(v2).md)\n")
