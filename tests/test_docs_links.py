@@ -64,6 +64,35 @@ class PortfolioLinkTests(unittest.TestCase):
         self.assertIn("README.md:1:", problems[0])
         self.assertIn("invalid URL", problems[0])
 
+    def test_http_links_require_an_absolute_authority_and_valid_port(self) -> None:
+        self.write(
+            "README.md",
+            "[missing-slashes](https:example.org)\n"
+            "[empty-authority](https:///example.org)\n"
+            "[bad-port](https://example.org:70000/path)\n"
+            "[non-numeric-port](https://example.org:abc/path)\n"
+            "[backslash](https://example.org\\unsafe)\n"
+            "[good](HTTPS://example.org:443/docs)\n"
+            "[missing-local](docs/absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 6, problems)
+        for problem in problems[:5]:
+            self.assertIn("malformed HTTP(S) URL", problem)
+        self.assertIn("missing local file", problems[-1])
+
+    def test_http_links_with_embedded_credentials_are_rejected(self) -> None:
+        self.write(
+            "README.md",
+            "[private](https://user:secret@example.org/report)\n"
+            "[valid-ipv6](https://[::1]:443/path)\n"
+            "[email](mailto:test@example.org)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("credentials in HTTP(S) URL", problems[0])
+        self.assertNotIn("secret", problems[0], "CI logs must not echo URL passwords")
+
     def test_valid_ipv6_external_url_remains_ignored(self) -> None:
         self.write("README.md", "[valid](https://[::1]/path)\n")
         self.assertEqual(check_links(self.root), [])
