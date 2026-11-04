@@ -73,15 +73,17 @@ Simulation is not proof of financial impact at a real company.
 
 ## 3. Engineering quality and auditability
 
-These figures are **completed, commit-specific GitHub Actions CI snapshots on main**, not predictions of future releases or claims of commercial adoption. Earlier exact-head PR milestones remain documented below.
+The figures below are **completed, commit-specific GitHub Actions snapshots from 4 November 2026 (UTC)** on each project's default branch. They are a point-in-time record, **not live counters**, predictions of future releases or claims of customer adoption. All reported test counts, CI job results and line/branch coverage were checked against the named workflow's quality job; the individual platform jobs also completed successfully. Earlier PR milestones remain documented below.
 
-| Repository | Tests | Coverage | Current verified main CI |
+| Repository | Tests passed in the recorded quality job | Coverage | Verified default-branch workflow |
 |---|---:|---:|---|
-| csv-quality-report | 1,818 | 100% line and branch | [12/12 jobs: non-finite JSON baseline safeguard](https://github.com/rodrix91/csv-quality-report/actions/runs/40625104404) |
-| ops-field-brief | 297 | 100% line and branch | [14/14 jobs: Unicode NFC quality safeguards](https://github.com/rodrix91/ops-field-brief/actions/runs/40622576717) |
-| inventory-policy-lab | 966 | 100% line and branch | [12/12 jobs: Python 3.14 support](https://github.com/rodrix91/inventory-policy-lab/actions/runs/40617941997) |
+| [csv-quality-report](https://github.com/rodrix91/csv-quality-report) | 2,237 | 100% line and branch | [15/15 successful jobs, commit `9931df4`](https://github.com/rodrix91/csv-quality-report/actions/runs/41765356484) |
+| [ops-field-brief](https://github.com/rodrix91/ops-field-brief) | 417 | 100% line and branch | [17/17 successful jobs, commit `a84965e`](https://github.com/rodrix91/ops-field-brief/actions/runs/41766226583) |
+| [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) | 2,148 | 100% line and branch | [15/15 successful jobs, commit `a96dbc4`](https://github.com/rodrix91/inventory-policy-lab/actions/runs/41761945037) |
 
-The separate [synthetic portfolio smoke workflow](https://github.com/rodrix91/rodrix91/actions/runs/40620651075) also passed **6/6 cross-platform checks**, exercising all three guide examples as independent CLI processes against pinned public source commits. Its operations fixture **intentionally fails** its data-quality gate with exit code 1. The workflow demonstrates reproducibility, not a deployed end-to-end integration. [Reproduction details](portfolio-smoke-checks.md).
+For the **latest** results, follow the repository Actions badges and workflow pages rather than treating these dated figures as current status.
+
+An earlier independent [synthetic portfolio smoke workflow](https://github.com/rodrix91/rodrix91/actions/runs/40620651075) also passed **6/6 cross-platform checks**, exercising all three guide examples as independent CLI processes against pinned public source commits. Its operations fixture **intentionally fails** its data-quality gate with exit code 1. The workflow demonstrates reproducibility, not a deployed end-to-end integration. [Reproduction details](portfolio-smoke-checks.md).
 
 The [opt-in NFC normalization safeguard (#112)](https://github.com/rodrix91/ops-field-brief/pull/112) recognizes canonically equivalent accented business identifiers, groups and headers; default case-sensitive comparisons remain unchanged. The older 291-test operations milestone remains in the linked development history.
 
@@ -94,7 +96,7 @@ The [new explicit-stdin safeguard (#109)](https://github.com/rodrix91/ops-field-
 All three matrices cover Linux, Windows and macOS, and include static
 analysis, package verification and reusable GitHub Actions where
 applicable. The [inventory Excel `sep=` PR #96](https://github.com/rodrix91/inventory-policy-lab/pull/96)
-passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). The subsequent [merged synthetic Excel demonstration (#97)](https://github.com/rodrix91/inventory-policy-lab/pull/97) includes a runnable fixture at `examples/regional-excel.csv` and API/CLI regression checks. The latest 966-test snapshot includes the [Unicode ERP header safeguard (#100)](https://github.com/rodrix91/inventory-policy-lab/pull/100), which prevents silently selecting a case-equivalent duplicate header. The earlier 958-test snapshot covers the [validated year-zero monthly-period fix (#99)](https://github.com/rodrix91/inventory-policy-lab/pull/99), which rejects impossible month years and preserves already-written reports on failure. The earlier 950-test [physical CSV line diagnostic fix (#98)](https://github.com/rodrix91/inventory-policy-lab/pull/98) remains documented for audit history and correctly reports file lines after multiline quoted cells. The earlier 943-test Excel snapshot remains documented in the project README. For earlier tests and milestones, refer to each repository's
+passed its exact-head CI matrix and was [squash-merged into `main`](https://github.com/rodrix91/inventory-policy-lab/commit/c684a73561cac75e2adb9f2dd5925a4bc337c1b9). The subsequent [merged synthetic Excel demonstration (#97)](https://github.com/rodrix91/inventory-policy-lab/pull/97) includes a runnable fixture at `examples/regional-excel.csv` and API/CLI regression checks. The historical 966-test snapshot includes the [Unicode ERP header safeguard (#100)](https://github.com/rodrix91/inventory-policy-lab/pull/100), which prevents silently selecting a case-equivalent duplicate header. The earlier 958-test snapshot covers the [validated year-zero monthly-period fix (#99)](https://github.com/rodrix91/inventory-policy-lab/pull/99), which rejects impossible month years and preserves already-written reports on failure. The earlier 950-test [physical CSV line diagnostic fix (#98)](https://github.com/rodrix91/inventory-policy-lab/pull/98) remains documented for audit history and correctly reports file lines after multiline quoted cells. The earlier 943-test Excel snapshot remains documented in the project README. For earlier tests and milestones, refer to each repository's
 README and changelog; the underlying source history is preserved.
 
 ## 4. Responsible use
