@@ -420,7 +420,14 @@ def check_links(root: Path) -> list[str]:
                     addresses.append(references[key])
 
             for address in addresses:
-                label = f"{source.relative_to(root)}:{line_number}: {address!r}"
+                # Even a malformed external URL may include userinfo in its
+                # authority. Redact it before diagnostics, including errors
+                # raised by urlsplit() before the userinfo check can run.
+                obscured = "@" in address and address.lower().startswith(
+                    ("http:", "https:", "//")
+                )
+                displayed = "<redacted external URL>" if obscured else repr(address)
+                label = f"{source.relative_to(root)}:{line_number}: {displayed}"
                 # urlsplit rejects malformed bracketed hosts (e.g. invalid
                 # IPv6 URLs). Report them as link errors instead of aborting
                 # the entire documentation check with an uncaught exception.
@@ -439,7 +446,9 @@ def check_links(root: Path) -> list[str]:
                 # urlsplit() accepts malformed links such as https:example.org,
                 # https:///example.org and out-of-range ports. A present scheme
                 # alone is not proof of a usable external HTTP(S) destination.
-                if parts.scheme in {"http", "https"}:
+                if parts.scheme in {"http", "https"} or address.startswith("//"):
+                    # Protocol-relative (//host/path) links also acquire an
+                    # HTTP(S) origin in browsers and need the same checks.
                     # Never print credential-bearing URLs verbatim in CI logs.
                     if parts.username is not None or parts.password is not None:
                         problems.append(
@@ -452,7 +461,8 @@ def check_links(root: Path) -> list[str]:
                     except ValueError:
                         hostname = None
                     if (
-                        not address.lower().startswith(parts.scheme + "://")
+                        not (address.startswith("//") or address.lower().startswith(parts.scheme + "://"))
+                        or not parts.netloc
                         or not hostname
                         or any(char.isspace() or char == "\\" for char in address)
                     ):

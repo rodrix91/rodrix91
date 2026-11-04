@@ -93,6 +93,41 @@ class PortfolioLinkTests(unittest.TestCase):
         self.assertIn("credentials in HTTP(S) URL", problems[0])
         self.assertNotIn("secret", problems[0], "CI logs must not echo URL passwords")
 
+    def test_protocol_relative_url_validation_blocks_malformed_and_credential_links(self) -> None:
+        self.write(
+            "README.md",
+            "[good](//example.org/docs)\n"
+            "[good-ipv6](//[::1]:443/path)\n"
+            "[credentials](//user:secret@example.org/private)\n"
+            "[empty-host](///not-a-host)\n"
+            "[bad-port](//example.org:70000/docs)\n"
+            "[backslash](//example.org\\bad)\n"
+            "[missing-local](docs/absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 5, problems)
+        self.assertIn("credentials in HTTP(S) URL", problems[0])
+        self.assertNotIn("secret", " ".join(problems))
+        for error in problems[1:4]:
+            self.assertIn("malformed HTTP(S) URL", error)
+        self.assertIn("missing local file", problems[4])
+
+    def test_invalid_external_authority_does_not_expose_embedded_passwords(self) -> None:
+        self.write(
+            "README.md",
+            "[https](https://user:secret@[broken)\n"
+            "[relative](//user:password@[broken)\n"
+            "[missing](docs/absent.md)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 3, problems)
+        self.assertIn("invalid URL", problems[0])
+        self.assertIn("invalid URL", problems[1])
+        self.assertIn("missing local file", problems[2])
+        self.assertNotIn("secret", " ".join(problems))
+        self.assertNotIn("password", " ".join(problems))
+        self.assertIn("redacted external URL", problems[0])
+
     def test_valid_ipv6_external_url_remains_ignored(self) -> None:
         self.write("README.md", "[valid](https://[::1]/path)\n")
         self.assertEqual(check_links(self.root), [])
