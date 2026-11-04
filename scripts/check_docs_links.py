@@ -7,6 +7,7 @@ network-free check of local pages and heading anchors.
 from __future__ import annotations
 
 import re
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -379,6 +380,40 @@ def _reference_key(text: str) -> str:
     return " ".join(text.split()).casefold()
 
 
+class _HtmlLinks(HTMLParser):
+    """Collect actual HTML navigation/image URLs and their opening-tag lines."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.urls: list[tuple[int, str]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attribute = {"a": "href", "img": "src"}.get(tag)
+        if attribute is None:
+            return
+        for name, value in attrs:
+            if name == attribute and value is not None:
+                self.urls.append((self.getpos()[0], value))
+
+
+def _html_addresses(prose: list[tuple[int, str]]) -> dict[int, list[str]]:
+    """Resolve HTML tag line numbers to original Markdown source positions.
+
+    Parsing all visible lines together also supports tags whose attributes span
+    lines. Inline-code, fenced-code, and HTML-comment examples are excluded
+    by the same filters as Markdown links.
+    """
+    lines = [_without_inline_code(line) for _, line in prose]
+    parser = _HtmlLinks()
+    parser.feed("\n".join(lines))
+    parser.close()
+    positions: dict[int, list[str]] = {}
+    for number, url in parser.urls:
+        source_number = prose[number - 1][0]
+        positions.setdefault(source_number, []).append(url)
+    return positions
+
+
 def check_links(root: Path) -> list[str]:
     """Return actionable errors for inline and reference-style local links."""
     root = root.resolve()
@@ -390,6 +425,7 @@ def check_links(root: Path) -> list[str]:
             continue
 
         prose = list(_prose_lines(source.read_text(encoding="utf-8")))
+        html_addresses = _html_addresses(prose)
         references: dict[str, str] = {}
         for line_number, line in prose:
             definition = REFERENCE_DEFINITION.match(line)
@@ -410,6 +446,7 @@ def check_links(root: Path) -> list[str]:
                 continue
             addresses = _inline_addresses(visible)
             addresses.extend(_shortcut_addresses(visible, references))
+            addresses.extend(html_addresses.get(line_number, ()))
             for _, _, label, reference_id in _reference_links(visible):
                 key = _reference_key(reference_id or label)
                 if key not in references:
