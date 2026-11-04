@@ -436,6 +436,25 @@ def check_links(root: Path) -> list[str]:
                 if parts.scheme in {"javascript", "vbscript", "data", "file"}:
                     problems.append(f"{label}: unsafe URL scheme {parts.scheme!r}")
                     continue
+                # urlsplit() accepts malformed links such as https:example.org,
+                # https:///example.org and out-of-range ports. A present scheme
+                # alone is not proof of a usable external HTTP(S) destination.
+                if parts.scheme in {"http", "https"}:
+                    try:
+                        hostname = parts.hostname
+                        _ = parts.port  # raises ValueError for malformed ports
+                    except ValueError:
+                        hostname = None
+                    if (
+                        not address.lower().startswith(parts.scheme + "://")
+                        or not hostname
+                        or any(char.isspace() or char == "\\" for char in address)
+                    ):
+                        problems.append(f"{label}: malformed HTTP(S) URL")
+                        continue
+                    if parts.username is not None or parts.password is not None:
+                        problems.append(f"{label}: credentials in HTTP(S) URL")
+                        continue
                 if parts.scheme or parts.netloc or address.startswith("//"):
                     continue
                 relative = unquote(parts.path)
