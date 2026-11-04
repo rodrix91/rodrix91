@@ -91,7 +91,7 @@ class PortfolioLinkTests(unittest.TestCase):
         problems = check_links(self.root)
         self.assertEqual(len(problems), 1, problems)
         self.assertIn("credentials in HTTP(S) URL", problems[0])
-        self.assertNotIn("secret", problems[0].split(": credentials in HTTP(S) URL")[-1])
+        self.assertNotIn("secret", problems[0], "CI logs must not echo URL passwords")
 
     def test_valid_ipv6_external_url_remains_ignored(self) -> None:
         self.write("README.md", "[valid](https://[::1]/path)\n")
