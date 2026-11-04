@@ -101,7 +101,7 @@ class PortfolioLinkTests(unittest.TestCase):
             "[credentials](//user:secret@example.org/private)\n"
             "[empty-host](///not-a-host)\n"
             "[bad-port](//example.org:70000/docs)\n"
-            "[backslash](//example.org\bad)\n"
+            "[backslash](//example.org\\bad)\n"
             "[missing-local](docs/absent.md)\n",
         )
         problems = check_links(self.root)
