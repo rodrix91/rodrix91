@@ -507,14 +507,32 @@ def check_links(root: Path) -> list[str]:
                         continue
                 if parts.scheme or parts.netloc or address.startswith("//"):
                     continue
-                relative = unquote(parts.path)
-                target = (source.parent / relative).resolve() if relative else source
+                # Percent-decoding must not silently substitute U+FFFD for
+                # malformed UTF-8: that could turn an invalid link into the
+                # name of a different, existing local file or heading.
+                try:
+                    relative = unquote(parts.path, errors="strict")
+                    fragment = unquote(parts.fragment, errors="strict")
+                except UnicodeDecodeError:
+                    problems.append(f"{label}: invalid UTF-8 in local URL")
+                    continue
+                # Path.resolve() raises ValueError for a decoded NUL. Treat
+                # control-character links as actionable errors and keep
+                # checking subsequent links instead of crashing CI.
+                if any(ord(char) < 32 or ord(char) == 127 for char in relative):
+                    problems.append(f"{label}: control character in local path")
+                    continue
+                try:
+                    target = (source.parent / relative).resolve() if relative else source
+                except (OSError, ValueError, RuntimeError):
+                    problems.append(f"{label}: invalid local file path")
+                    continue
                 if not target.is_relative_to(root):
                     problems.append(f"{label}: path escapes repository")
                 elif not target.is_file():
                     problems.append(f"{label}: missing local file")
                 elif parts.fragment and target.suffix.lower() == ".md":
-                    fragment = _github_lower(unquote(parts.fragment))
+                    fragment = _github_lower(fragment)
                     if fragment not in _anchors(target.read_text(encoding="utf-8")):
                         problems.append(f"{label}: unknown Markdown heading #{fragment}")
     return problems
