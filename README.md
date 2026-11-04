@@ -20,6 +20,8 @@ I build reproducible Python tools and browser-based reference projects focused o
 
 These are **independent, reproducible portfolio examples**. They do not imply a deployed customer integration, commercial adoption or certified installations.
 
+**For operations leaders and recruiters:** [Read the operations decision brief](docs/operations-decision-brief.md) for business checkpoints, explicit go/no-go review criteria and accountable decision-making. The examples are synthetic and independently testable.
+
 **Reproducible CLI demonstrations:** [Three independent, pinned synthetic examples with automated checks](docs/portfolio-smoke-checks.md), including explicit UTF-8 subprocess output on Linux, Windows and macOS.
 
 **New to this portfolio?** [Start with the five-minute reviewer guide](docs/portfolio-review-guide.md) for reproducible examples, business questions and limitations. **¿Prefieres español?** [Consulta la guía de evaluación en español](docs/guia-portafolio-es.md), con comandos, resultados previstos y límites documentados.
