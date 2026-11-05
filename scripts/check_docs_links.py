@@ -391,9 +391,14 @@ class _HtmlLinks(HTMLParser):
         attribute = {"a": "href", "img": "src"}.get(tag)
         if attribute is None:
             return
+        # Browsers use only the first attribute with a given name, including
+        # a valueless one. HTMLParser preserves repeated attributes, so
+        # collecting later href/src values would invent phantom links.
         for name, value in attrs:
-            if name == attribute and value is not None:
-                self.urls.append((self.getpos()[0], value))
+            if name == attribute:
+                if value is not None:
+                    self.urls.append((self.getpos()[0], value))
+                break
 
 
 def _html_addresses(prose: list[tuple[int, str]]) -> dict[int, list[str]]:

@@ -88,6 +88,38 @@ class HtmlLinkTests(unittest.TestCase):
         self.assertIn("credentials in HTTP(S) URL", problems[1])
         self.assertNotIn("secret", " ".join(problems))
 
+    def test_duplicate_html_urls_use_only_the_first_attribute(self) -> None:
+        # HTMLParser returns repeated attribute names, but browsers ignore
+        # later values. False positives must not come from inert duplicates.
+        self.write(
+            "README.md",
+            '<a HREF="docs/guide.md" href="docs/phantom.md">Guide</a>\n'
+            '<img src="docs/image.svg" SRC="docs/ghost.svg">\n'
+            '<a href="docs/absent.md" HREF="docs/guide.md">Broken first</a>\n',
+        )
+        self.write("docs/guide.md", "# Guide\n")
+        self.write("docs/image.svg", "<svg />\n")
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("README.md:3:", problems[0])
+        self.assertIn("docs/absent.md", problems[0])
+        self.assertNotIn("phantom", " ".join(problems))
+        self.assertNotIn("ghost", " ".join(problems))
+
+    def test_valueless_first_html_attribute_shadows_later_url(self) -> None:
+        # A bare href/src is still the first attribute, not a reason to
+        # trust the second URL. Valid links elsewhere remain checked.
+        self.write(
+            "README.md",
+            '<a href HREF="docs/phantom.md">Not a link</a>\n'
+            '<img SRC src="docs/ghost.svg">\n'
+            '<a href="docs/missing.md">Real broken link</a>\n',
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("README.md:3:", problems[0])
+        self.assertIn("docs/missing.md", problems[0])
+
     def test_html_and_markdown_links_are_both_checked(self) -> None:
         self.write(
             "README.md",
