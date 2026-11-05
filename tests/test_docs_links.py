@@ -28,6 +28,51 @@ class PortfolioLinkTests(unittest.TestCase):
         self.write("docs/guide.md", "# Five-minute review\n[home](../README.md)\n")
         self.assertEqual(check_links(self.root), [])
 
+    def test_markdown_source_symlink_outside_checkout_is_rejected_before_read(self) -> None:
+        # Files in a checked-out repository can be symbolic links. A source
+        # that points outside the checkout must not be parsed or echoed.
+        with tempfile.TemporaryDirectory() as external:
+            private = Path(external) / "private-report.md"
+            private.write_text(
+                "[secret-value-in-private-file](nonexistent-private-target.md)\n",
+                encoding="utf-8",
+            )
+            self.write("README.md", "# Public portfolio\n")
+            linked = self.root / "docs" / "linked.md"
+            try:
+                linked.symlink_to(private)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"Cannot create file symlinks on this platform: {error}")
+            messages = check_links(self.root)
+            self.assertEqual(len(messages), 1, messages)
+            self.assertIn("linked.md", messages[0])
+            self.assertIn("Markdown source escapes repository", messages[0])
+            self.assertNotIn("secret-value-in-private-file", " ".join(messages))
+            self.assertNotIn("nonexistent-private-target.md", " ".join(messages))
+
+    def test_readme_symlink_outside_checkout_is_rejected_without_following(self) -> None:
+        with tempfile.TemporaryDirectory() as external:
+            private = Path(external) / "outside-readme.md"
+            private.write_text("[private](missing-secret.md)\n", encoding="utf-8")
+            try:
+                (self.root / "README.md").symlink_to(private)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"Cannot create file symlinks on this platform: {error}")
+            problems = check_links(self.root)
+            self.assertEqual(len(problems), 1, problems)
+            self.assertIn("README.md: Markdown source escapes repository", problems[0])
+            self.assertNotIn("missing-secret.md", problems[0])
+
+    def test_markdown_source_symlink_within_checkout_remains_supported(self) -> None:
+        self.write("README.md", "[guide](docs/guide.md#verified)\n")
+        self.write("docs/source.md", "# Verified\n")
+        linked = self.root / "docs" / "guide.md"
+        try:
+            linked.symlink_to(self.root / "docs" / "source.md")
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f"Cannot create file symlinks on this platform: {error}")
+        self.assertEqual(check_links(self.root), [])
+
     def test_missing_target_is_an_error(self) -> None:
         self.write("README.md", "[missing](docs/absent.md)\n")
         problems = check_links(self.root)

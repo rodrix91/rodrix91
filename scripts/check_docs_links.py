@@ -428,6 +428,18 @@ def check_links(root: Path) -> list[str]:
         if not source.is_file():
             problems.append(f"{source.relative_to(root)}: Markdown file is missing")
             continue
+        # The link-target checker already resolves symlinks before checking
+        # containment. Apply that same boundary to the Markdown *sources*
+        # before reading them. Otherwise docs/external.md or README.md can
+        # point outside the checkout and expose content in CI diagnostics.
+        try:
+            actual_source = source.resolve()
+        except (OSError, RuntimeError):
+            problems.append(f"{source.relative_to(root)}: invalid Markdown source path")
+            continue
+        if not actual_source.is_relative_to(root):
+            problems.append(f"{source.relative_to(root)}: Markdown source escapes repository")
+            continue
 
         prose = list(_prose_lines(source.read_text(encoding="utf-8")))
         html_addresses = _html_addresses(prose)
