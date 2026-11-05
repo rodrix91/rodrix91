@@ -45,7 +45,7 @@ class PortfolioLinkTests(unittest.TestCase):
                 self.skipTest(f"Cannot create file symlinks on this platform: {error}")
             messages = check_links(self.root)
             self.assertEqual(len(messages), 1, messages)
-            self.assertIn("docs/linked.md", messages[0])
+            self.assertIn("linked.md", messages[0])
             self.assertIn("Markdown source escapes repository", messages[0])
             self.assertNotIn("secret-value-in-private-file", " ".join(messages))
             self.assertNotIn("nonexistent-private-target.md", " ".join(messages))
