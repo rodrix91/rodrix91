@@ -10,6 +10,8 @@ I build reproducible Python tools and browser-based reference projects focused o
 [![Profile documentation CI](https://github.com/rodrix91/rodrix91/actions/workflows/docs.yml/badge.svg)](https://github.com/rodrix91/rodrix91/actions/workflows/docs.yml)
 [![Synthetic portfolio demos](https://github.com/rodrix91/rodrix91/actions/workflows/portfolio-demos.yml/badge.svg)](https://github.com/rodrix91/rodrix91/actions/workflows/portfolio-demos.yml)
 
+> **Repository access:** `stack-registry` is currently private. Its source, workflow badge, and linked CI runs require repository access, so visitors without permission cannot independently inspect that project. For public review, start with [rodrix-agent-kits](https://github.com/rodrix91/rodrix-agent-kits) or the [five-minute reviewer guide](docs/portfolio-review-guide.md). This note does not change the registry's visibility or its historical engineering evidence.
+
 ## Start here: pick a review path
 
 | If you want to assess... | Start with | What you can verify |
