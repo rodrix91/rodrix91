@@ -6,6 +6,7 @@ network-free check of local pages and heading anchors.
 
 from __future__ import annotations
 
+import ipaddress
 import re
 from html.parser import HTMLParser
 from pathlib import Path
@@ -487,6 +488,9 @@ def check_links(root: Path) -> list[str]:
                 # the entire documentation check with an uncaught exception.
                 try:
                     parts = urlsplit(address)
+                    if "[" in parts.netloc or "]" in parts.netloc:
+                        host = parts.hostname or ""
+                        ipaddress.IPv6Address(host.split("%", 1)[0])
                 except ValueError as exc:
                     problems.append(f"{label}: invalid URL ({exc})")
                     continue
