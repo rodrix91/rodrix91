@@ -174,8 +174,25 @@ class PortfolioLinkTests(unittest.TestCase):
         self.assertIn("redacted external URL", problems[0])
 
     def test_valid_ipv6_external_url_remains_ignored(self) -> None:
-        self.write("README.md", "[valid](https://[::1]/path)\n")
+        self.write(
+            "README.md",
+            "[valid](https://[::1]/path)\n"
+            "[with-port](https://[2001:db8::1]:8443/docs)\n",
+        )
         self.assertEqual(check_links(self.root), [])
+
+    def test_malformed_ipv6_host_variants_are_rejected(self) -> None:
+        self.write(
+            "README.md",
+            "[non-hex](https://[2001:db8::gggg]/path)\n"
+            "[trailing-junk](https://[::1]extra/path)\n"
+            "[leading-junk](https://prefix[::1]/path)\n"
+            "[empty-brackets](https://[]/path)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 4, problems)
+        for problem in problems:
+            self.assertIn("invalid URL", problem)
 
     def test_external_links_and_fenced_examples_are_skipped(self) -> None:
         self.write(

@@ -488,9 +488,18 @@ def check_links(root: Path) -> list[str]:
                 # the entire documentation check with an uncaught exception.
                 try:
                     parts = urlsplit(address)
-                    if "[" in parts.netloc or "]" in parts.netloc:
-                        host = parts.hostname or ""
-                        ipaddress.IPv6Address(host.split("%", 1)[0])
+                    host_port = parts.netloc.rpartition("@")[2]
+                    if "[" in host_port or "]" in host_port:
+                        closing = host_port.find("]")
+                        suffix = host_port[closing + 1 :] if closing != -1 else ""
+                        if (
+                            not host_port.startswith("[")
+                            or closing == -1
+                            or "[" in host_port[1:]
+                            or (suffix and not suffix.startswith(":"))
+                        ):
+                            raise ValueError("Invalid IPv6 URL")
+                        ipaddress.IPv6Address(host_port[1:closing].split("%", 1)[0])
                 except ValueError as exc:
                     problems.append(f"{label}: invalid URL ({exc})")
                     continue
