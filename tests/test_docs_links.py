@@ -764,5 +764,40 @@ class PortfolioLinkTests(unittest.TestCase):
         )
         self.assertIn("missing local file", check_links(self.root)[0])
 
+
+    def test_unrecognized_uri_schemes_are_not_treated_as_safe_external_links(self) -> None:
+        self.write(
+            "README.md",
+            "[ftp](ftp://example.org/file)\n"
+            "[blob](blob:https://example.org/item)\n"
+            "[editor](vscode://file/path)\n"
+            "[ssh](ssh://user:private-token@example.org/repo)\n"
+            "[missing](docs/absent.md)\n"
+            "[email](mailto:hello@example.org)\n"
+            "[telephone](tel:+12025550123)\n"
+            "[web](https://example.org/docs)\n",
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 5, problems)
+        for scheme, problem in zip(("ftp", "blob", "vscode", "ssh"), problems[:4], strict=True):
+            self.assertIn(f"unsupported URL scheme '{scheme}'", problem)
+        self.assertIn("missing local file", problems[-1])
+        self.assertNotIn("private-token", " ".join(problems))
+
+    def test_unknown_schemes_are_blocked_in_reference_and_html_links(self) -> None:
+        self.write(
+            "README.md",
+            "[download][remote]\n"
+            "[remote]: sftp://user:private-key@example.org/report\n"
+            '<a href="smb://user:private-key@example.org/share">remote</a>\n'
+            '<img src="webcal://example.org/calendar" alt="calendar">\n',
+        )
+        problems = check_links(self.root)
+        self.assertEqual(len(problems), 3, problems)
+        for scheme, problem in zip(("sftp", "smb", "webcal"), problems, strict=True):
+            self.assertIn(f"unsupported URL scheme '{scheme}'", problem)
+        self.assertNotIn("private-key", " ".join(problems))
+
+
 if __name__ == "__main__":
     unittest.main()
