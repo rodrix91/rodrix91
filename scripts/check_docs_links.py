@@ -510,6 +510,15 @@ def check_links(root: Path) -> list[str]:
                 if parts.scheme in {"javascript", "vbscript", "data", "file"}:
                     problems.append(f"{label}: unsafe URL scheme {parts.scheme!r}")
                     continue
+                # Do not treat an arbitrary URI scheme as a trustworthy external
+                # link. Unrecognized schemes can open local applications or carry
+                # embedded credentials. Emit only the scheme in diagnostics.
+                if parts.scheme and parts.scheme not in {"http", "https", "mailto", "tel"}:
+                    problems.append(
+                        f"{source.relative_to(root)}:{line_number}: "
+                        f"unsupported URL scheme {parts.scheme!r}"
+                    )
+                    continue
                 # urlsplit() accepts malformed links such as https:example.org,
                 # https:///example.org and out-of-range ports. A present scheme
                 # alone is not proof of a usable external HTTP(S) destination.
