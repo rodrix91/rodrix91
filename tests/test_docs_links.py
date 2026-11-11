@@ -779,7 +779,7 @@ class PortfolioLinkTests(unittest.TestCase):
         )
         problems = check_links(self.root)
         self.assertEqual(len(problems), 5, problems)
-        for scheme, problem in zip(("ftp", "blob", "vscode", "ssh"), problems, strict=True):
+        for scheme, problem in zip(("ftp", "blob", "vscode", "ssh"), problems[:4], strict=True):
             self.assertIn(f"unsupported URL scheme '{scheme}'", problem)
         self.assertIn("missing local file", problems[-1])
         self.assertNotIn("private-token", " ".join(problems))
