@@ -101,6 +101,12 @@ For deeper technical decisions, limitations, formulas, regression evidence, and 
 - Open-source contributions where I can add concrete value
 - Data quality for logistics, supply chain and trade datasets
 
+**Package versions and pending releases (as of 15 November 2026):**
+
+- `csv-quality-report` main declares **0.24.0**. Latest published GitHub release remains **v0.21.0**. Historical **v0.22.0** is tracked in [issue #163](https://github.com/rodrix91/csv-quality-report/issues/163); **v0.23.0** and **v0.24.0** are tracked in [issue #298](https://github.com/rodrix91/csv-quality-report/issues/298). These must target exact historical commits, not current main.
+- `ops-field-brief` is at **0.3.0**. It has no public GitHub releases; the first release is tracked in [issue #16](https://github.com/rodrix91/ops-field-brief/issues/16).
+- `inventory-policy-lab` is at **0.10.0** and has a published [v0.10.0 release](https://github.com/rodrix91/inventory-policy-lab/releases/tag/v0.10.0).
+
 ## Languages & tools
 
 Python · pytest · Ruff · mypy · JavaScript/TypeScript · Node.js · Astro · Git · GitHub Actions · Markdown · CSV/data workflows · R
