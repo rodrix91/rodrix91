@@ -43,6 +43,8 @@ These are **independent, reproducible portfolio examples**. They do not imply a 
 
 These are **historical CI-verified snapshots from 31 October 2026**, not a live count of tests, stars, downloads, adoption, or production deployments. For the current build status, use the CI badges and workflow links above. The historical milestones and reproducible case studies remain documented below.
 
+**Current package versions on main (21 November 2026):** [csv-quality-report](https://github.com/rodrix91/csv-quality-report) 0.25.0 (Unreleased includes `--forbid-untrimmed`; latest tagged release remains [v0.21.0](https://github.com/rodrix91/csv-quality-report/releases/tag/v0.21.0); historical v0.22.0 tracked in [issue #163](https://github.com/rodrix91/csv-quality-report/issues/163); v0.23.0 and v0.24.0 in [issue #298](https://github.com/rodrix91/csv-quality-report/issues/298); v0.25.0 unreleased), [ops-field-brief](https://github.com/rodrix91/ops-field-brief) 0.3.0 (no GitHub release yet, [issue #16](https://github.com/rodrix91/ops-field-brief/issues/16)), [inventory-policy-lab](https://github.com/rodrix91/inventory-policy-lab) 0.10.0. These are source versions on main, not claims of published releases or adoption.
+
 Python **3.14 is now explicitly listed in the package metadata** of all three projects, after passing their Linux, Windows and macOS test matrices. Python 3.10 remains supported by `ops-field-brief`; the other two projects require Python 3.11 or newer. These are tested compatibility claims, not claims of deployment or adoption.
 
 | Repository | Verified evidence | Recent improvement |
