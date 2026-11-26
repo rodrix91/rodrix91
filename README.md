@@ -62,6 +62,8 @@ The three Python projects are intentionally complementary: profile data quality,
 
 Across the three Python projects, GitHub Actions dependencies are pinned by commit SHA. Current release workflows are configured to produce SHA-256 checksums and GitHub/Sigstore provenance attestations for new wheel and source-distribution releases; these guarantees are not retroactive to older releases. `ops-field-brief` has not yet published its first GitHub release (tracked in [issue #16](https://github.com/rodrix91/ops-field-brief/issues/16)).
 
+Current main package versions (verified 2026-11-26): csv-quality-report 0.25.0 (latest tagged release v0.21.0; historical v0.22.0 still missing via [issue #163](https://github.com/rodrix91/csv-quality-report/issues/163); v0.23.0 and v0.24.0 via [issue #298](https://github.com/rodrix91/csv-quality-report/issues/298); v0.25.0 unreleased with Unreleased gates `--forbid-untrimmed`, `--require-when` and `--forbid-lost-zeros`); ops-field-brief 0.3.0 (no releases, [issue #16](https://github.com/rodrix91/ops-field-brief/issues/16)); inventory-policy-lab 0.10.0 (latest tag v0.10.0).
+
 ## Explore my projects
 
 ### [csv-quality-report](https://github.com/rodrix91/csv-quality-report)
